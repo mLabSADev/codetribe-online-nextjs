@@ -11,7 +11,7 @@ const CourseCard = ({ course }: { course: Course }) => {
     const router = useRouter()
 
     const handleClick = () => {
-      router.push(`/home/overview/${course.key}`)
+      router.push(`/overview/${course.key}`)
     }
 
     const share = () => {}

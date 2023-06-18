@@ -1,13 +1,13 @@
 'use client'
 
 import React, { useEffect, useState } from "react"
-import { AuthService } from "../services/auth-service"
 import { useRouter } from "next/navigation"
 import { Avatar, Stack } from "@mui/material"
 import { Divider, Typography } from "antd"
-import StudentProgress from "../components/student-progress"
-import ResourceCards, { BackendCard } from "../components/resources"
-import TutorialListing from "../components/tutorial-listing"
+import { AuthService } from "@/app/services/auth-service"
+import StudentProgress from "@/app/components/student-progress"
+import TutorialListing from "@/app/components/tutorial-listing"
+import ResourceCards, { BackendCard } from "@/app/components/resources"
 
 export default () => {
   const [loading, setLoading] = useState(false)

@@ -17,11 +17,11 @@ import {
     Alert,
   } from "antd"
   import React, { useEffect, useState } from "react"
-  import Drawer from "../components/drawer"
-  import EditProfile from "../modals/edit-profile"
-  import { AuthService } from "../services/auth-service"
   import MenuIcon from "@mui/icons-material/Menu"
   import { Button, IconButton } from "@mui/material"
+import { AuthService } from "@/app/services/auth-service"
+import Drawer from "@/app/components/drawer"
+import EditProfile from "@/app/modals/edit-profile"
   
   interface IPageLayout {
     children: any

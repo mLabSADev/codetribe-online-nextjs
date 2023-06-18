@@ -93,6 +93,8 @@ export const CoursesService = {
       .once("value")
       .then(snapshot => {
         const value = snapshot.val()
+        console.log(value);
+        
 
         value.chapters = Object.keys(value.chapters)
           .map(key => {
@@ -104,6 +106,7 @@ export const CoursesService = {
                 .map(lessonKey => {
                   return {
                     key: lessonKey,
+                    chapterKey: key,
                     ...value.chapters[key].lessons[lessonKey],
                   }
                 })
