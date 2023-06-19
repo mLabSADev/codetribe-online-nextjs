@@ -20,12 +20,12 @@ import {
 import { IconButton, Stack, Typography } from "@mui/material"
 import Course from "@/app/dtos/course"
 import Lesson from "@/app/dtos/lesson"
-import { Position } from "../../../../overview/[id]/page"
 import { LessonService } from "@/app/services/lesson-service"
 import { CoursesService } from "@/app/services/courses-service"
 import Link from "next/link"
 import Quiz from "@/app/components/quiz"
 import { useRouter } from "next/navigation"
+import { Position } from "@/app/(pages)/(student)/overview/[id]/page"
 
 export const DurationHelper = {
   secondsToText: (seconds: number) => {

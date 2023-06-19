@@ -159,16 +159,16 @@ import { useRouter } from "next/navigation"
               Browse
             </MenuButton>
           )}
-          <MenuButton
+          {/* <MenuButton
             to={"/webinars"}
             icon={<VideoCameraAddOutlined />}
             active={active === "webinars"}
           >
             Webinars
-          </MenuButton>
+          </MenuButton> */}
           {profile?.isAdmin && (
             <MenuButton
-              to={"/students"}
+              to={"/admin/students"}
               icon={<UserOutlined />}
               active={active === "students"}
             >
@@ -177,7 +177,7 @@ import { useRouter } from "next/navigation"
           )}
           {profile?.isAdmin && (
             <MenuButton
-              to={"/courses"}
+              to={"/admin/courses"}
               icon={<VideoCameraOutlined />}
               active={active === "courses"}
             >
