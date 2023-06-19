@@ -4,9 +4,13 @@ import { AuthService } from '../services/auth-service';
 import { PlusOutlined } from '@ant-design/icons';
 import { CoursesService } from '../services/courses-service';
 import Lesson from '../dtos/lesson';
+import Chapter from '../dtos/chapter';
+import Course from '../dtos/course';
 
-const CreateEditLesson = ({ lesson, onCancel }: {
+const CreateEditLesson = ({ lesson, onCancel, chapter, course }: {
     lesson?: Lesson | null | undefined
+    chapter?: Chapter | null | undefined
+    course?: Course
     onCancel: () => void
 }) => {
     const [saving, setSaving] = useState(false)
@@ -16,11 +20,11 @@ const CreateEditLesson = ({ lesson, onCancel }: {
 
     const [fileList, setFileList] = useState([])
 
-    const save = (lesson: any) => {
+    const save = (lessonToSave: Lesson) => {
 
-        if (fileList.length > 0) {
-            setSaving(true)
-            setErrorMessage(null)
+        // if (fileList.length > 0) {
+        //     setSaving(true)
+        //     setErrorMessage(null)
 
             // return CoursesService.saveCourse({
             //     ...lesson,
@@ -33,8 +37,23 @@ const CreateEditLesson = ({ lesson, onCancel }: {
             // }).finally(() => {
             //     setSaving(false)
             // })
-        }
+        // }
         
+        if (lesson) {
+
+        } else {
+            console.log(chapter);
+            console.log(lessonToSave);
+            
+            setSaving(true)
+            setErrorMessage(null)
+
+            return CoursesService.saveLesson(course!.key, chapter!, lessonToSave).then(() => {
+                setSaving(false)
+            }).catch(err => {
+                setErrorMessage(err.message)
+            })
+        }
     }
 
     return (

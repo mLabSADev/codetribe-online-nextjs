@@ -5,6 +5,7 @@ interface Chapter {
     chapter: number
     lessons: Lesson[]
     key: string
+    courseKey: string
 }
 
 export default Chapter

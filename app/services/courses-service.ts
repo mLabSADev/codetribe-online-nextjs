@@ -1,6 +1,8 @@
 import firebase from "firebase"
 import Course from "../dtos/course"
 import Lesson from "../dtos/lesson"
+import Chapter from "../dtos/chapter"
+import axios from "axios"
 
 const getBase64 = (file: any) =>
   new Promise((resolve, reject) => {
@@ -15,6 +17,86 @@ const getBase64 = (file: any) =>
   })
 
 export const CoursesService = {
+  removeLesson: (courseId: string, chapter: Chapter, lesson: Lesson) => {
+    let lessons: any = {}
+    for (let l of chapter.lessons) {
+      if (l.lesson <= lesson.lesson) {
+        l.lesson -= 1
+
+        if (lesson.key !== l.key) {
+          lessons[l.key] = l
+        }
+      }
+    }
+
+    console.log(lessons);
+    delete lessons[lesson.key]
+    console.log(lessons);
+    
+
+    return firebase.database().ref(`courses/${courseId}/chapters/${chapter.key}/lessons`).set(lessons)
+  },
+
+  moveLessonUp: (courseId: string, chapter: Chapter, lesson: Lesson) => {
+    let lessons: any = {}
+    for (let l of chapter.lessons) {
+      if (l.lesson <= lesson.lesson) {
+        l.lesson -= 1
+
+        lessons[l.key] = l
+      }
+    }
+
+    return firebase.database().ref(`courses/${courseId}/chapters/${chapter.key}/lessons`).set(lessons)
+  },
+
+  saveLesson: (courseId: string, chapter: Chapter, lesson: Lesson, currentLessonId?: string) => {
+    
+
+    if (!currentLessonId) {
+      let lastLesson = 0
+
+      if (chapter.lessons && chapter.lessons.length > 0) {
+        for (let l of chapter.lessons) {
+          if (l.lesson > lastLesson) {
+            lastLesson = l.lesson
+          }
+        }
+  
+        lesson.lesson = lastLesson + 1
+      }
+    }
+    
+
+    lesson.chapter = chapter.chapter
+
+    const videoSplit = lesson.videoUrl.split('/')
+    const videoId = videoSplit[videoSplit.length - 1]
+
+    const url = `https://www.googleapis.com/youtube/v3/videos?id=${videoId}&part=contentDetails&key=AIzaSyCSvPQ3-fpuAYGljNEBCrWTVO-yO9tepaU`
+
+    return axios.get(url).then(result => {
+      const duration = result.data.items[0].contentDetails.duration
+        .split('PT').join('')
+        .split('M').join(':')
+        .split('S').join('')
+
+        if (currentLessonId) {
+          return firebase.database().ref(`courses/${courseId}/chapters/${chapter.key}/lessons/${currentLessonId}`).update({
+            ...lesson,
+            duration: duration
+          })
+        } else {
+          return firebase.database().ref(`courses/${courseId}/chapters/${chapter.key}/lessons`).push().set({
+            ...lesson,
+            duration: duration
+          })
+        }
+      
+    })
+
+    
+  },
   saveCourse: (course: Course, file: string) => {
     console.log(course)
     console.log(file)
