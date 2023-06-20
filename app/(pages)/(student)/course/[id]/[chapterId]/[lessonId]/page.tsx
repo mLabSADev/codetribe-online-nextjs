@@ -157,6 +157,8 @@ export default ({
 
         for (let lesson of lessons) {
           if (lesson.key === lessonId) {
+            console.log(lesson);
+
             setLesson(lesson);
           }
           if (
@@ -356,11 +358,13 @@ export default ({
     let splitter = currentURL.split("/");
     const submission = {
       location: "",
-      chapter: submitChapter,
+      chapter: values.chapter,
       course: splitter[4],
       fullName: "",
       ...values,
     };
+    console.log(submission);
+
     AuthService.currentUser().then((res) => {
       setUser(res);
       submission.fullName = `${res.firstname} ${res.lastname}`;
@@ -386,90 +390,97 @@ export default ({
     const items = pathname.split("/");
     const submission = {
       location: data.location,
-      chapter: splitter[5],
+      chapter: data.location,
       course: splitter[4],
       fullName: "",
       ...data,
     };
-    AuthService.isLoggedIn().then((res) => {
-      AuthService.getUser(res.uid).then((user) => {
-        // assessmens/submissions/${items[2]}/${splitter[5]}/${user.location || user.groups[0]}/${res.uid}
-        const values: AssessmentSubmission = {
-          course: "",
-          chapter: "",
-          fullName: "",
-          github: "",
-          location: "",
-          submitted: "",
-          uid: "",
-        };
+    console.log(submission);
 
-        console.log(
-          `Get submissions from "assessmens/submissions/${items[2]}/${
-            splitter[5]
-          }/${user.location || user.groups[0]}/${res.uid}"`,
-          {
-            user,
-          }
-        );
-      });
-    });
+    // AuthService.isLoggedIn().then((res) => {
+    //   AuthService.getUser(res.uid).then((user) => {
+    //     // assessmens/submissions/${items[2]}/${splitter[5]}/${user.location || user.groups[0]}/${res.uid}
+    //     const values: AssessmentSubmission = {
+    //       course: "",
+    //       chapter: "",
+    //       fullName: "",
+    //       github: "",
+    //       location: "",
+    //       submitted: "",
+    //       uid: "",
+    //     };
+
+    //     console.log(
+    //       `Get submissions from "assessmens/submissions/${items[2]}/${
+    //         splitter[5]
+    //       }/${user.location || user.groups[0]}/${res.uid}"`,
+    //       {
+    //         user,
+    //       }
+    //     );
+    //   });
+    // });
+  };
+  const RunAssessmentFunc = (data) => {
+    Assessment.getOne({ course: data.course, chapter: data.chapter }).then(
+      (res) => {
+        console.log(res);
+
+        if (res) {
+          // assessment available
+          AuthService.currentUser().then((profile) => {
+            // get current signed in user location
+            var location = "";
+            if (profile.location) {
+              location = profile.location;
+            } else {
+              location = profile.groups[0];
+            }
+            AuthService.isLoggedIn().then((res) => {
+              console.log(data);
+
+              // check if subbission was done for each chapter
+              Assessment.getOneSubmission({
+                course: data.course,
+                chapter: data.chapter,
+                location: location,
+              }).then((data) => {
+                if (data) {
+                  if (submissions.length <= course!.chapters.length) {
+                    submissions.push({ show: "submitted" });
+                    setSubmissions(submissions);
+                    console.log(submissions);
+                  }
+                } else {
+                  if (submissions.length <= course!.chapters.length) {
+                    submissions.push({ show: "notsubmitted" });
+                    setSubmissions(submissions);
+                    console.log(submissions, {
+                      d: submissions.length,
+                      b: course!.chapters.length,
+                    });
+                  }
+                }
+              });
+            });
+          });
+        } else {
+          submissions.push({ show: "undefined" });
+          setSubmissions(submissions);
+          console.log(submissions);
+        }
+      }
+    );
   };
   useEffect(() => {}, []);
+
   return (
-    currentLesson && (
+    currentLesson?.key && (
       <Stack position={"relative"}>
-        <Modal
-          footer={false}
-          title={"Assessment Submission"}
-          open={showAssessmentSubmission}
-          onOk={() => setShowAssessmentSubmission(false)}
-          onCancel={() => setShowAssessmentSubmission(false)}
-        >
-          <Form
-            name="basic"
-            labelCol={{ span: 5 }}
-            // wrapperCol={{ span: 16 }}
-            style={{ maxWidth: 600 }}
-            initialValues={{ remember: true }}
-            onFinish={onFinish}
-            onFinishFailed={onFinishFailed}
-            autoComplete="off"
-          >
-            <Form.Item
-              label="Github URL"
-              name="github"
-              rules={[
-                {
-                  required: true,
-                  message: "Link to Github Projet is required!",
-                },
-              ]}
-            >
-              <Input />
-            </Form.Item>
-
-            {/* <Form.Item
-            label="Site URL"
-            name="site"
-            rules={[
-              { required: false, message: "Please input your password!" },
-            ]}
-          >
-            <Input />
-          </Form.Item> */}
-
-            <Form.Item>
-              <Button type="primary" htmlType="submit">
-                Submit
-              </Button>
-            </Form.Item>
-          </Form>
-        </Modal>
         {/* <SEO
-        title={post.frontmatter.title}
-        description={post.frontmatter.description}
-      /> */}
+title={post.frontmatter.title}
+description={post.frontmatter.description}
+/> */}
         <Stack
           flex={1}
           p={2}
@@ -539,30 +550,30 @@ export default ({
               <div style={{ marginTop: 0 }}>
                 <Row>
                   {/* {course?.outline?.map(overview => {
-                    return (
-                      <Col xs={24} sm={24} md={12}>
-                        <div
-                          style={{
-                            background: "#dfdfdf",
-                            borderRadius: 20,
-                            padding: 20,
-                            marginBottom: 20,
-                            marginRight: 20,
-                            display: "flex",
-                            alignItems: "center",
-                          }}
-                        >
-                          <CheckOutlined
-                            style={{
-                              marginRight: 15,
-                              color: "green",
-                            }}
-                          />
-                          {overview}
-                        </div>
-                      </Col>
-                    )
-                  })} */}
+        return (
+          <Col xs={24} sm={24} md={12}>
+            <div
+              style={{
+                background: "#dfdfdf",
+                borderRadius: 20,
+                padding: 20,
+                marginBottom: 20,
+                marginRight: 20,
+                display: "flex",
+                alignItems: "center",
+              }}
+            >
+              <CheckOutlined
+                style={{
+                  marginRight: 15,
+                  color: "green",
+                }}
+              />
+              {overview}
+            </div>
+          </Col>
+        )
+      })} */}
                 </Row>
               </div>
 
@@ -635,37 +646,12 @@ export default ({
                 }
                 const chapterTotalDurationText =
                   DurationHelper.secondsToText(chapterTotalDuration);
+
+                // Keketso
                 const { pathname } = window.location;
                 const c = pathname.split("/")[2];
-                const ck = chapter.key;
-                // check if subbission was done for each chapter
-                AuthService.currentUser().then((profile) => {
-                  var location = "";
-                  if (profile.location) {
-                    location = profile.location;
-                  } else {
-                    location = profile.groups[0];
-                  }
-                  AuthService.isLoggedIn().then((res) => {
-                    Assessment.getOneSubmission({
-                      course: c,
-                      chapter: ck,
-                      location: location,
-                    }).then((data) => {
-                      if (data) {
-                        if (submissions.length <= course!.chapters.length - 1) {
-                          submissions.push({ show: true });
-                          setSubmissions(submissions);
-                        }
-                      } else {
-                        if (submissions.length <= course!.chapters.length - 1) {
-                          submissions.push({ show: false });
-                          setSubmissions(submissions);
-                        }
-                      }
-                    });
-                  });
-                });
+                RunAssessmentFunc({ course: c, chapter: chapter.title });
+                // check if chapter has an assessment
 
                 return (
                   <Collapse.Panel
@@ -722,16 +708,17 @@ export default ({
                             >
                               {lesson.title}
                               {/* (
-                              {DurationHelper.timeFormatToText(
-                                lesson.frontmatter.duration
-                              )}
-                              ) */}
+                  {DurationHelper.timeFormatToText(
+                    lesson.frontmatter.duration
+                  )}
+                  ) */}
                             </Link>
                           </Timeline.Item>
                         );
                       })}
                     </Timeline>
-                    {submissions[i]?.show ? (
+                    {/* student submitted assessment */}
+                    {submissions[i]?.show === "submitted" && (
                       <Stack
                         bgcolor={"green"}
                         sx={{ color: "white" }}
@@ -748,26 +735,56 @@ export default ({
                           </Stack>
                         </Stack>
                       </Stack>
-                    ) : (
+                    )}
+                    {/* student did not submit assessment */}
+                    {submissions[i]?.show === "notsubmitted" && <></>}
+                    <Stack spacing={2}>
+                      <Typography variant="subtitle1">
+                        Complete Assessment
+                      </Typography>
+                      <Form
+                        name="basic"
+                        // wrapperCol={{ span: 16 }}
+                        initialValues={{
+                          remember: true,
+                        }}
+                        onFinish={(values) => {
+                          onFinish({ ...values, chapter: chapter.title });
+                        }}
+                        onFinishFailed={onFinishFailed}
+                        autoComplete="off"
+                      >
+                        <Form.Item
+                          label="Github URL"
+                          name="github"
+                          rules={[
+                            {
+                              required: true,
+                              message: "Link to Github Projet is required!",
+                            },
+                          ]}
+                        >
+                          <Input placeholder="https://github.com/.../..." />
+                        </Form.Item>
+                        <Form.Item>
+                          <Button type="primary" htmlType="submit">
+                            Submit
+                          </Button>
+                        </Form.Item>
+                      </Form>
+                    </Stack>
+                    {/* no assessment created */}
+                    {submissions[i]?.show === "undefined" && (
                       <Stack spacing={2}>
                         <Typography variant="subtitle1">
-                          Complete Assessment
+                          No Assessment
                         </Typography>
-                        <Button
-                          disabled={submitted}
-                          onClick={() => {
-                            setShowAssessmentSubmission(true);
-                            setSubmitChapter(chapter.key);
-                          }}
-                        >
-                          Submit Assessment
-                        </Button>
                       </Stack>
                     )}
                     {/* Student assessment submission */}
                     {/* {checkSubmitted().then((res) => {
-                      return <Typography>Graeae</Typography>;
-                    })} */}
+          return <Typography>Graeae</Typography>;
+        })} */}
 
                     <Divider />
                   </Collapse.Panel>

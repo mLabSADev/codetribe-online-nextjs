@@ -24,53 +24,25 @@ export const Assessment = {
     /**
      * @param {*} id doc id
      */
-    getOne: (id: string) => {
-        return firebase
-            .database()
-            .ref(`assessments/${id}`)
-            .once("value")
-            .then(snapshot => {
-                const value = snapshot.val()
-
-                value.chapters = Object.keys(value.chapters)
-                    .map(key => {
-                        return {
-                            key,
-                            ...value.chapters[key],
-                            lessons: Object.keys(value.chapters[key].lessons)
-                                .map(lessonKey => {
-                                    return {
-                                        key: lessonKey,
-                                        ...value.chapters[key].lessons[lessonKey],
-                                    }
-                                })
-                                .sort((a, b) => {
-                                    if (a.lesson < b.lesson) {
-                                        return -1
-                                    } else {
-                                        return 1
-                                    }
-                                }),
-                        }
-                    })
-                    .sort((a, b) => {
-                        if (a.chapter < b.chapter) {
-                            return -1
-                        } else {
-                            return 1
-                        }
-                    })
-
-                return value
-            })
+    getOne: (data) => {
+        return new Promise((res, rej) => {
+            firebase
+                .database()
+                .ref(`assessments/${data.course}/${data.chapter}`)
+                .once("value")
+                .then(snapshot => {
+                    res(snapshot.val())
+                })
+        })
     },
     /**
      * @param {*} data form data
      */
     add: (data: Assessment) => {
-        return firebase.database().ref(`assessments/${data.course}`).push({
+        return firebase.database().ref(`assessments/${data.course}/${data.lesson}`).set({
             title: data.title,
             content: data.content,
+            lesson: data.lesson,
             created: new Date().toISOString(),
         })
     },
@@ -101,7 +73,7 @@ export const Assessment = {
             AuthService.isLoggedIn().then((user: any) => {
                 firebase
                     .database()
-                    .ref(`assessments/submissions/${values.course}/${values.chapter}/${values.location}/${user.uid}`)
+                    .ref(`assessments/submissions/${values.course}/${values.chapter}/${user.uid}`)
                     .set({ ...values, submitted: new Date().toISOString() }).then(data => {
                         res(data)
                     })
@@ -119,7 +91,7 @@ export const Assessment = {
             AuthService.isLoggedIn().then((user: any) => {
                 firebase
                     .database()
-                    .ref(`assessments/submissions/${data.course}/${data.chapter}/${data.location}/${user.uid}`)
+                    .ref(`assessments/submissions/${data.course}/${data.chapter}/${user.uid}`)
                     .get().then(data => {
                         res(data.val())
                     })
@@ -137,7 +109,7 @@ export const Assessment = {
                 .database()
                 .ref(`assessments/submissions/${data.course}`)
                 .get().then(data => {
-                    res(data)
+                    res(data.val())
                 })
         })
     },
@@ -151,13 +123,20 @@ export const Assessment = {
                 })
         })
     },
-    getAllSubmissionsByLocation: (course: string) => {
+    // /assessments/submissions
+    getAllSubmissionsByLocation: (data) => {
         return new Promise((res, rej) => {
             firebase
                 .database()
-                .ref(`assessments/submissions/${data.course}/${data.chapter}/${data.location}}`)
+                .ref(`assessments/submissions/${data.course}/${data.chapter}`)
+                .orderByChild('location')
+                .equalTo(data.location)
                 .get().then(data => {
-                    res(data)
+                    console.log(" >>>>> ", data.val());
+                    res(data.val())
+                }).catch(err => {
+                    rej(err);
+
                 })
         })
     }

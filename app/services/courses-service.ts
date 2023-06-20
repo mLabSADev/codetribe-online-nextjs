@@ -173,9 +173,6 @@ export const CoursesService = {
       .once("value")
       .then(snapshot => {
         const value = snapshot.val()
-        console.log(value);
-
-
         value.chapters = Object.keys(value.chapters)
           .map(key => {
             const lessons = value?.chapters[key]?.lessons

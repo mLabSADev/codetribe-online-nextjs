@@ -244,27 +244,22 @@ function Assessments() {
     getStudentsByLocation(location);
     getSubmissions(location);
   };
-  const getSubmissions = (location, course) => {
-    let d = {
-      location: location,
+  const getSubmissions = (data) => {
+    setSubmissions([]);
+    Assessment.getAllSubmissionsByLocation({
       course: courseInfo.course,
-    };
-    console.log(d);
-
-    if (courseInfo.course) {
-      Assessment.getSubmissions(d).then((res) => {
-        console.log(res);
-        if (res) {
-          setSubmissions([]);
-          for (const [key, value] of Object.entries(res)) {
-            console.log({ ...value, key: key });
-            setSubmissions((prev) => [...prev, { ...value, key: key }]);
-          }
-        } else {
-          setSubmissions([]);
-        }
+      chapter: courseInfo.chapter,
+      location: data,
+    })
+      .then((res) => {
+        Object.keys(res).map((item) => {
+          submissions.push({ ...res[item], key: item });
+          setSubmissions(submissions);
+        });
+      })
+      .catch((err) => {
+        console.log(err);
       });
-    }
   };
   useEffect(() => {
     getAssessments();
@@ -285,6 +280,7 @@ function Assessments() {
       res.groups.forEach((element, i) => {
         setAdminLocations((prev) => [...prev, { key: i + 1, label: element }]);
         getStudentsByLocation(element);
+        getSubmissions(adminLocations[0]);
         setTimeout(() => {
           console.log(courseInfo);
 
@@ -578,19 +574,21 @@ function Assessments() {
           style={{ borderRadius: 15, overflow: "hidden" }}
           defaultActiveKey={["0"]}
         >
-          {courses.map((course, i) => {
+          {assessments.map((course, i) => {
+            console.log(course);
+
             let list = []; // Compensating for the "-NXQR23Owma8MCvBYNm0" keys...
             let keys = []; // store keys for delete & update
-            // for (const [key, value] of Object.entries(course)) {
-            //   keys.push(key);
-            //   if (key !== "key") {
-            //     list.push({
-            //       content: course[key].content,
-            //       lesson: course[key].lesson,
-            //       title: course[key].title,
-            //     });
-            //   }
-            // }
+            for (const [key, value] of Object.entries(course)) {
+              keys.push(key);
+              if (key !== "key") {
+                list.push({
+                  content: course[key].content,
+                  lesson: course[key].lesson,
+                  title: course[key].title,
+                });
+              }
+            }
 
             // Collapsable
             return (
@@ -628,22 +626,7 @@ function Assessments() {
 
                 {/* Assessment Cards */}
                 <Stack gap={1} direction={"row"} flexWrap={"wrap"}>
-                  {Object.keys(course.chapters).map((chapter, i) => {
-                    const content = {
-                      ...course.chapters[chapter],
-                      key: chapter,
-                    };
-                    Assessment.getAllSubmissionsByChapter({
-                      course: course.key,
-                      chapter: chapter,
-                    }).then((res) => {
-                      if (res) {
-                        Object.keys(res).map((data) => {
-                          console.log(res[data]);
-                        });
-                        console.log(" >>>> ", course.key, ":", res);
-                      }
-                    });
+                  {list.map((item, i) => {
                     return (
                       <Card
                         hoverable
@@ -652,25 +635,25 @@ function Assessments() {
                         actions={[
                           // Edit
                           <Button
-                            // onClick={() => {
-                            //   setUpdating(true); //set form state
-                            //   form.setFieldValue("course", course.key);
-                            //   form.setFieldValue("title", item.title);
-                            //   form.setFieldValue("lesson", item.lesson);
-                            //   console.log(course);
+                            onClick={() => {
+                              setUpdating(true); //set form state
+                              form.setFieldValue("course", course.key);
+                              form.setFieldValue("title", item.title);
+                              form.setFieldValue("lesson", item.lesson);
+                              console.log(course);
 
-                            //   onCourseChange(course.key); // get options for cascader
-                            //   setUpdateEditorState(
-                            //     EditorState.createWithContent(
-                            //       convertFromRaw({
-                            //         entityMap: item.content.entityMap || {},
-                            //         blocks: item.content.blocks,
-                            //       })
-                            //     )
-                            //   );
-                            //   setAssessmentUpdateId(keys[i]);
-                            //   setOpenModal(true);
-                            // }}
+                              onCourseChange(course.key); // get options for cascader
+                              setUpdateEditorState(
+                                EditorState.createWithContent(
+                                  convertFromRaw({
+                                    entityMap: item.content.entityMap || {},
+                                    blocks: item.content.blocks,
+                                  })
+                                )
+                              );
+                              setAssessmentUpdateId(keys[i]);
+                              setOpenModal(true);
+                            }}
                             style={{ width: "100%" }}
                             type="text"
                             htmlType="button"
@@ -704,7 +687,7 @@ function Assessments() {
                         ]}
                       >
                         {/* Card content */}
-                        <Meta title={`${content.title}`} />
+                        <Meta title={`${item.title}`} />
                         <Stack pt={1} spacing={2}>
                           <Typography
                             variant="overline"
@@ -719,18 +702,18 @@ function Assessments() {
                             size="small"
                             type="link"
                             style={{ alignSelf: "flex-start" }}
-                            // onClick={() => {
-                            //   setAssessmentDetails({
-                            //     data: {
-                            //       entityMap: item.content.entityMap || {},
-                            //       blocks: item.content.blocks,
-                            //     },
-                            //     show: true,
-                            //     title: item.title,
-                            //     course: course.key,
-                            //   });
-                            //   console.log(item.content);
-                            // }}
+                            onClick={() => {
+                              setAssessmentDetails({
+                                data: {
+                                  entityMap: item.content.entityMap || {},
+                                  blocks: item.content.blocks,
+                                },
+                                show: true,
+                                title: item.title,
+                                course: course.key,
+                              });
+                              console.log(item.content);
+                            }}
                           >
                             more
                           </Button>
@@ -750,19 +733,19 @@ function Assessments() {
                             {/* Submissions */}
                             <Button
                               type="primary"
-                              // onClick={() => {
-                              //   console.log({
-                              //     course: course.key,
-                              //     chapter: item,
-                              //   });
-                              //   setSubmissions([]);
-                              //   setCourseInfo({
-                              //     course: course.key,
-                              //     chapter: item.title,
-                              //   });
-                              //   getSubmissions(user.groups[0], course.key);
-                              //   setShowSubs({ ...showSubs, show: true });
-                              // }}
+                              onClick={() => {
+                                console.log({
+                                  course: course.key,
+                                  chapter: item?.lesson[0],
+                                });
+                                setSubmissions([]);
+                                setCourseInfo({
+                                  course: course.key,
+                                  chapter: item?.lesson[0],
+                                });
+
+                                setShowSubs({ ...showSubs, show: true });
+                              }}
                             >
                               Submissions
                             </Button>
