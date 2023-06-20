@@ -1,123 +1,121 @@
-'use client'
+"use client";
 
-import React, { useEffect, useState } from "react"
+import React, { useEffect, useState } from "react";
 import {
   CheckCircleFilled,
   CheckCircleOutlined,
   CheckOutlined,
   LeftOutlined,
-} from "@ant-design/icons"
-import { Button, Col, Collapse, Row, Timeline } from "antd"
-import Lesson from "@/app/dtos/lesson"
-import { useRouter } from "next/navigation"
-import { CoursesService } from "@/app/services/courses-service"
-import Course from "@/app/dtos/course"
-import { LessonService } from "@/app/services/lesson-service"
-import Link from "next/link"
+} from "@ant-design/icons";
+import { Button, Col, Collapse, Row, Timeline } from "antd";
+import Lesson from "@/app/dtos/lesson";
+import { useRouter } from "next/navigation";
+import { CoursesService } from "@/app/services/courses-service";
+import Course from "@/app/dtos/course";
+import { LessonService } from "@/app/services/lesson-service";
+import Link from "next/link";
 
 export const DurationHelper = {
   secondsToText: (seconds: number) => {
-    let hours = Math.floor(seconds / (60 * 60))
-    seconds = seconds - hours * 60 * 60
+    let hours = Math.floor(seconds / (60 * 60));
+    seconds = seconds - hours * 60 * 60;
 
-    let min = Math.floor(seconds / 60)
-    seconds = seconds - min * 60
+    let min = Math.floor(seconds / 60);
+    seconds = seconds - min * 60;
 
     if (hours > 0) {
-      return `${hours} hour${hours > 1 ? "s" : ""} ${min} min`
+      return `${hours} hour${hours > 1 ? "s" : ""} ${min} min`;
     } else {
-      return `${min} min`
+      return `${min} min`;
     }
   },
   timeFormatToText: (time: string) => {
-    const [min, sec] = time.split(":")
+    const [min, sec] = time.split(":");
 
-    let total = 0
-    total += parseInt(min) * 60 + parseInt(sec)
+    let total = 0;
+    total += parseInt(min) * 60 + parseInt(sec);
 
-    return DurationHelper.secondsToText(total)
+    return DurationHelper.secondsToText(total);
   },
-}
+};
 
 export interface Position {
-    chapter: number
-    lesson: number
+  chapter: number;
+  lesson: number;
 }
 
-const CourseOverview = ({ params }: { params: { id: string }}) => {
-//   let currentChapter = post.frontmatter.chapter
-//   let currentLesson = post.frontmatter.lesson
+const CourseOverview = ({ params }: { params: { id: string } }) => {
+  //   let currentChapter = post.frontmatter.chapter
+  //   let currentLesson = post.frontmatter.lesson
   // const canGoBack = currentChapter > 0
-  let totalDuration
+  let totalDuration;
   // let totalDurationUntilCurrentLesson = 0;
   // let canGoForward
   // let title
   // let mainSlug
-  const [position, setPosition] = useState<Position>()
-  const [
-    totalDurationUntilCurrentLesson,
-    setTotalDurationUntilCurrentLesson,
-  ] = useState(0)
-  const [total, setTotal] = useState(0)
-  const [nextIsLoading, setNextIsLoading] = useState(false)
-  const [hasToMove, setHasToMove] = useState(false)
-  const [lessonToMoveTo, setLessonToMoveTo] = useState<Lesson>()
+  const [position, setPosition] = useState<Position>();
+  const [totalDurationUntilCurrentLesson, setTotalDurationUntilCurrentLesson] =
+    useState(0);
+  const [total, setTotal] = useState(0);
+  const [nextIsLoading, setNextIsLoading] = useState(false);
+  const [hasToMove, setHasToMove] = useState(false);
+  const [lessonToMoveTo, setLessonToMoveTo] = useState<Lesson>();
   const [currentPosition, setCurrentPosition] = useState<{
-    currentChapter: number
-    currentLesson: number
-  }>()
-  const router = useRouter()
+    currentChapter: number;
+    currentLesson: number;
+  }>();
+  const router = useRouter();
 
   const isLegalPage = (lesson: Lesson) => {
     if (position) {
-      let hasToMove = false
+      let hasToMove = false;
       if (
         lesson.chapter == position.chapter &&
         lesson.lesson > position.lesson
       ) {
-        hasToMove = true
+        hasToMove = true;
       } else if (lesson.chapter > position.chapter) {
-        hasToMove = true
+        hasToMove = true;
       }
 
-      return !hasToMove
+      return !hasToMove;
     }
 
-    return false
-  }
+    return false;
+  };
 
   const startCourse = () => {
     // if (hasToMove || (currentChapter == 0 && currentLesson == 0)) {
     //   router.push(`/home/overview/${lessonToMoveTo?.lesson}`)
     // }
 
-    router.push(`/course/${course?.key}/${course?.chapters[0].key}/${course?.chapters[0].lessons[1].key}`)
-  }
+    router.push(
+      `/course/${course?.key}/${course?.chapters[0].key}/${course?.chapters[0].lessons[1].key}`
+    );
+  };
 
   useEffect(() => {
-    const courseId = params['id']
-    console.log('Getting course');
-    CoursesService.course(courseId).then(course => {
-      console.log(`Course: `);
-      console.log(course);
-      setCourse(course)
-      
-    }).catch(err => {
-      console.log(`Could not get course: ${err.message}`);
-    })
+    const courseId = params["id"];
+    console.log("Getting course", courseId);
+    CoursesService.course(courseId)
+      .then((course) => {
+        console.log(`Course: `);
+        let c = { ...course, key: courseId };
+        console.log(c);
+        setCourse(c);
+      })
+      .catch((err) => {
+        console.log(`Could not get course: ${err.message}`);
+      });
 
-    LessonService.currentLessonPosition(
-      params.id
-    ).then(position => {
-      setPosition(position)
-    })
-  }, [])
+    LessonService.currentLessonPosition(params.id).then((position) => {
+      setPosition(position);
+    });
+  }, []);
 
-  const [course, setCourse] = useState<Course>()
+  const [course, setCourse] = useState<Course>();
 
-  useEffect(() => {
-    
-  }, [])
+  useEffect(() => {}, []);
 
   // const lessons = data.allMarkdownRemark.edges
   //   .map(edge => {
@@ -125,7 +123,7 @@ const CourseOverview = ({ params }: { params: { id: string }}) => {
   //   })
   //   .filter(lesson => lesson.fields.tutorial === post.fields.tutorial)
 
-  totalDuration = DurationHelper.secondsToText(total)
+  totalDuration = DurationHelper.secondsToText(total);
 
   // const chapters = {}
   // lessons.forEach(lesson => {
@@ -179,236 +177,269 @@ const CourseOverview = ({ params }: { params: { id: string }}) => {
 
   return (
     <div>
-      {course && <Row>
-        <Col xs={24} sm={24} md={24} lg={24}>
-          <div
-            style={{
-              background: "#efefef",
-              borderRadius: 20,
-              width: "100%",
-              padding: 20,
-              marginBottom: 20,
-              paddingLeft: 50,
-              paddingRight: 50,
-            }}
-          >
-            <div style={{ display: "flex", alignItems: "center" }}>
-              <Button
-                style={{
-                  borderStyle: "none",
-                  background: "#dfdfdf",
-                  width: 35,
-                  height: 35,
-                  display: "flex",
-                  alignItems: "center",
-                  justifyContent: "center",
-                  marginRight: 20,
-                  borderRadius: "50%",
-                }}
-                onClick={() => router.back()}
-              >
-                <LeftOutlined />
-              </Button>
-            </div>
-
-            <img src={course.imageUrl} alt={course.title} style={{
-              width: "100%",
-              height: "50vh",
-              marginBottom: 0,
-              marginTop: 20,
-              objectFit: 'cover'
-            }} />
-
-            <div style={{}}>
-              <h1>{course.title}</h1>
-            </div>
-
-            <Button
-              style={{
-                borderRadius: 20,
-                background: "#66e22c",
-                color: "white",
-                textTransform: "uppercase",
-                borderStyle: "none",
-              }}
-              onClick={startCourse}
-            >
-              {"View Course"}
-            </Button>
-
+      {course && (
+        <Row>
+          <Col xs={24} sm={24} md={24} lg={24}>
             <div
               style={{
-                overflow: "hidden",
-                marginTop: 20,
+                background: "#efefef",
+                borderRadius: 20,
+                width: "100%",
+                padding: 20,
+                marginBottom: 20,
+                paddingLeft: 50,
+                paddingRight: 50,
               }}
-              dangerouslySetInnerHTML={{ __html: course.excerpt }}
-            ></div>
+            >
+              <div style={{ display: "flex", alignItems: "center" }}>
+                <Button
+                  style={{
+                    borderStyle: "none",
+                    background: "#dfdfdf",
+                    width: 35,
+                    height: 35,
+                    display: "flex",
+                    alignItems: "center",
+                    justifyContent: "center",
+                    marginRight: 20,
+                    borderRadius: "50%",
+                  }}
+                  onClick={() => router.back()}
+                >
+                  <LeftOutlined />
+                </Button>
+              </div>
 
-            <div style={{ marginTop: 20 }}>
-              <Row>
-                {(course.outline.split('\n') || []).filter(outline => outline.trim().length > 0).map(overview => {
-                  return (
-                    <Col xs={24} sm={24} md={12}>
-                      <div
-                        style={{
-                          background: "#dfdfdf",
-                          borderRadius: 20,
-                          padding: 20,
-                          marginBottom: 20,
-                          marginRight: 20,
-                          display: "flex",
-                          alignItems: "center",
-                        }}
-                      >
-                        <CheckOutlined
+              <img
+                src={course.imageUrl}
+                alt={course.title}
+                style={{
+                  width: "100%",
+                  height: "50vh",
+                  marginBottom: 0,
+                  marginTop: 20,
+                  objectFit: "cover",
+                }}
+              />
+
+              <div style={{}}>
+                <h1>{course.title}</h1>
+              </div>
+
+              <Button
+                style={{
+                  borderRadius: 20,
+                  background: "#66e22c",
+                  color: "white",
+                  textTransform: "uppercase",
+                  borderStyle: "none",
+                }}
+                onClick={startCourse}
+              >
+                {"View Course"}
+              </Button>
+
+              <div
+                style={{
+                  overflow: "hidden",
+                  marginTop: 20,
+                }}
+                dangerouslySetInnerHTML={{ __html: course.excerpt }}
+              ></div>
+
+              <div style={{ marginTop: 20 }}>
+                <Row>
+                  {course.outline.map((overview: string, key: number) => {
+                    return (
+                      <Col key={key} xs={24} sm={24} md={12}>
+                        <div
                           style={{
-                            marginRight: 15,
-                            color: "green",
+                            background: "#dfdfdf",
+                            borderRadius: 20,
+                            padding: 20,
+                            marginBottom: 20,
+                            marginRight: 20,
+                            display: "flex",
+                            alignItems: "center",
                           }}
-                        />
-                        {overview}
-                      </div>
-                    </Col>
-                  )
-                })}
-              </Row>
+                        >
+                          <CheckOutlined
+                            style={{
+                              marginRight: 15,
+                              color: "green",
+                            }}
+                          />
+                          {overview}
+                        </div>
+                      </Col>
+                    );
+                  })}
+                  {/* {(course.outline.split("\n") || [])
+                    .filter((outline) => outline.trim().length > 0)
+                    .map((overview) => {
+                      return (
+                        <Col xs={24} sm={24} md={12}>
+                          <div
+                            style={{
+                              background: "#dfdfdf",
+                              borderRadius: 20,
+                              padding: 20,
+                              marginBottom: 20,
+                              marginRight: 20,
+                              display: "flex",
+                              alignItems: "center",
+                            }}
+                          >
+                            <CheckOutlined
+                              style={{
+                                marginRight: 15,
+                                color: "green",
+                              }}
+                            />
+                            {overview}
+                          </div>
+                        </Col>
+                      );
+                    })} */}
+                </Row>
+              </div>
             </div>
-          </div>
-        </Col>
-        <Col xs={24} sm={24} md={24} lg={24}>
-          <div
-            style={{
-              width: "100%",
-              maxWidth: "100%",
-              marginBottom: 20,
-              borderRadius: 20,
-            }}
-          >
-            <div style={{ paddingLeft: 20, paddingRight: 20, paddingTop: 20 }}>
-              <h2 style={{ fontWeight: "bold" }}>Course Content</h2>
-              {/* <Link to={mainSlug}><h2 style={{color: '#97CA42', marginBottom: 0}}>{title}</h2><span style={{color: '#afafaf'}}>{totalDuration}</span></Link> */}
-              {/* <div style={{display: 'flex', alignItems: 'center'}}>
+          </Col>
+          <Col xs={24} sm={24} md={24} lg={24}>
+            <div
+              style={{
+                width: "100%",
+                maxWidth: "100%",
+                marginBottom: 20,
+                borderRadius: 20,
+              }}
+            >
+              <div
+                style={{ paddingLeft: 20, paddingRight: 20, paddingTop: 20 }}
+              >
+                <h2 style={{ fontWeight: "bold" }}>Course Content</h2>
+                {/* <Link to={mainSlug}><h2 style={{color: '#97CA42', marginBottom: 0}}>{title}</h2><span style={{color: '#afafaf'}}>{totalDuration}</span></Link> */}
+                {/* <div style={{display: 'flex', alignItems: 'center'}}>
                                             Progress
                                             <div style={{background: '#cfcfcf', flex: 1, height: 5, marginLeft: 30, borderRadius: 3, overflow: 'hidden'}}>
                                                 <div style={{background: '#97CA42', width: `${progress}%`, height: 5}} />
                                             </div>
                                             <div style={{paddingLeft: 10}}>{isNaN(progress) ? '-' : progress}%</div>
                                         </div> */}
-            </div>
+              </div>
 
-            <Collapse
-              style={{
-                borderStyle: "none",
-                borderRadius: 30,
-                background: "transparent",
-              }}
-              bordered={false}
-            >
-              {course.chapters.map(chapter => {
-                // const chapter = chapters[key]
+              <Collapse
+                style={{
+                  borderStyle: "none",
+                  borderRadius: 30,
+                  background: "transparent",
+                }}
+                bordered={false}
+              >
+                {course.chapters.map((chapter) => {
+                  // const chapter = chapters[key]
 
-                console.log(chapter);
-                let chapterTotalDuration = 0
-                for (let chapterLesson of chapter.lessons) {
-                  if (!chapterLesson) continue
+                  console.log(chapter);
+                  let chapterTotalDuration = 0;
+                  for (let chapterLesson of chapter.lessons) {
+                    if (!chapterLesson) continue;
 
-                  const [min, sec] = chapterLesson.duration.split(
-                    ":"
-                  )
+                    const [min, sec] = chapterLesson.duration.split(":");
 
-                  chapterTotalDuration += parseInt(min) * 60 + parseInt(sec)
-                }
+                    chapterTotalDuration += parseInt(min) * 60 + parseInt(sec);
+                  }
 
-                return (
-                  <Collapse.Panel
-                    showArrow={false}
-                    // expandIconPosition="none"
-                    header={
-                      <div
-                        style={{
-                          borderStyle: "none",
-                          background: "#efefef",
-                          padding: 20,
-                          borderRadius: 20,
-                          fontSize: "1.5em",
-                          fontWeight: "bold",
-                        }}
-                      >{`${chapter.title} (${DurationHelper.secondsToText(
-                        chapterTotalDuration
-                      )})`}</div>
-                    }
-                    key={`chapter-`+chapter.chapter}
-                    style={{
-                      background: "transparent",
-                      borderColor: "#f0f2f5",
-                    }}
-                  >
-                    <div
+                  return (
+                    <Collapse.Panel
+                      showArrow={false}
+                      // expandIconPosition="none"
+                      header={
+                        <div
+                          style={{
+                            borderStyle: "none",
+                            background: "#efefef",
+                            padding: 20,
+                            borderRadius: 20,
+                            fontSize: "1.5em",
+                            fontWeight: "bold",
+                          }}
+                        >{`${chapter.title} (${DurationHelper.secondsToText(
+                          chapterTotalDuration
+                        )})`}</div>
+                      }
+                      key={`chapter-` + chapter.chapter}
                       style={{
-                        background: "#efefef",
-                        marginBottom: 10,
-                        padding: 20,
-                        borderRadius: 30,
+                        background: "transparent",
+                        borderColor: "#f0f2f5",
                       }}
                     >
-                      <Timeline style={{ marginLeft: 20, marginTop: 10 }}>
-                        {chapter.lessons.map((lesson, key) => {
-                          return (
-                            <Timeline.Item
-                              style={{ background: "transparent" }}
-                              key={key}
-                              dot={
-                                <div
+                      <div
+                        style={{
+                          background: "#efefef",
+                          marginBottom: 10,
+                          padding: 20,
+                          borderRadius: 30,
+                        }}
+                      >
+                        <Timeline style={{ marginLeft: 20, marginTop: 10 }}>
+                          {chapter.lessons.map((lesson, key) => {
+                            return (
+                              <Timeline.Item
+                                style={{ background: "transparent" }}
+                                key={key}
+                                dot={
+                                  <div
+                                    style={{
+                                      width: "100%",
+                                      height: "100%",
+                                      background: isLegalPage(lesson)
+                                        ? "#97CA42"
+                                        : "#dfdfdf",
+                                      padding: 2,
+                                      borderRadius: 5,
+                                    }}
+                                  >
+                                    {
+                                      <CheckOutlined
+                                        style={{
+                                          color: isLegalPage(lesson)
+                                            ? "white"
+                                            : "#dfdfdf",
+                                          background: "transparent",
+                                        }}
+                                      />
+                                    }
+                                  </div>
+                                }
+                              >
+                                {/* <Link style={{color: lesson.current ? '#97CA42' : '#606060', fontWeight: lesson.current ? 'bold' : 'normal'}}>{lesson.frontmatter.title} ({DurationHelper.timeFormatToText(lesson.frontmatter.duration)})</Link> */}
+                                <Link
+                                  href={""}
                                   style={{
-                                    width: "100%",
-                                    height: "100%",
-                                    background: isLegalPage(lesson)
-                                      ? "#97CA42"
-                                      : "#dfdfdf",
-                                    padding: 2,
-                                    borderRadius: 5,
+                                    color: "#606060",
                                   }}
                                 >
-                                  {
-                                    <CheckOutlined
-                                      style={{
-                                        color: isLegalPage(lesson)
-                                          ? "white"
-                                          : "#dfdfdf",
-                                        background: "transparent",
-                                      }}
-                                    />
-                                  }
-                                </div>
-                              }
-                            >
-                              {/* <Link style={{color: lesson.current ? '#97CA42' : '#606060', fontWeight: lesson.current ? 'bold' : 'normal'}}>{lesson.frontmatter.title} ({DurationHelper.timeFormatToText(lesson.frontmatter.duration)})</Link> */}
-                              <Link
-                              href={''}
-                                style={{
-                                  color: "#606060"
-                                }}
-                              >
-                                {lesson.title} (
-                                {DurationHelper.timeFormatToText(
-                                  lesson.duration
-                                )}
-                                )
-                              </Link>
-                            </Timeline.Item>
-                          )
-                        })}
-                      </Timeline>
-                    </div>
-                  </Collapse.Panel>
-                )
-              })}
-            </Collapse>
-          </div>
-        </Col>
-      </Row>}
+                                  {lesson.title} (
+                                  {DurationHelper.timeFormatToText(
+                                    lesson.duration
+                                  )}
+                                  )
+                                </Link>
+                              </Timeline.Item>
+                            );
+                          })}
+                        </Timeline>
+                      </div>
+                    </Collapse.Panel>
+                  );
+                })}
+              </Collapse>
+            </div>
+          </Col>
+        </Row>
+      )}
     </div>
-  )
-}
+  );
+};
 
-export default CourseOverview
+export default CourseOverview;
