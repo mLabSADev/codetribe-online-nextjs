@@ -423,10 +423,10 @@ export default ({
   };
   const RunAssessmentFunc = (data) => {
     Assessment.getOne({ course: data.course, chapter: data.chapter }).then(
-      (res) => {
-        console.log(res);
+      (createdAssessment) => {
+        console.log(createdAssessment);
 
-        if (res) {
+        if (createdAssessment) {
           // assessment available
           AuthService.currentUser().then((profile) => {
             // get current signed in user location
@@ -447,13 +447,19 @@ export default ({
               }).then((data) => {
                 if (data) {
                   if (submissions.length <= course!.chapters.length) {
-                    submissions.push({ show: "submitted" });
+                    submissions.push({
+                      show: "submitted",
+                      details: createdAssessment,
+                    });
                     setSubmissions(submissions);
                     console.log(submissions);
                   }
                 } else {
                   if (submissions.length <= course!.chapters.length) {
-                    submissions.push({ show: "notsubmitted" });
+                    submissions.push({
+                      show: "notsubmitted",
+                      details: createdAssessment,
+                    });
                     setSubmissions(submissions);
                     console.log(submissions, {
                       d: submissions.length,
@@ -465,7 +471,7 @@ export default ({
             });
           });
         } else {
-          submissions.push({ show: "undefined" });
+          submissions.push({ show: "undefined", details: null });
           setSubmissions(submissions);
           console.log(submissions);
         }

@@ -10,15 +10,17 @@ export const Assessment = {
             .ref(`assessments`)
             .once("value")
             .then(snapshot => {
-                const value = snapshot.val()
-                const keys = Object.keys(value)
+                if (snapshot.val()) {
+                    const value = snapshot.val()
+                    const keys = Object.keys(value)
 
-                return keys.map(key => {
-                    return {
-                        ...value[key],
-                        key,
-                    }
-                })
+                    return keys.map(key => {
+                        return {
+                            ...value[key],
+                            key,
+                        }
+                    })
+                }
             })
     },
     /**

@@ -100,7 +100,6 @@ function Assessments() {
   const [assessments, setAssessments] = React.useState([]);
   const [courseLessons, setCourseLessons] = React.useState([]); // Options for Cascader
   const [adminLocations, setAdminLocations] = React.useState([]);
-  const [courses, setCourses] = useState([]);
   const [showSubs, setShowSubs] = React.useState({
     show: false,
     course: {},
@@ -186,7 +185,9 @@ function Assessments() {
 
   const getAssessments = () => {
     Assessment.getAll().then((res) => {
-      setAssessments(res);
+      if (res) {
+        setAssessments(res);
+      }
     });
   };
   const getStudentsByLocation = (location) => {
@@ -269,25 +270,28 @@ function Assessments() {
       students: [],
       total: 0,
     };
-    CoursesService.courses().then((res) => {
-      setCourses(res);
-    });
     // Get current Admin
-    AuthService.currentUser().then((res) => {
-      setUser(res);
-      setAdminLocations([]);
-      // Loop over locations
-      res.groups.forEach((element, i) => {
-        setAdminLocations((prev) => [...prev, { key: i + 1, label: element }]);
-        getStudentsByLocation(element);
-        getSubmissions(adminLocations[0]);
-        setTimeout(() => {
-          console.log(courseInfo);
+    AuthService.currentUser()
+      .then((res) => {
+        setUser(res);
+        // Loop over locations
+        console.log(res);
 
-          getSubmissions(res.groups[0], adminLocations);
-        }, 1000);
+        res.groups.forEach((element, i) => {
+          adminLocations.push({ key: i + 1, label: element });
+          setAdminLocations(adminLocations);
+          getStudentsByLocation(element);
+          getSubmissions(adminLocations[0]);
+          setTimeout(() => {
+            console.log(courseInfo);
+
+            getSubmissions(res.groups[0], adminLocations);
+          }, 1000);
+        });
+      })
+      .catch((err) => {
+        console.log(err);
       });
-    });
   }, []);
   return (
     <Stack>
@@ -478,6 +482,9 @@ function Assessments() {
             defaultActiveKey="1"
             items={adminLocations}
             onChange={onTabsChange}
+            // onLoadedData={() => {
+            //   onTabsChange(1);
+            // }}
           />
           <Statistic
             title="Student Submissions"
@@ -591,174 +598,176 @@ function Assessments() {
             }
 
             // Collapsable
-            return (
-              <Collapse.Panel key={i} header={course.key.toUpperCase()}>
-                {/* Total Counter */}
-                <Stack
-                  direction={"row"}
-                  spacing={1}
-                  gap={1}
-                  alignItems={"center"}
-                >
-                  <Stack>
-                    <Statistic
-                      title="Total Assessments"
-                      value={list.length}
-                      precision={0}
+            if (course.key != "submissions") {
+              return (
+                <Collapse.Panel key={i} header={course.key.toUpperCase()}>
+                  {/* Total Counter */}
+                  <Stack
+                    direction={"row"}
+                    spacing={1}
+                    gap={1}
+                    alignItems={"center"}
+                  >
+                    <Stack>
+                      <Statistic
+                        title="Total Assessments"
+                        value={list.length}
+                        precision={0}
+                      />
+                    </Stack>
+                  </Stack>
+                  <Divider />
+
+                  {/* Search */}
+                  <Stack
+                    py={2}
+                    direction={"row"}
+                    alignItems={"center"}
+                    spacing={1}
+                  >
+                    <Input.Search
+                      placeholder="Search..."
+                      //   onSearch={onSearch}
+                      style={{ width: 200 }}
                     />
                   </Stack>
-                </Stack>
-                <Divider />
 
-                {/* Search */}
-                <Stack
-                  py={2}
-                  direction={"row"}
-                  alignItems={"center"}
-                  spacing={1}
-                >
-                  <Input.Search
-                    placeholder="Search..."
-                    //   onSearch={onSearch}
-                    style={{ width: 200 }}
-                  />
-                </Stack>
-
-                {/* Assessment Cards */}
-                <Stack gap={1} direction={"row"} flexWrap={"wrap"}>
-                  {list.map((item, i) => {
-                    return (
-                      <Card
-                        hoverable
-                        key={i}
-                        style={{ width: 400 }}
-                        actions={[
-                          // Edit
-                          <Button
-                            onClick={() => {
-                              setUpdating(true); //set form state
-                              form.setFieldValue("course", course.key);
-                              form.setFieldValue("title", item.title);
-                              form.setFieldValue("lesson", item.lesson);
-                              console.log(course);
-
-                              onCourseChange(course.key); // get options for cascader
-                              setUpdateEditorState(
-                                EditorState.createWithContent(
-                                  convertFromRaw({
-                                    entityMap: item.content.entityMap || {},
-                                    blocks: item.content.blocks,
-                                  })
-                                )
-                              );
-                              setAssessmentUpdateId(keys[i]);
-                              setOpenModal(true);
-                            }}
-                            style={{ width: "100%" }}
-                            type="text"
-                            htmlType="button"
-                          >
-                            <EditOutlined key="edit" />
-                          </Button>,
-                          // Delete
-                          <Popconfirm
-                            title="Delete Assessment"
-                            description="This is a permanent action that will remove this assessment from the database, continue?"
-                            okText="Continue"
-                            cancelText="Cancel"
-                            // onConfirm={() => {
-                            //   Assessment.delete(course.key, keys[i])
-                            //     .then(() => {
-                            //       setAlert({
-                            //         message: "Assessment Deleted",
-                            //         show: true,
-                            //       });
-                            //       getAssessments();
-                            //     })
-                            //     .catch((err) => {
-                            //       console.log(err);
-                            //     });
-                            // }}
-                          >
-                            <Button type="text" danger>
-                              <DeleteOutlined />
-                            </Button>
-                          </Popconfirm>,
-                        ]}
-                      >
-                        {/* Card content */}
-                        <Meta title={`${item.title}`} />
-                        <Stack pt={1} spacing={2}>
-                          <Typography
-                            variant="overline"
-                            // color={item.lesson ? "black" : "red"}
-                          >
-                            {/* {item.lesson || "Please Update"} */}
-                          </Typography>
-                          <Typography color={"GrayText"} variant="subtitle2">
-                            {/* {item.content.blocks[0].text} */}
-                          </Typography>
-                          <Button
-                            size="small"
-                            type="link"
-                            style={{ alignSelf: "flex-start" }}
-                            onClick={() => {
-                              setAssessmentDetails({
-                                data: {
-                                  entityMap: item.content.entityMap || {},
-                                  blocks: item.content.blocks,
-                                },
-                                show: true,
-                                title: item.title,
-                                course: course.key,
-                              });
-                              console.log(item.content);
-                            }}
-                          >
-                            more
-                          </Button>
-                          <Divider />
-                          <Stack
-                            direction={"row"}
-                            alignItems={"center"}
-                            spacing={1}
-                          >
-                            <Stack flex={1}>
-                              <Statistic
-                                title="Students Submitted"
-                                value={5}
-                                suffix="/ 10"
-                              />
-                            </Stack>
-                            {/* Submissions */}
+                  {/* Assessment Cards */}
+                  <Stack gap={1} direction={"row"} flexWrap={"wrap"}>
+                    {list.map((item, i) => {
+                      return (
+                        <Card
+                          hoverable
+                          key={i}
+                          style={{ width: 400 }}
+                          actions={[
+                            // Edit
                             <Button
-                              type="primary"
                               onClick={() => {
-                                console.log({
-                                  course: course.key,
-                                  chapter: item?.lesson[0],
-                                });
-                                setSubmissions([]);
-                                setCourseInfo({
-                                  course: course.key,
-                                  chapter: item?.lesson[0],
-                                });
+                                setUpdating(true); //set form state
+                                form.setFieldValue("course", course.key);
+                                form.setFieldValue("title", item.title);
+                                form.setFieldValue("lesson", item.lesson);
+                                console.log(course);
 
-                                setShowSubs({ ...showSubs, show: true });
+                                onCourseChange(course.key); // get options for cascader
+                                setUpdateEditorState(
+                                  EditorState.createWithContent(
+                                    convertFromRaw({
+                                      entityMap: item.content.entityMap || {},
+                                      blocks: item.content.blocks,
+                                    })
+                                  )
+                                );
+                                setAssessmentUpdateId(keys[i]);
+                                setOpenModal(true);
+                              }}
+                              style={{ width: "100%" }}
+                              type="text"
+                              htmlType="button"
+                            >
+                              <EditOutlined key="edit" />
+                            </Button>,
+                            // Delete
+                            <Popconfirm
+                              title="Delete Assessment"
+                              description="This is a permanent action that will remove this assessment from the database, continue?"
+                              okText="Continue"
+                              cancelText="Cancel"
+                              onConfirm={() => {
+                                Assessment.delete(course.key, item.lesson)
+                                  .then(() => {
+                                    setAlert({
+                                      message: "Assessment Deleted",
+                                      show: true,
+                                    });
+                                    getAssessments();
+                                  })
+                                  .catch((err) => {
+                                    console.log(err);
+                                  });
                               }}
                             >
-                              Submissions
+                              <Button type="text" danger>
+                                <DeleteOutlined />
+                              </Button>
+                            </Popconfirm>,
+                          ]}
+                        >
+                          {/* Card content */}
+                          <Meta title={`${item.title}`} />
+                          <Stack pt={1} spacing={2}>
+                            <Typography
+                              variant="overline"
+                              // color={item.lesson ? "black" : "red"}
+                            >
+                              {/* {item.lesson || "Please Update"} */}
+                            </Typography>
+                            <Typography color={"GrayText"} variant="subtitle2">
+                              {/* {item.content.blocks[0].text} */}
+                            </Typography>
+                            <Button
+                              size="small"
+                              type="link"
+                              style={{ alignSelf: "flex-start" }}
+                              onClick={() => {
+                                setAssessmentDetails({
+                                  data: {
+                                    entityMap: item.content.entityMap || {},
+                                    blocks: item.content.blocks,
+                                  },
+                                  show: true,
+                                  title: item.title,
+                                  course: course.key,
+                                });
+                                console.log(item.content);
+                              }}
+                            >
+                              more
                             </Button>
-                          </Stack>
+                            <Divider />
+                            <Stack
+                              direction={"row"}
+                              alignItems={"center"}
+                              spacing={1}
+                            >
+                              <Stack flex={1}>
+                                <Statistic
+                                  title="Students Submitted"
+                                  value={5}
+                                  suffix="/ 10"
+                                />
+                              </Stack>
+                              {/* Submissions */}
+                              <Button
+                                type="primary"
+                                onClick={() => {
+                                  console.log({
+                                    course: course.key,
+                                    chapter: item?.lesson[0],
+                                  });
+                                  setSubmissions([]);
+                                  setCourseInfo({
+                                    course: course.key,
+                                    chapter: item?.lesson[0],
+                                  });
 
-                          {/* View Details */}
-                        </Stack>
-                      </Card>
-                    );
-                  })}
-                </Stack>
-              </Collapse.Panel>
-            );
+                                  setShowSubs({ ...showSubs, show: true });
+                                }}
+                              >
+                                Submissions
+                              </Button>
+                            </Stack>
+
+                            {/* View Details */}
+                          </Stack>
+                        </Card>
+                      );
+                    })}
+                  </Stack>
+                </Collapse.Panel>
+              );
+            }
           })}
         </Collapse>
       </Stack>

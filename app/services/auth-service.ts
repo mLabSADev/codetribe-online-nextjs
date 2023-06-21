@@ -93,7 +93,7 @@ export const AuthService = {
         if (user) {
           resolve(user)
         } else {
-          reject()
+          reject(-1)
         }
       })
     })
@@ -109,7 +109,7 @@ export const AuthService = {
 
           return data
         })
-    })
+    }).catch(err => err)
   },
   forgotPassword: (email: string) => {
     return firebase.auth().sendPasswordResetEmail(email)
