@@ -113,6 +113,9 @@ export default ({
   const [course, setCourse] = useState<Course>();
   const [submitChapter, setSubmitChapter] = useState("");
   const [currentLesson, setLesson] = useState<Lesson>();
+  const [assessmentDetails, setAssessmentDetails] = useState({
+    show: true,
+  });
   const { origin, hostname, pathname, ancestorOrigins, href } = window.location;
 
   let splitter = href.split("/");
@@ -743,42 +746,44 @@ description={post.frontmatter.description}
                       </Stack>
                     )}
                     {/* student did not submit assessment */}
-                    {submissions[i]?.show === "notsubmitted" && <></>}
-                    <Stack spacing={2}>
-                      <Typography variant="subtitle1">
-                        Complete Assessment
-                      </Typography>
-                      <Form
-                        name="basic"
-                        // wrapperCol={{ span: 16 }}
-                        initialValues={{
-                          remember: true,
-                        }}
-                        onFinish={(values) => {
-                          onFinish({ ...values, chapter: chapter.title });
-                        }}
-                        onFinishFailed={onFinishFailed}
-                        autoComplete="off"
-                      >
-                        <Form.Item
-                          label="Github URL"
-                          name="github"
-                          rules={[
-                            {
-                              required: true,
-                              message: "Link to Github Projet is required!",
-                            },
-                          ]}
+                    {submissions[i]?.show === "notsubmitted" && (
+                      <Stack spacing={2}>
+                        <Typography variant="subtitle1">
+                          Complete Assessment
+                        </Typography>
+                        <Form
+                          name="basic"
+                          // wrapperCol={{ span: 16 }}
+                          initialValues={{
+                            remember: true,
+                          }}
+                          onFinish={(values) => {
+                            onFinish({ ...values, chapter: chapter.title });
+                          }}
+                          onFinishFailed={onFinishFailed}
+                          autoComplete="off"
                         >
-                          <Input placeholder="https://github.com/.../..." />
-                        </Form.Item>
-                        <Form.Item>
-                          <Button type="primary" htmlType="submit">
-                            Submit
-                          </Button>
-                        </Form.Item>
-                      </Form>
-                    </Stack>
+                          <Form.Item
+                            label="Github URL"
+                            name="github"
+                            rules={[
+                              {
+                                required: true,
+                                message: "Link to Github Projet is required!",
+                              },
+                            ]}
+                          >
+                            <Input placeholder="https://github.com/.../..." />
+                          </Form.Item>
+                          <Form.Item>
+                            <Button type="primary" htmlType="submit">
+                              Submit
+                            </Button>
+                          </Form.Item>
+                        </Form>
+                      </Stack>
+                    )}
+
                     {/* no assessment created */}
                     {submissions[i]?.show === "undefined" && (
                       <Stack spacing={2}>
