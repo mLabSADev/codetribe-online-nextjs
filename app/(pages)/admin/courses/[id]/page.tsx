@@ -43,6 +43,20 @@ const Lessons = ({ course, chapter }: {
         })
     }
 
+    const onMoveUp = (lesson: Lesson) => {
+        CoursesService.moveLessonUp(course.key, chapter, lesson).then(() => {
+            window.location.reload()
+        })
+        
+    }
+
+    const onMoveDown = (lesson: Lesson) => {
+        CoursesService.moveLessonDown(course.key, chapter, lesson).then(() => {
+            window.location.reload()
+        })
+        
+    }
+
     const columns: any[] = [
         {
             title: 'Order',
@@ -51,8 +65,8 @@ const Lessons = ({ course, chapter }: {
             render: (_: any, record: Lesson) => {
                 return (
                     <Space size="middle">
-                        <Button onClick={() => onEdit(record)}><ArrowUpOutlined /></Button>
-                        <Button onClick={() => setLessonToRemove(record)}><ArrowDownOutlined /></Button>
+                        <Button onClick={() => onMoveUp(record)}><ArrowUpOutlined /></Button>
+                        <Button onClick={() => onMoveDown(record)}><ArrowDownOutlined /></Button>
                     </Space>
                 )
             }
