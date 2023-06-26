@@ -12,7 +12,7 @@ export const StudentsService = {
                 return firebase.database().ref(`users`).once('value').then(snapshot => {
                     const value = snapshot.val()
                     const keys = Object.keys(value)
-        
+
                     return keys.map(key => {
                         return {
                             ...value[key],
@@ -35,6 +35,6 @@ export const StudentsService = {
                 }
             }
         })
-        
+
     }
 }

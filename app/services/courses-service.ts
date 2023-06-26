@@ -32,7 +32,6 @@ export const CoursesService = {
     console.log(lessons);
     delete lessons[lesson.key]
     console.log(lessons);
-    
 
     return firebase.database().ref(`courses/${courseId}/chapters/${chapter.key}/lessons`).set(lessons)
   },
@@ -72,7 +71,6 @@ export const CoursesService = {
   },
 
   saveLesson: (courseId: string, chapter: Chapter, lesson: Lesson, currentLessonId?: string) => {
-    
 
     if (!currentLessonId) {
       let lastLesson = 0
@@ -83,11 +81,11 @@ export const CoursesService = {
             lastLesson = l.lesson
           }
         }
-  
+
         lesson.lesson = lastLesson + 1
       }
     }
-    
+
 
     lesson.chapter = chapter.chapter
 
@@ -102,27 +100,27 @@ export const CoursesService = {
         .split('M').join(':')
         .split('S').join('')
 
-        if (currentLessonId) {
-          return firebase.database().ref(`courses/${courseId}/chapters/${chapter.key}/lessons/${currentLessonId}`).update({
-            ...lesson,
-            duration: duration
-          })
-        } else {
-          return firebase.database().ref(`courses/${courseId}/chapters/${chapter.key}/lessons`).push().set({
-            ...lesson,
-            duration: duration
-          })
-        }
-      
+      if (currentLessonId) {
+        return firebase.database().ref(`courses/${courseId}/chapters/${chapter.key}/lessons/${currentLessonId}`).update({
+          ...lesson,
+          duration: duration
+        })
+      } else {
+        return firebase.database().ref(`courses/${courseId}/chapters/${chapter.key}/lessons`).push().set({
+          ...lesson,
+          duration: duration
+        })
+      }
+
     })
 
-    
+
   },
   saveCourse: (course: Course, file: string) => {
     console.log(course)
     console.log(file)
 
-    const profile = new Promise((resolve, reject) => {})
+    const profile = new Promise((resolve, reject) => { })
 
     return new Promise((resolve, reject) => {
       if (file) {
@@ -196,16 +194,14 @@ export const CoursesService = {
       .once("value")
       .then(snapshot => {
         const value = snapshot.val()
-        console.log(value);
-        
-
         value.chapters = Object.keys(value.chapters)
           .map(key => {
+            const lessons = value?.chapters[key]?.lessons
             // Something breaks here when selecting NodeJS while creating new assessments
             return {
               key,
               ...value.chapters[key],
-              lessons: Object.keys(value?.chapters[key]?.lessons)
+              lessons: Object.keys(lessons)
                 .map(lessonKey => {
                   return {
                     key: lessonKey,
@@ -229,7 +225,7 @@ export const CoursesService = {
               return 1
             }
           })
-
+        console.log(value);
         return value
       })
   },
