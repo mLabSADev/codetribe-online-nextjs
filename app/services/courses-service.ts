@@ -37,16 +37,37 @@ export const CoursesService = {
   },
 
   moveLessonUp: (courseId: string, chapter: Chapter, lesson: Lesson) => {
-    let lessons: any = {}
-    for (let l of chapter.lessons) {
-      if (l.lesson <= lesson.lesson) {
-        l.lesson -= 1
+    return firebase.database().ref(`courses/${courseId}/chapters/${chapter.key}/lessons`).once('value').then(snapshot => {
+      const lessons = snapshot.val()
+      const keys = Object.keys(lessons)
+      const indexToMoveTo = lesson.lesson - 1
 
-        lessons[l.key] = l
+      lesson.lesson = lesson.lesson - 1
+      for (let key of keys) {
+        if (lessons[key].lesson === indexToMoveTo) {
+          lessons[key].lesson = indexToMoveTo + 1
+        }
       }
-    }
 
-    return firebase.database().ref(`courses/${courseId}/chapters/${chapter.key}/lessons`).set(lessons)
+      return firebase.database().ref(`courses/${courseId}/chapters/${chapter.key}/lessons`).set(lessons)
+    })
+  },
+
+  moveLessonDown: (courseId: string, chapter: Chapter, lesson: Lesson) => {
+    return firebase.database().ref(`courses/${courseId}/chapters/${chapter.key}/lessons`).once('value').then(snapshot => {
+      const lessons = snapshot.val()
+      const keys = Object.keys(lessons)
+      const indexToMoveTo = lesson.lesson + 1
+
+      lesson.lesson = lesson.lesson + 1
+      for (let key of keys) {
+        if (lessons[key].lesson === indexToMoveTo) {
+          lessons[key].lesson = indexToMoveTo - 1
+        }
+      }
+
+      return firebase.database().ref(`courses/${courseId}/chapters/${chapter.key}/lessons`).set(lessons)
+    })
   },
 
   saveLesson: (courseId: string, chapter: Chapter, lesson: Lesson, currentLessonId?: string) => {
