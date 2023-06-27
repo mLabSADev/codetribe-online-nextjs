@@ -27,7 +27,7 @@ import {
 } from "@ant-design/icons";
 // import Quiz from "../components/quiz"
 // import Disqus from "gatsby-plugin-disqus/components/Disqus"
-import { IconButton, Stack, Typography, Box } from "@mui/material";
+import { IconButton, Stack, Typography, Box, Fab, Slide } from "@mui/material";
 import Course from "@/app/dtos/course";
 import CheckIcon from "@mui/icons-material/Check";
 import Lesson from "@/app/dtos/lesson";
@@ -37,10 +37,12 @@ import Link from "next/link";
 import Quiz from "@/app/components/quiz";
 import { useRouter } from "next/navigation";
 import { Position } from "@/app/(pages)/(student)/overview/[id]/page";
+import { Editor } from "react-draft-wysiwyg";
+import { EditorState, convertFromRaw } from "draft-js";
 import { AuthService } from "@/app/services/auth-service";
 import { Assessment } from "@/app/services/assessments-service";
 import AssessmentSubmission from "@/app/dtos/assessment-submission";
-
+import AssessmentIcon from "@mui/icons-material/Assessment";
 const checkSubmitted = () => {
   let security = false;
   if (!security) {
@@ -114,10 +116,18 @@ export default ({
   const [submitChapter, setSubmitChapter] = useState("");
   const [currentLesson, setLesson] = useState<Lesson>();
   const [assessmentDetails, setAssessmentDetails] = useState({
-    show: true,
+    show: false,
+    details: null,
   });
+  const [slide, setSlide] = React.useState(false);
+  const slideContainerRef = React.useRef(null);
+  const [updateEditorState, setUpdateEditorState] = React.useState(
+    EditorState.createEmpty()
+  );
   const { origin, hostname, pathname, ancestorOrigins, href } = window.location;
-
+  const handleSlide = () => {
+    setSlide((prev) => !prev);
+  };
   let splitter = href.split("/");
   const isLegalPage = (lesson: Lesson) => {
     if (position) {
@@ -427,8 +437,6 @@ export default ({
   const RunAssessmentFunc = (data) => {
     Assessment.getOne({ course: data.course, chapter: data.chapter }).then(
       (createdAssessment) => {
-        console.log(createdAssessment);
-
         if (createdAssessment) {
           // assessment available
           AuthService.currentUser().then((profile) => {
@@ -439,44 +447,48 @@ export default ({
             } else {
               location = profile.groups[0];
             }
-            AuthService.isLoggedIn().then((res) => {
-              console.log(data);
-
-              // check if subbission was done for each chapter
-              Assessment.getOneSubmission({
-                course: data.course,
-                chapter: data.chapter,
-                location: location,
-              }).then((data) => {
-                if (data) {
-                  if (submissions.length <= course!.chapters.length) {
-                    submissions.push({
-                      show: "submitted",
-                      details: createdAssessment,
-                    });
-                    setSubmissions(submissions);
-                    console.log(submissions);
-                  }
-                } else {
-                  if (submissions.length <= course!.chapters.length) {
-                    submissions.push({
-                      show: "notsubmitted",
-                      details: createdAssessment,
-                    });
-                    setSubmissions(submissions);
-                    console.log(submissions, {
-                      d: submissions.length,
-                      b: course!.chapters.length,
-                    });
-                  }
+            Assessment.getOneSubmission({
+              course: data.course,
+              chapter: data.chapter,
+              location: location,
+            }).then((data) => {
+              if (data) {
+                if (submissions.length <= course!.chapters.length) {
+                  submissions.push({
+                    show: "submitted",
+                    details: createdAssessment,
+                  });
+                  setSubmissions(submissions);
+                  console.log(submissions);
                 }
-              });
+              } else {
+                if (submissions.length <= course!.chapters.length) {
+                  submissions.push({
+                    show: "notsubmitted",
+                    details: createdAssessment,
+                  });
+                  setSubmissions(submissions);
+                  console.log(submissions, {
+                    d: submissions.length,
+                    b: course!.chapters.length,
+                  });
+                }
+              }
             });
+            // AuthService.isLoggedIn().then((res) => {
+            //   console.log(data);
+
+            //   // check if subbission was done for each chapter
+            // });
           });
         } else {
           submissions.push({ show: "undefined", details: null });
           setSubmissions(submissions);
-          console.log(submissions);
+          const b = submissions;
+          setTimeout(() => {
+            setSubmissions([]);
+            setSubmissions(b);
+          }, 2000);
         }
       }
     );
@@ -485,7 +497,191 @@ export default ({
 
   return (
     currentLesson?.key && (
-      <Stack position={"relative"}>
+      <Stack position={"relative"} ref={slideContainerRef}>
+        <Modal
+          title="Assessment Details"
+          open={assessmentDetails.show}
+          onOk={() => {
+            setAssessmentDetails({ show: false, details: null });
+          }}
+          onCancel={() => {
+            setAssessmentDetails({ show: false, details: null });
+          }}
+        >
+          <Editor
+            name="content"
+            editorState={updateEditorState}
+            readOnly={false}
+            toolbarHidden
+            toolbar={{
+              inline: { inDropdown: true },
+              list: { inDropdown: true },
+              textAlign: { inDropdown: true },
+              link: { inDropdown: true },
+              history: { inDropdown: true },
+            }}
+            placeholder="Type here"
+            toolbarClassName="toolbarClassName"
+            wrapperClassName="wrapperClassName"
+            editorClassName="editorClassName"
+          />
+        </Modal>
+        <Box sx={{ width: 500 }}>
+          <Slide
+            direction="right"
+            in={slide}
+            container={slideContainerRef.current}
+          >
+            <Stack
+              sx={{ width: 500 }}
+              zIndex={5}
+              bgcolor={"white"}
+              position={"fixed"}
+              left={0}
+              top={0}
+              bottom={0}
+              p={3}
+            >
+              <Stack py={2}>
+                <Typography variant="h5">Submit Assessments</Typography>
+              </Stack>
+              {course!.chapters.map((chapter, i) => {
+                return (
+                  <Stack>
+                    <Typography
+                      variant="h6"
+                      color={"teal"}
+                    >{`${chapter.title}`}</Typography>
+                    {/* student submitted assessment */}
+                    {submissions[i]?.show === "submitted" && (
+                      <Stack
+                        bgcolor={"teal"}
+                        sx={{ color: "white" }}
+                        padding={2}
+                        spacing={2}
+                      >
+                        <Stack direction={"row"} gap={2} alignItems={"center"}>
+                          <CheckIcon />
+                          <Stack>
+                            <Typography color={"white"} variant="h6">
+                              Well done
+                            </Typography>
+                            <Typography color={"white"} variant="subtitle1">
+                              Submitted Assessment
+                            </Typography>
+                          </Stack>
+                        </Stack>
+                      </Stack>
+                    )}
+                    {/* student did not submit assessment */}
+                    {submissions[i]?.show === "notsubmitted" && (
+                      <Stack spacing={2}>
+                        <Stack direction={"row"} alignItems={"center"}>
+                          <Typography flex={1} variant="subtitle1">
+                            Submit Assessment
+                          </Typography>
+                          <Button
+                            onClick={() => {
+                              setUpdateEditorState(
+                                EditorState.createWithContent(
+                                  convertFromRaw({
+                                    entityMap:
+                                      submissions[i].details.content
+                                        .entityMap || {},
+                                    blocks:
+                                      submissions[i].details.content.blocks,
+                                  })
+                                )
+                              );
+                              setAssessmentDetails({
+                                show: true,
+                                details: submissions[i].details.content,
+                              });
+                            }}
+                          >
+                            Details
+                          </Button>
+                        </Stack>
+
+                        <Form
+                          name="basic"
+                          // wrapperCol={{ span: 16 }}
+                          initialValues={{
+                            remember: true,
+                          }}
+                          onFinish={(values) => {
+                            onFinish({ ...values, chapter: chapter.title });
+                          }}
+                          onFinishFailed={onFinishFailed}
+                          autoComplete="off"
+                          layout="vertical"
+                        >
+                          <Form.Item
+                            label="Github URL"
+                            name="github"
+                            rules={[
+                              {
+                                required: true,
+                                message: "Link to Github Projet is required!",
+                              },
+                            ]}
+                          >
+                            <Input placeholder="https://github.com/.../..." />
+                          </Form.Item>
+                          <Form.Item
+                            label="Live URL"
+                            name="live"
+                            rules={[
+                              {
+                                required: false,
+                              },
+                            ]}
+                          >
+                            <Input placeholder="https://www.myhostedsite.com/.../..." />
+                          </Form.Item>
+                          <Form.Item>
+                            <Button type="primary" htmlType="submit">
+                              Submit
+                            </Button>
+                          </Form.Item>
+                        </Form>
+                      </Stack>
+                    )}
+
+                    {/* no assessment created */}
+                    {submissions[i]?.show === "undefined" && (
+                      <Stack p={2} spacing={2}>
+                        <Typography color={"GrayText"} variant="subtitle1">
+                          No Assessment
+                        </Typography>
+                      </Stack>
+                    )}
+                    <Divider />
+                  </Stack>
+                );
+              })}
+            </Stack>
+          </Slide>
+        </Box>
+        <Box
+          sx={{ "& > :not(style)": { m: 1 } }}
+          position={"fixed"}
+          zIndex={6}
+          bottom={2}
+          left={2}
+        >
+          <Fab
+            onClick={() => {
+              handleSlide();
+            }}
+            color="primary"
+            variant="extended"
+          >
+            <AssessmentIcon sx={{ mr: 1 }} />
+            Assessment
+          </Fab>
+        </Box>
+
         {/* <SEO
 title={post.frontmatter.title}
 description={post.frontmatter.description}
@@ -602,13 +798,16 @@ description={post.frontmatter.description}
             }}
           >
             <Stack p={2}>
-              <Typography variant="h5" fontWeight={"bold"}>
+              <Typography variant="subtitle1" fontWeight={"bold"}>
                 Course Content
               </Typography>
               <Link href={"mainSlug"}>
-                <h2 style={{ color: "#97CA42", marginBottom: 0 }}>
+                <Typography
+                  variant="h5"
+                  style={{ color: "#97CA42", marginBottom: 0 }}
+                >
                   {currentLesson?.title}
-                </h2>
+                </Typography>
                 <span style={{ color: "#afafaf" }}>{totalDuration}</span>
               </Link>
               <div style={{ display: "flex", alignItems: "center" }}>
@@ -726,72 +925,7 @@ description={post.frontmatter.description}
                         );
                       })}
                     </Timeline>
-                    {/* student submitted assessment */}
-                    {submissions[i]?.show === "submitted" && (
-                      <Stack
-                        bgcolor={"green"}
-                        sx={{ color: "white" }}
-                        padding={5}
-                        spacing={2}
-                      >
-                        <Stack direction={"row"} gap={2} alignItems={"center"}>
-                          <CheckIcon />
-                          <Stack>
-                            <Typography variant="h6">Well done</Typography>
-                            <Typography variant="subtitle1">
-                              Submitted Assessment
-                            </Typography>
-                          </Stack>
-                        </Stack>
-                      </Stack>
-                    )}
-                    {/* student did not submit assessment */}
-                    {submissions[i]?.show === "notsubmitted" && (
-                      <Stack spacing={2}>
-                        <Typography variant="subtitle1">
-                          Complete Assessment
-                        </Typography>
-                        <Form
-                          name="basic"
-                          // wrapperCol={{ span: 16 }}
-                          initialValues={{
-                            remember: true,
-                          }}
-                          onFinish={(values) => {
-                            onFinish({ ...values, chapter: chapter.title });
-                          }}
-                          onFinishFailed={onFinishFailed}
-                          autoComplete="off"
-                        >
-                          <Form.Item
-                            label="Github URL"
-                            name="github"
-                            rules={[
-                              {
-                                required: true,
-                                message: "Link to Github Projet is required!",
-                              },
-                            ]}
-                          >
-                            <Input placeholder="https://github.com/.../..." />
-                          </Form.Item>
-                          <Form.Item>
-                            <Button type="primary" htmlType="submit">
-                              Submit
-                            </Button>
-                          </Form.Item>
-                        </Form>
-                      </Stack>
-                    )}
 
-                    {/* no assessment created */}
-                    {submissions[i]?.show === "undefined" && (
-                      <Stack spacing={2}>
-                        <Typography variant="subtitle1">
-                          No Assessment
-                        </Typography>
-                      </Stack>
-                    )}
                     {/* Student assessment submission */}
                     {/* {checkSubmitted().then((res) => {
           return <Typography>Graeae</Typography>;
