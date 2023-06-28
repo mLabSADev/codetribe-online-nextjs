@@ -8,6 +8,7 @@ import { CoursesService } from "../services/courses-service";
 const { Meta } = Card;
 
 const CourseCard = ({ course }: { course: Course }) => {
+  const [loadFinished, setLoadFinished] = useState(false);
   const router = useRouter();
 
   const handleClick = () => {
@@ -15,32 +16,38 @@ const CourseCard = ({ course }: { course: Course }) => {
   };
 
   const share = () => {};
-  return (
-    <Card
-      hoverable
-      style={{ width: 400, borderRadius: 20, overflow: "hidden" }}
-      cover={
-        <img
-          alt={course.title}
-          src={course.imageUrl}
-          // width={600}
-        />
-      }
-      actions={[
-        <Button
-          style={{ borderRadius: 20 }}
-          type="primary"
-          size="large"
-          icon={<CodeOutlined />}
-          onClick={handleClick}
-        >
-          View Course
-        </Button>,
-      ]}
-    >
-      <Meta title={course.title} description={course.excerpt} />
-    </Card>
-  );
+  if (course.title) {
+    return (
+      <Card
+        hoverable
+        style={{ width: 400, borderRadius: 20, overflow: "hidden" }}
+        cover={
+          <img
+            onLoad={() => {
+              setLoadFinished(true);
+              console.log("load finished");
+            }}
+            alt={course.title}
+            src={course.imageUrl}
+            // width={600}
+          />
+        }
+        actions={[
+          <Button
+            style={{ borderRadius: 20 }}
+            type="primary"
+            size="large"
+            icon={<CodeOutlined />}
+            onClick={handleClick}
+          >
+            View Course
+          </Button>,
+        ]}
+      >
+        <Meta title={course.title} description={course.excerpt} />
+      </Card>
+    );
+  }
 };
 
 interface ITutorialListing {
