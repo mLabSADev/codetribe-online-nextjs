@@ -1,3 +1,5 @@
+import Quiz from "./quiz"
+
 interface Lesson {
     key: string
     chapterKey: string
@@ -7,7 +9,7 @@ interface Lesson {
     lesson: number
     chapter: number
     title: string
-    isQuiz?: boolean
+    quiz?: Quiz
 }
 
 export default Lesson

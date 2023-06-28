@@ -3,7 +3,9 @@
 import Chapter from '@/app/dtos/chapter';
 import Course from '@/app/dtos/course';
 import Lesson from '@/app/dtos/lesson';
+import Quiz from '@/app/dtos/quiz';
 import CreateEditLesson from '@/app/modals/create-edit-lesson';
+import CreateEditQuiz from '@/app/modals/create-edit-quiz';
 import { CoursesService } from '@/app/services/courses-service';
 import { ArrowDownOutlined, ArrowUpOutlined } from '@ant-design/icons';
 import { Button, Col, Modal, Row, Space, Spin, Table } from 'antd';
@@ -20,7 +22,20 @@ const Lessons = ({ course, chapter }: {
         show: false,
         selectedLesson: null
     })
+    const [showCreateEditQuiz, setShowCreateEditQuiz] = useState<{
+        show: boolean
+        selectedQuiz?: Quiz | null | undefined
+    }>({
+        show: false,
+        selectedQuiz: null
+    })
     const [lessonToRemove, setLessonToRemove] = useState<Lesson>()
+    const [lessons, setLessons] = useState<Lesson[]>([])
+    const [removing, setRemoving] = useState(false)
+
+    useEffect(() => {
+        setLessons(chapter.lessons)
+    }, [chapter])
 
     const onEdit = (lesson: Lesson) => {
         setShowCreateEditLesson({
@@ -36,10 +51,21 @@ const Lessons = ({ course, chapter }: {
     }
 
     const handleLessonRemove = () => {
-        // remove lesson
+        setRemoving(true)
+
         CoursesService.removeLesson(course.key, chapter, lessonToRemove!).then(() => {
-            console.log('Removed');
-            
+            const lessonsToKeep = []
+
+            for (let i = 0; i < lessons.length; i++) {
+                if (lessons[i].key !== lessonToRemove?.key) {
+                    lessonsToKeep.push(lessons[i])
+                }
+            }
+
+            setLessons(lessonsToKeep)
+            setLessonToRemove(undefined)
+        }).finally(() => {
+            setRemoving(false)
         })
     }
 
@@ -102,12 +128,19 @@ const Lessons = ({ course, chapter }: {
     
     return (
         <div>
-            <Table dataSource={chapter.lessons} columns={columns}>
+            <Table pagination={false} dataSource={lessons} columns={columns}>
 
             </Table>
             {showCreateEditLesson.show && <CreateEditLesson lesson={showCreateEditLesson.selectedLesson} onCancel={onClose} />}
+            {showCreateEditQuiz.show && <CreateEditQuiz onCancel={onClose} />}
             <Modal
           title="Remove Lesson"
+          cancelButtonProps={{
+            disabled: removing
+          }}
+          okButtonProps={{
+            disabled: removing
+          }}
           open={!!lessonToRemove}
           onOk={handleLessonRemove}
           onCancel={() => setLessonToRemove(undefined)}
@@ -127,13 +160,14 @@ export default ({ params }: {
     const { id } = params
 
     const [showCreateLesson, setShowCreateLesson] = useState<Chapter | undefined>()
+    const [showCreateQuiz, setShowCreateQuiz] = useState<Chapter | undefined>()
 
     const onAddLesson = (chapter: Chapter) => {
         setShowCreateLesson(chapter)
     }
 
     const onAddQuiz = (chapter: Chapter) => {
-
+        setShowCreateQuiz(chapter)
     }
 
     const onRemoveChapter = (chapter: Chapter) => {
@@ -142,6 +176,7 @@ export default ({ params }: {
 
     const onClose = () => {
         setShowCreateLesson(undefined)
+        setShowCreateQuiz(undefined)
     }
 
     
@@ -194,6 +229,8 @@ export default ({ params }: {
                 }} /> : <div style={{display: 'flex', justifyContent: 'center'}}><Spin /></div>}
 
         {showCreateLesson && <CreateEditLesson course={course} chapter={showCreateLesson} onCancel={onClose} />}
+        
+        {showCreateQuiz && <CreateEditQuiz course={course} chapter={showCreateQuiz} onCancel={onClose} />}
 
         {/* <Modal
           title="Remove Chapter"
