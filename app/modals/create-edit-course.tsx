@@ -1,6 +1,5 @@
 import React, { useEffect, useState } from 'react'
 import { Form, Input, Button, Row, Col, Alert, Upload, Modal } from 'antd'
-import { AuthService } from '../services/auth-service';
 import { PlusOutlined } from '@ant-design/icons';
 import { CoursesService } from '../services/courses-service';
 import Course from '../dtos/course';
@@ -14,6 +13,8 @@ const CreateEditCourse = ({ course, onCancel }: {
     const [errorMessage, setErrorMessage] = useState<string | null>()
     const [success, setSuccess] = useState<boolean>()
     const [currentFile, setCurrentFile] = useState<any>()
+    const [currentOutlines, setCurrentOutlines] = useState<string[]>([])
+    const [currentOutline, setCurrentOutline] = useState<string>('')
 
     const [previewOpen, setPreviewOpen] = useState(false);
     const [previewImage, setPreviewImage] = useState('');
@@ -21,11 +22,25 @@ const CreateEditCourse = ({ course, onCancel }: {
 
     const [fileList, setFileList] = useState<any[]>([])
 
+    useEffect(() => {
+        if (course) {
+            setCurrentOutlines(course.outline || [])
+        }
+    }, [course])
+
     const save = (course: any) => {
 
         if (fileList.length > 0) {
             setSaving(true)
             setErrorMessage(null)
+
+            const outlinesToSave = []
+            for (let outline of currentOutlines) {
+                if (outline.trim().length > 0) {
+                    outlinesToSave.push(outline)
+                }
+            }
+            course.outline = outlinesToSave
 
             return CoursesService.saveCourse({
                 ...course,
@@ -63,13 +78,28 @@ const CreateEditCourse = ({ course, onCancel }: {
         setPreviewTitle(file.name || file.url.substring(file.url.lastIndexOf('/') + 1));
       };
 
-    const onFinish = () => {
-
-    }
-
     const onUploadChange = (newFileList: any) => {
         setCurrentFile(newFileList.file)
         setFileList(newFileList.fileList);
+    }
+
+    const onUpdateOutline = (index: number, outline: string) => {
+        const outlines = [
+            ...currentOutlines
+        ]
+
+        outlines[index] = outline
+
+        setCurrentOutlines(outlines)
+    }
+
+    const onAddOutline = () => {
+        const outlines = [...currentOutlines]
+
+        outlines.push(currentOutline)
+
+        setCurrentOutlines(outlines)
+        setCurrentOutline('')
     }
 
     const getBase64 = (file: any) =>
@@ -132,7 +162,7 @@ const CreateEditCourse = ({ course, onCancel }: {
                                 <img alt="example" style={{ width: '100%' }} src={previewImage} />
                             </Modal>
                             
-                            <Form.Item style={{}} label="Title" name='title' rules={[
+                            <Form.Item label="Title" name='title' rules={[
                                 {
                                     required: true,
                                     message: 'The title is required'
@@ -176,20 +206,34 @@ const CreateEditCourse = ({ course, onCancel }: {
                                     borderWidth: 2
                                 }} />
                             </Form.Item>
-                            <Form.Item style={{}} label="Course Outline (Separated by line break)" name='outline' rules={[
-                                {
-                                    required: true,
-                                    message: 'Outline is required'
-                                }
-                            ]}>
-                                <Input.TextArea rows={4} placeholder="Outline" style={{
-                                    borderRadius: 10,
-                                    borderColor: 'rgb(143, 230, 76)',
-                                    borderStyle: 'solid',
-                                    padding: 10,
-                                    borderWidth: 2
-                                }} />
-                            </Form.Item>
+                            <div>Outline (Leave empty to remove outline)</div>
+                            {currentOutlines.map((outline, index) => {
+                                return (
+                                    <Input value={outline} onChange={text => {
+                                        onUpdateOutline(index, text.target.value)
+                                    }} placeholder={"Outline " + (index + 1)} style={{
+                                        borderRadius: 0,
+                                        borderColor: 'rgb(143, 230, 76)',
+                                        borderStyle: 'solid',
+                                        padding: 10,
+                                        borderWidth: 2
+                                    }} />
+                                )
+                            })}
+                            
+                            {currentCourse && (
+                            <div style={{display: 'flex'}}>
+                                <Input value={currentOutline} onChange={event => setCurrentOutline(event.target.value)} placeholder={"Input Outline " + (currentOutlines.length + 1)} style={{
+                                            borderRadius: 0,
+                                            borderColor: 'rgb(143, 230, 76)',
+                                            borderStyle: 'solid',
+                                            padding: 10,
+                                            marginBottom: 5,
+                                            borderWidth: 2,
+                                            flexGrow: 1
+                                        }} />
+                                <Button onClick={onAddOutline}>Add Outline</Button>
+                            </div>)}
                             <Button size='large' loading={saving} disabled={saving} htmlType='submit' style={{
                                 background: 'rgb(143, 230, 76)',
                                 borderStyle: 'none',

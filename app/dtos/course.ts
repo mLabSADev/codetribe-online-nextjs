@@ -7,7 +7,7 @@ interface Course {
     imageUrl: string
     excerpt: string
     chapters: Chapter[]
-    outline: string
+    outline: string[]
 }
 
 export default Course
