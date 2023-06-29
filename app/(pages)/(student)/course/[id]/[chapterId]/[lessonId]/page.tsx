@@ -12,11 +12,13 @@ import {
   Col,
   Collapse,
   Divider,
+  Empty,
   Form,
   Input,
   Modal,
   Row,
   Timeline,
+  message,
 } from "antd";
 import {
   ArrowLeftOutlined,
@@ -27,7 +29,15 @@ import {
 } from "@ant-design/icons";
 // import Quiz from "../components/quiz"
 // import Disqus from "gatsby-plugin-disqus/components/Disqus"
-import { IconButton, Stack, Typography, Box, Fab, Slide } from "@mui/material";
+import {
+  IconButton,
+  Stack,
+  Typography,
+  Box,
+  Fab,
+  Slide,
+  Snackbar,
+} from "@mui/material";
 import Course from "@/app/dtos/course";
 import CheckIcon from "@mui/icons-material/Check";
 import Lesson from "@/app/dtos/lesson";
@@ -41,6 +51,7 @@ import { Editor } from "react-draft-wysiwyg";
 import { EditorState, convertFromRaw } from "draft-js";
 import { AuthService } from "@/app/services/auth-service";
 import { Assessment } from "@/app/services/assessments-service";
+import CloseIcon from "@mui/icons-material/Close";
 import AssessmentSubmission from "@/app/dtos/assessment-submission";
 import AssessmentIcon from "@mui/icons-material/Assessment";
 const checkSubmitted = () => {
@@ -118,12 +129,17 @@ export default ({
   const [assessmentDetails, setAssessmentDetails] = useState({
     show: false,
     details: null,
+    header: null,
   });
   const [slide, setSlide] = React.useState(false);
   const slideContainerRef = React.useRef(null);
   const [updateEditorState, setUpdateEditorState] = React.useState(
     EditorState.createEmpty()
   );
+  const [openNotification, setOpenNotification] = React.useState({
+    success: false,
+    error: false,
+  });
   const { origin, hostname, pathname, ancestorOrigins, href } = window.location;
   const handleSlide = () => {
     setSlide((prev) => !prev);
@@ -181,6 +197,15 @@ export default ({
             lessonToMoveTo = lesson;
           }
         }
+        course!.chapters.map((chapter, i) => {
+          // Keketso
+          const { pathname } = window.location;
+          const c = pathname.split("/")[2];
+
+          RunAssessmentFunc({ course: c, chapter: chapter.title });
+
+          // check if chapter has an assessment
+        });
       });
       setPosition(position);
     });
@@ -366,7 +391,6 @@ export default ({
 
   const progress = Math.round((totalDurationUntilCurrentLesson / total) * 100);
   const onFinish = (values: any) => {
-    console.log("Success ", values);
     const currentURL = window.location.href;
     let splitter = currentURL.split("/");
     const submission = {
@@ -374,23 +398,32 @@ export default ({
       chapter: values.chapter,
       course: splitter[4],
       fullName: "",
+      submitted: new Date().toISOString(),
       ...values,
     };
-    console.log(submission);
 
-    AuthService.currentUser().then((res) => {
-      setUser(res);
-      submission.fullName = `${res.firstname} ${res.lastname}`;
-      if (res.location) {
-        submission.location = res.location;
-      } else {
-        submission.location = res.groups[0];
-      }
-      Assessment.submit(submission).then((res) => {
-        console.log("Submitted");
-        setShowAssessmentSubmission(false);
-      });
-    });
+    AuthService.currentUser()
+      .then((res) => {
+        setUser(res);
+        submission.fullName = `${res.firstname} ${res.lastname}`;
+        if (res.location) {
+          submission.location = res.location;
+        } else {
+          submission.location = res.groups[0];
+        }
+        // Send to firebase
+        Assessment.submit(submission)
+          .then((res) => {
+            setShowAssessmentSubmission(false);
+            setOpenNotification({ error: false, success: true });
+          })
+          .catch((err) => {
+            console.log(err);
+
+            setOpenNotification({ error: true, success: false });
+          });
+      })
+      .then((err) => {});
   };
 
   const onFinishFailed = (errorInfo: any) => {
@@ -434,78 +467,104 @@ export default ({
     //   });
     // });
   };
-  const RunAssessmentFunc = (data) => {
-    Assessment.getOne({ course: data.course, chapter: data.chapter }).then(
-      (createdAssessment) => {
-        if (createdAssessment) {
-          // assessment available
-          AuthService.currentUser().then((profile) => {
-            // get current signed in user location
-            var location = "";
-            if (profile.location) {
-              location = profile.location;
-            } else {
-              location = profile.groups[0];
-            }
-            Assessment.getOneSubmission({
-              course: data.course,
-              chapter: data.chapter,
-              location: location,
-            }).then((data) => {
-              if (data) {
-                if (submissions.length <= course!.chapters.length) {
-                  submissions.push({
-                    show: "submitted",
-                    details: createdAssessment,
-                  });
-                  setSubmissions(submissions);
-                  console.log(submissions);
-                }
-              } else {
-                if (submissions.length <= course!.chapters.length) {
-                  submissions.push({
-                    show: "notsubmitted",
-                    details: createdAssessment,
-                  });
-                  setSubmissions(submissions);
-                  console.log(submissions, {
-                    d: submissions.length,
-                    b: course!.chapters.length,
-                  });
-                }
-              }
-            });
-            // AuthService.isLoggedIn().then((res) => {
-            //   console.log(data);
-
-            //   // check if subbission was done for each chapter
-            // });
-          });
-        } else {
-          submissions.push({ show: "undefined", details: null });
-          setSubmissions(submissions);
-          const b = submissions;
-          setTimeout(() => {
-            setSubmissions([]);
-            setSubmissions(b);
-          }, 2000);
-        }
+  /**
+   *
+   * @param data  course: 'React', chapter: 'Lesson One'
+   */
+  const RunAssessmentFunc = async (data) => {
+    const createdAssessment = await Assessment.getOne({
+      course: data.course,
+      chapter: data.chapter,
+    }).then((createdAssessment) => createdAssessment);
+    // "1: Created Assessment "
+    if (createdAssessment) {
+      // assessment available
+      const profile = await AuthService.currentUser().then(
+        (profile) => profile
+      );
+      //  "2: Profile "
+      var location = "";
+      if (profile.location) {
+        location = profile.location;
+      } else {
+        location = profile.groups[0];
       }
-    );
+      // "3: Location "
+      const sub = await Assessment.getOneSubmission({
+        course: data.course,
+        chapter: data.chapter,
+        location: location,
+      }).then((data) => data);
+      // "4: One Submission "
+      if (sub) {
+        submissions.push({
+          show: "submitted",
+          details: createdAssessment,
+          title: data.chapter,
+        });
+        setSubmissions(submissions);
+        console.log(submissions);
+      } else {
+        submissions.unshift({
+          show: "notsubmitted",
+          details: createdAssessment,
+          title: data.chapter,
+        });
+        setSubmissions(submissions);
+      }
+    } else {
+    }
   };
   useEffect(() => {}, []);
 
   return (
     currentLesson?.key && (
       <Stack position={"relative"} ref={slideContainerRef}>
+        <Snackbar
+          open={openNotification.success}
+          autoHideDuration={3000}
+          message="Successfully Submitted Assessment"
+          action={
+            <IconButton
+              size="small"
+              aria-label="close"
+              color="inherit"
+              onClick={() => {
+                setOpenNotification({ error: false, success: false });
+              }}
+            >
+              <CloseIcon fontSize="small" />
+            </IconButton>
+          }
+        />
+        <Snackbar
+          open={openNotification.error}
+          autoHideDuration={3000}
+          onClose={() => {
+            setOpenNotification({ error: false, success: false });
+          }}
+          message="Failed to Submit Assessment"
+          action={
+            <IconButton
+              size="small"
+              aria-label="close"
+              color="inherit"
+              onClick={() => {
+                setOpenNotification({ error: false, success: false });
+              }}
+            >
+              <CloseIcon fontSize="small" />
+            </IconButton>
+          }
+        />
         <Modal
           title="Assessment Details"
           open={assessmentDetails.show}
           onOk={() => {
-            setAssessmentDetails({ show: false, details: null });
+            setAssessmentDetails({ show: false, details: null, header: null });
           }}
           onCancel={() => {
-            setAssessmentDetails({ show: false, details: null });
+            setAssessmentDetails({ show: false, details: null, header: null });
           }}
         >
           <Editor
@@ -533,7 +592,8 @@ export default ({
             container={slideContainerRef.current}
           >
             <Stack
-              sx={{ width: 500 }}
+              sx={{ width: 500, overflowY: "auto" }}
+              maxHeight={"100%"}
               zIndex={5}
               bgcolor={"white"}
               position={"fixed"}
@@ -545,57 +605,38 @@ export default ({
               <Stack py={2}>
                 <Typography variant="h5">Submit Assessments</Typography>
               </Stack>
-              {course!.chapters.map((chapter, i) => {
-                return (
-                  <Stack>
-                    <Typography
-                      variant="h6"
-                      color={"teal"}
-                    >{`${chapter.title}`}</Typography>
-                    {/* student submitted assessment */}
-                    {submissions[i]?.show === "submitted" && (
-                      <Stack
-                        bgcolor={"teal"}
-                        sx={{ color: "white" }}
-                        padding={2}
-                        spacing={2}
-                      >
-                        <Stack direction={"row"} gap={2} alignItems={"center"}>
-                          <CheckIcon />
-                          <Stack>
-                            <Typography color={"white"} variant="h6">
-                              Well done
-                            </Typography>
-                            <Typography color={"white"} variant="subtitle1">
-                              Submitted Assessment
+              <Stack spacing={2}>
+                {submissions.length === 0 ? (
+                  <Empty
+                    description={<Typography>No Assessments</Typography>}
+                  />
+                ) : null}
+                {submissions.map((sub: any, i: number) => {
+                  if (sub.show == "notsubmitted") {
+                    return (
+                      <Stack key={i} spacing={2}>
+                        <Stack direction={"row"} alignItems={"center"}>
+                          <Stack flex={1}>
+                            <Typography flex={1} variant="h6">
+                              {sub.title}
                             </Typography>
                           </Stack>
-                        </Stack>
-                      </Stack>
-                    )}
-                    {/* student did not submit assessment */}
-                    {submissions[i]?.show === "notsubmitted" && (
-                      <Stack spacing={2}>
-                        <Stack direction={"row"} alignItems={"center"}>
-                          <Typography flex={1} variant="subtitle1">
-                            Submit Assessment
-                          </Typography>
+
                           <Button
                             onClick={() => {
                               setUpdateEditorState(
                                 EditorState.createWithContent(
                                   convertFromRaw({
                                     entityMap:
-                                      submissions[i].details.content
-                                        .entityMap || {},
-                                    blocks:
-                                      submissions[i].details.content.blocks,
+                                      sub.details.content.entityMap || {},
+                                    blocks: sub.details.content.blocks,
                                   })
                                 )
                               );
                               setAssessmentDetails({
                                 show: true,
-                                details: submissions[i].details.content,
+                                details: sub.details.content,
+                                header: sub.title,
                               });
                             }}
                           >
@@ -610,7 +651,7 @@ export default ({
                             remember: true,
                           }}
                           onFinish={(values) => {
-                            onFinish({ ...values, chapter: chapter.title });
+                            onFinish({ ...values, chapter: sub.title });
                           }}
                           onFinishFailed={onFinishFailed}
                           autoComplete="off"
@@ -633,7 +674,8 @@ export default ({
                             name="live"
                             rules={[
                               {
-                                required: false,
+                                required: true,
+                                message: "Projet host URL is required",
                               },
                             ]}
                           >
@@ -646,20 +688,42 @@ export default ({
                           </Form.Item>
                         </Form>
                       </Stack>
-                    )}
-
-                    {/* no assessment created */}
-                    {submissions[i]?.show === "undefined" && (
-                      <Stack p={2} spacing={2}>
-                        <Typography color={"GrayText"} variant="subtitle1">
-                          No Assessment
-                        </Typography>
+                    );
+                  } else {
+                    return (
+                      <Stack
+                        key={i}
+                        bgcolor={"teal"}
+                        sx={{ color: "white" }}
+                        padding={2}
+                        spacing={2}
+                      >
+                        <Stack direction={"row"} gap={2} alignItems={"center"}>
+                          <CheckIcon />
+                          <Stack>
+                            <Typography color={"white"} variant="h6">
+                              Well done
+                            </Typography>
+                            <Typography color={"white"} variant="subtitle1">
+                              Submitted Assessment
+                            </Typography>
+                          </Stack>
+                        </Stack>
                       </Stack>
-                    )}
-                    <Divider />
-                  </Stack>
-                );
-              })}
+                    );
+                  }
+                })}
+                {/* student submitted assessment */}
+                {/* {submissions[i]?.show === "submitted" && (
+                
+                )} */}
+                {/* student did not submit assessment */}
+                {/* {submissions[i]?.show === "notsubmitted" && (
+                 
+                )} */}
+
+                <Divider />
+              </Stack>
             </Stack>
           </Slide>
         </Box>
@@ -854,12 +918,6 @@ description={post.frontmatter.description}
                 }
                 const chapterTotalDurationText =
                   DurationHelper.secondsToText(chapterTotalDuration);
-
-                // Keketso
-                const { pathname } = window.location;
-                const c = pathname.split("/")[2];
-                RunAssessmentFunc({ course: c, chapter: chapter.title });
-                // check if chapter has an assessment
 
                 return (
                   <Collapse.Panel

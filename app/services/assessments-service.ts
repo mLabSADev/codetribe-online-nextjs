@@ -76,8 +76,10 @@ export const Assessment = {
                 firebase
                     .database()
                     .ref(`assessments/submissions/${values.course}/${values.chapter}/${user.uid}`)
-                    .set({ ...values, submitted: new Date().toISOString() }).then(data => {
+                    .set(values).then(data => {
                         res(data)
+                    }).catch(err => {
+                        rej(err)
                     })
             })
         })
