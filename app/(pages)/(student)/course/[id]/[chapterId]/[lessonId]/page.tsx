@@ -27,6 +27,7 @@ import {
   CheckCircleFilled,
   CheckOutlined,
   LeftOutlined,
+  RightOutlined,
 } from "@ant-design/icons";
 // import Quiz from "../components/quiz"
 // import Disqus from "gatsby-plugin-disqus/components/Disqus"
@@ -55,7 +56,7 @@ import { Assessment } from "@/app/services/assessments-service";
 import CloseIcon from "@mui/icons-material/Close";
 import AssessmentSubmission from "@/app/dtos/assessment-submission";
 import AssessmentIcon from "@mui/icons-material/Assessment";
-import { Styles } from "@/app/services/styles";
+import { Colors, Styles } from "@/app/services/styles";
 const AssessmentLoadingSkelleton = () => {
   return (
     <Stack spacing={1}>
@@ -927,7 +928,7 @@ description={post.frontmatter.description}
                 Progress
                 <div
                   style={{
-                    background: "#cfcfcf",
+                    background: isNaN(progress) ? "red" : "#cfcfcf",
                     flex: 1,
                     height: 5,
                     marginLeft: 30,
@@ -938,13 +939,13 @@ description={post.frontmatter.description}
                   <div
                     style={{
                       background: "#97CA42",
-                      width: `${progress}%`,
+                      width: isNaN(progress) ? 0 : `${progress}`,
                       height: 5,
                     }}
                   />
                 </div>
                 <div style={{ paddingLeft: 10 }}>
-                  {isNaN(progress) ? "-" : progress}%
+                  {isNaN(progress) ? "Error" : `${progress}%`}
                 </div>
               </div>
             </Stack>
@@ -971,22 +972,23 @@ description={post.frontmatter.description}
                 return (
                   <Collapse.Panel
                     // expandIconPosition="end"
+
                     header={
-                      <Stack>
-                        <Typography
-                          sx={{
-                            color:
-                              chapter.key === currentLesson.chapterKey
-                                ? "#97CA42"
-                                : "#606060",
-                          }}
-                          variant="subtitle1"
-                        >{`${chapter.title} (${chapterTotalDurationText})`}</Typography>
+                      <Stack direction={"row"} flex={1}>
+                        <Typography flex={1} variant="subtitle1">
+                          {chapter.title}
+                        </Typography>
+                        <Typography variant="overline">
+                          {chapterTotalDurationText}
+                        </Typography>
                       </Stack>
                     }
                     key={chapter.key}
                     style={{
-                      backgroundColor: "rgba(0,0,0,0)",
+                      backgroundColor:
+                        chapter.key === currentLesson.chapterKey
+                          ? Colors.SmokeWhite
+                          : "rgba(0,0,0,0)",
                       borderColor: "#f0f2f5",
                     }}
                   >
@@ -999,9 +1001,13 @@ description={post.frontmatter.description}
                             dot={
                               <Stack>
                                 {isLegalPage(lesson) ? (
-                                  <CheckBoxIcon color="success" />
+                                  <CheckBoxIcon
+                                    sx={{ color: Colors.Primary }}
+                                  />
                                 ) : (
-                                  <CheckBoxOutlineBlankIcon color="success" />
+                                  <CheckBoxOutlineBlankIcon
+                                    sx={{ color: Colors.Primary }}
+                                  />
                                 )}
                               </Stack>
                             }
@@ -1031,6 +1037,26 @@ description={post.frontmatter.description}
                           </Timeline.Item>
                         );
                       })}
+                      <Stack
+                        borderRadius={4}
+                        p={2}
+                        bgcolor={Colors.Primary}
+                        color={"white"}
+                        spacing={2}
+                      >
+                        <Typography color={"white"} variant="h5">
+                          Quiz Test
+                        </Typography>
+                        <Typography>Pass test to open next section</Typography>
+                        <Button
+                          style={Styles.Button.Filled}
+                          type="ghost"
+                          icon={<RightOutlined />}
+                          size={"large"}
+                        >
+                          Begin Quiz
+                        </Button>
+                      </Stack>
                     </Timeline>
 
                     {/* Student assessment submission */}
