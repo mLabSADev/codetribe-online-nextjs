@@ -5,6 +5,7 @@ import { LessonService } from "@/app/services/lesson-service";
 import Student from "@/app/dtos/student";
 import { StudentsService } from "@/app/services/students-service";
 import CreateEditStudent from "@/app/modals/create-edit-student";
+import { Styles } from "@/app/services/styles";
 
 const lessonNames = {
   react: "ReactJS",
@@ -159,7 +160,10 @@ export default () => {
           title: "Year",
           dataIndex: "year",
           key: "year",
-          filters: [{text: '2022', value: '2022'}, {text: '2023', value: '2023'}],
+          filters: [
+            { text: "2022", value: "2022" },
+            { text: "2023", value: "2023" },
+          ],
           onFilter: (value: string, record: Student) =>
             record.year && record.year == value,
         },
@@ -169,7 +173,10 @@ export default () => {
           key: "location",
           filterMode: "tree",
           filterSearch: true,
-          filters: groups.map((filter: any) => ({text: filter, value: filter})),
+          filters: groups.map((filter: any) => ({
+            text: filter,
+            value: filter,
+          })),
           onFilter: (value: string, record: Student) =>
             record.location && record.location.startsWith(value),
         },
@@ -201,8 +208,10 @@ export default () => {
       )}
       <Space style={{ marginBottom: 20, marginTop: 60 }} size={"middle"}>
         <h2 style={{ marginTop: 10 }}>Students</h2>
-        <Button onClick={onAddStudent}>Add Student</Button>
-        <Button>Add Bulk Students</Button>
+        <Button style={Styles.Button.Outline} onClick={onAddStudent}>
+          Add Student
+        </Button>
+        <Button style={Styles.Button.Outline}>Add Bulk Students</Button>
       </Space>
       {students && columns ? (
         <Table
