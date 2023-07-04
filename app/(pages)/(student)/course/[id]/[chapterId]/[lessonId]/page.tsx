@@ -151,6 +151,7 @@ export default ({
     success: false,
     error: false,
   });
+  const [quizModal, setQuizModal] = React.useState(false);
   const [assessmentsLoading, setAssessmentsLoading] = React.useState(true);
   const { origin, hostname, pathname, ancestorOrigins, href } = window.location;
   const handleSlide = () => {
@@ -614,6 +615,31 @@ export default ({
             editorClassName="editorClassName"
           />
         </Modal>
+
+        {/* Quiz Modal */}
+        <Modal
+          title="Quiz"
+          open={quizModal}
+          onOk={() => {}}
+          onCancel={() => {}}
+          footer={[
+            <Button
+              style={Styles.Button.Outline}
+              key="back"
+              onClick={() => {
+                setQuizModal(false);
+              }}
+            >
+              Okay
+            </Button>,
+          ]}
+        >
+          <Typography variant="body1">
+            Quiz cannot be closed until the student completes it
+          </Typography>
+          <Typography variant="h6">Quiz</Typography>
+          <Typography variant="body2">Quiz content here....</Typography>
+        </Modal>
         <Box sx={{ width: 500 }}>
           <Slide
             direction="right"
@@ -813,10 +839,13 @@ description={post.frontmatter.description}
                 direction={"row"}
                 alignItems={"center"}
               >
-                <IconButton onClick={() => router.back()}>
-                  <ArrowBackRoundedIcon />
-                </IconButton>
-
+                <Button
+                  size="large"
+                  style={{ ...Styles.Button.Outline, alignSelf: "self-start" }}
+                  onClick={() => router.back()}
+                >
+                  <LeftOutlined />
+                </Button>
                 <Typography fontWeight={"bold"} variant="h6">
                   {currentLesson?.title}
                 </Typography>
@@ -1053,6 +1082,9 @@ description={post.frontmatter.description}
                           type="ghost"
                           icon={<RightOutlined />}
                           size={"large"}
+                          onClick={() => {
+                            setQuizModal(true);
+                          }}
                         >
                           Begin Quiz
                         </Button>

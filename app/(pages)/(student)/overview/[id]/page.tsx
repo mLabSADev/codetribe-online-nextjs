@@ -185,7 +185,7 @@ const CourseOverview = ({ params }: { params: { id: string } }) => {
               <Stack p={1}>
                 <Button
                   size="large"
-                  style={{ ...Styles.Button.Filled, alignSelf: "self-start" }}
+                  style={{ ...Styles.Button.Outline, alignSelf: "self-start" }}
                   onClick={() => router.back()}
                 >
                   <LeftOutlined />
@@ -203,8 +203,6 @@ const CourseOverview = ({ params }: { params: { id: string } }) => {
                   style={{
                     width: "100%",
                     height: "100%",
-                    marginBottom: 0,
-                    marginTop: 20,
                     objectFit: "cover",
                   }}
                 />
