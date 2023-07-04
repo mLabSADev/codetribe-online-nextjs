@@ -1,18 +1,18 @@
-'use client'
+"use client";
 
-import React, { useEffect, useState } from "react"
-import { useRouter } from "next/navigation"
-import { Avatar, Stack } from "@mui/material"
-import { Divider, Typography } from "antd"
-import { AuthService } from "@/app/services/auth-service"
-import StudentProgress from "@/app/components/student-progress"
-import TutorialListing from "@/app/components/tutorial-listing"
-import ResourceCards, { BackendCard } from "@/app/components/resources"
+import React, { useEffect, useState } from "react";
+import { useRouter } from "next/navigation";
+import { Avatar, Stack } from "@mui/material";
+import { Button, Divider, Input, Typography } from "antd";
+import { AuthService } from "@/app/services/auth-service";
+import StudentProgress from "@/app/components/student-progress";
+import TutorialListing from "@/app/components/tutorial-listing";
+import ResourceCards, { BackendCard } from "@/app/components/resources";
 
 export default () => {
-  const [loading, setLoading] = useState(false)
-  const [isLoggedIn, setIsLoggedIn] = useState(false)
-  const router = useRouter()
+  const [loading, setLoading] = useState(false);
+  const [isLoggedIn, setIsLoggedIn] = useState(false);
+  const router = useRouter();
 
   const ProgressData = [
     {
@@ -39,7 +39,7 @@ export default () => {
       duration: "4min",
       link: "",
     },
-  ]
+  ];
 
   const FrontEndResourceData = [
     {
@@ -50,8 +50,7 @@ export default () => {
       links: [
         {
           label: "Layout",
-          link:
-            "https://ionicframework.com/docs/core-concepts/cross-platform#layout",
+          link: "https://ionicframework.com/docs/core-concepts/cross-platform#layout",
         },
         {
           label: "Typography",
@@ -127,7 +126,7 @@ export default () => {
         },
       ],
     },
-  ]
+  ];
   const BackendResourceData = [
     {
       icon: "/images/resources/REDUX.png",
@@ -145,26 +144,26 @@ export default () => {
         "Firebase is an app development platform that helps you build and grow apps and games users love. Backed by Google and trusted by millions of businesses around the world.",
       link: "https://firebase.google.com/docs/build?authuser=0&hl=en",
     },
-  ]
+  ];
   // End dummy data ====
   function stringToColor(string: string) {
-    let hash = 0
-    let i
-  
+    let hash = 0;
+    let i;
+
     /* eslint-disable no-bitwise */
     for (i = 0; i < string.length; i += 1) {
-      hash = string.charCodeAt(i) + ((hash << 5) - hash)
+      hash = string.charCodeAt(i) + ((hash << 5) - hash);
     }
-  
-    let color = "#"
-  
+
+    let color = "#";
+
     for (i = 0; i < 3; i += 1) {
-      const value = (hash >> (i * 8)) & 0xff
-      color += `00${value.toString(16)}`.slice(-2)
+      const value = (hash >> (i * 8)) & 0xff;
+      color += `00${value.toString(16)}`.slice(-2);
     }
     /* eslint-enable no-bitwise */
-  
-    return color
+
+    return color;
   }
 
   function stringAvatar(name: string) {
@@ -173,53 +172,52 @@ export default () => {
         bgcolor: stringToColor(name),
       },
       children: `${name.split(" ")[0][0]}${name.split(" ")[1][0]}`,
-    }
+    };
   }
 
-  const [user, setUser] = useState<any>(null)
+  const [user, setUser] = useState<any>(null);
   useEffect(() => {
-    setLoading(true)
-    AuthService.currentUser().then(result => {
-      console.log(result)
-      setUser(result)
-      setLoading(false)
-    })
-  }, [])
+    setLoading(true);
+    AuthService.currentUser().then((result) => {
+      console.log(result);
+      setUser(result);
+      setLoading(false);
+    });
+  }, []);
 
-//   useEffect(() => {
-//     AuthService.isLoggedIn()
-//       .then(result => {
-//         if (result) {
-//           setIsLoggedIn(true)
-//           AuthService.currentUser().then(profile => {
-//             // if (profile.bootcamp) {
-//             //   router.push("/webinars")
-//             // }
-//           })
-//         }
-//       })
-//       .catch(err => {
-//         console.log(err);
-        
-//         router.push("/")
-//       })
-//       .finally(() => {
-//         setLoading(false)
-//       })
-//   }, [])
+  //   useEffect(() => {
+  //     AuthService.isLoggedIn()
+  //       .then(result => {
+  //         if (result) {
+  //           setIsLoggedIn(true)
+  //           AuthService.currentUser().then(profile => {
+  //             // if (profile.bootcamp) {
+  //             //   router.push("/webinars")
+  //             // }
+  //           })
+  //         }
+  //       })
+  //       .catch(err => {
+  //         console.log(err);
+
+  //         router.push("/")
+  //       })
+  //       .finally(() => {
+  //         setLoading(false)
+  //       })
+  //   }, [])
 
   return loading ? (
     <div></div>
   ) : user ? (
     <div>
       {/* <PageLayout fullscreen={true} active='home'>
-                
             </PageLayout> */}
       {/* <HomeContent /> */}
 
       <Stack py={5} spacing={2} alignItems={"center"}>
         <Avatar
-        //   sx={{ width: 56, height: 56 }}
+          //   sx={{ width: 56, height: 56 }}
           {...stringAvatar(
             `${user?.firstname || "C"} ${user?.lastname || "T"}`
           )}
@@ -272,7 +270,7 @@ export default () => {
                       title={item.section}
                       progress={item.progress}
                     />
-                  )
+                  );
                 })}
               </Stack>
               <Divider />
@@ -305,7 +303,7 @@ export default () => {
                       links={item.links}
                       image={item.image}
                     />
-                  )
+                  );
                 })}
               </Stack>
               <Stack
@@ -323,7 +321,7 @@ export default () => {
                       description={item.description}
                       icon={item.icon}
                     />
-                  )
+                  );
                 })}
               </Stack>
             </Stack>
@@ -333,5 +331,5 @@ export default () => {
     </div>
   ) : (
     <div></div>
-  )
-}
+  );
+};

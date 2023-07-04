@@ -4,6 +4,7 @@ import { PlusOutlined } from "@ant-design/icons";
 import { CoursesService } from "../services/courses-service";
 import Course from "../dtos/course";
 import { Stack } from "@mui/material";
+import { Styles } from "../services/styles";
 
 const CreateEditCourse = ({
   course,
@@ -292,7 +293,7 @@ const CreateEditCourse = ({
                 </Stack>
 
                 {currentCourse && (
-                  <Stack alignItems={"center"} direction={"row"}>
+                  <Stack alignItems={"center"} direction={{xs: 'column', sm: 'column', md: 'row', lg: 'row'}}>
                     <Input
                       value={currentOutline}
                       onChange={(event) =>
@@ -310,13 +311,7 @@ const CreateEditCourse = ({
                       }}
                     />
                     <Button
-                      style={{
-                        background: "rgb(143, 230, 76)",
-                        borderStyle: "solid",
-                        borderRadius: 28,
-                        color: "white",
-                        cursor: "pointer",
-                      }}
+                      style={Styles.Button.Filled}
                       size="large"
                       onClick={onAddOutline}
                     >

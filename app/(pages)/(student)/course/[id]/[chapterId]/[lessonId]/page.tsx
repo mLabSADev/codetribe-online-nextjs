@@ -17,6 +17,7 @@ import {
   Input,
   Modal,
   Row,
+  Skeleton,
   Timeline,
   message,
 } from "antd";
@@ -54,6 +55,15 @@ import { Assessment } from "@/app/services/assessments-service";
 import CloseIcon from "@mui/icons-material/Close";
 import AssessmentSubmission from "@/app/dtos/assessment-submission";
 import AssessmentIcon from "@mui/icons-material/Assessment";
+import { Styles } from "@/app/services/styles";
+const AssessmentLoadingSkelleton = () => {
+  return (
+    <Stack spacing={1}>
+      <Skeleton active />
+      <Skeleton active />
+    </Stack>
+  );
+};
 const checkSubmitted = () => {
   let security = false;
   if (!security) {
@@ -140,6 +150,7 @@ export default ({
     success: false,
     error: false,
   });
+  const [assessmentsLoading, setAssessmentsLoading] = React.useState(true);
   const { origin, hostname, pathname, ancestorOrigins, href } = window.location;
   const handleSlide = () => {
     setSlide((prev) => !prev);
@@ -468,7 +479,7 @@ export default ({
     // });
   };
   /**
-   *
+   * Get's assessments & submissions per lesson
    * @param data  course: 'React', chapter: 'Lesson One'
    */
   const RunAssessmentFunc = async (data) => {
@@ -503,7 +514,7 @@ export default ({
           title: data.chapter,
         });
         setSubmissions(submissions);
-        console.log(submissions);
+        setAssessmentsLoading(false);
       } else {
         submissions.unshift({
           show: "notsubmitted",
@@ -511,6 +522,7 @@ export default ({
           title: data.chapter,
         });
         setSubmissions(submissions);
+        setAssessmentsLoading(false);
       }
     } else {
     }
@@ -557,6 +569,7 @@ export default ({
             </IconButton>
           }
         />
+        {/* Assessment Details Modal */}
         <Modal
           title="Assessment Details"
           open={assessmentDetails.show}
@@ -566,6 +579,21 @@ export default ({
           onCancel={() => {
             setAssessmentDetails({ show: false, details: null, header: null });
           }}
+          footer={[
+            <Button
+              style={Styles.Button.Outline}
+              key="back"
+              onClick={() => {
+                setAssessmentDetails({
+                  show: false,
+                  details: null,
+                  header: null,
+                });
+              }}
+            >
+              Okay
+            </Button>,
+          ]}
         >
           <Editor
             name="content"
@@ -606,13 +634,16 @@ export default ({
                 <Typography variant="h5">Submit Assessments</Typography>
               </Stack>
               <Stack spacing={2}>
-                {submissions.length === 0 ? (
+                {assessmentsLoading && <AssessmentLoadingSkelleton />}
+
+                {submissions.length === 0 && !assessmentsLoading ? (
                   <Empty
                     description={<Typography>No Assessments</Typography>}
                   />
                 ) : null}
                 {submissions.map((sub: any, i: number) => {
                   if (sub.show == "notsubmitted") {
+                    //  student did not submit assessment
                     return (
                       <Stack key={i} spacing={2}>
                         <Stack direction={"row"} alignItems={"center"}>
@@ -623,6 +654,7 @@ export default ({
                           </Stack>
 
                           <Button
+                            style={Styles.Button.Outline}
                             onClick={() => {
                               setUpdateEditorState(
                                 EditorState.createWithContent(
@@ -667,7 +699,10 @@ export default ({
                               },
                             ]}
                           >
-                            <Input placeholder="https://github.com/.../..." />
+                            <Input
+                              style={Styles.Input}
+                              placeholder="https://github.com/.../..."
+                            />
                           </Form.Item>
                           <Form.Item
                             label="Live URL"
@@ -679,10 +714,18 @@ export default ({
                               },
                             ]}
                           >
-                            <Input placeholder="https://www.myhostedsite.com/.../..." />
+                            <Input
+                              style={Styles.Input}
+                              placeholder="https://www.myhostedsite.com/.../..."
+                            />
                           </Form.Item>
                           <Form.Item>
-                            <Button type="primary" htmlType="submit">
+                            <Button
+                              size="large"
+                              style={Styles.Button.Filled}
+                              type="primary"
+                              htmlType="submit"
+                            >
                               Submit
                             </Button>
                           </Form.Item>
@@ -690,8 +733,12 @@ export default ({
                       </Stack>
                     );
                   } else {
+                    {
+                      /* student submitted assessment */
+                    }
                     return (
                       <Stack
+                        borderRadius={3}
                         key={i}
                         bgcolor={"teal"}
                         sx={{ color: "white" }}
@@ -713,14 +760,6 @@ export default ({
                     );
                   }
                 })}
-                {/* student submitted assessment */}
-                {/* {submissions[i]?.show === "submitted" && (
-                
-                )} */}
-                {/* student did not submit assessment */}
-                {/* {submissions[i]?.show === "notsubmitted" && (
-                 
-                )} */}
 
                 <Divider />
               </Stack>
@@ -741,8 +780,8 @@ export default ({
             color="primary"
             variant="extended"
           >
-            <AssessmentIcon sx={{ mr: 1 }} />
-            Assessment
+            <AssessmentIcon sx={{ mr: 1, color: "white" }} />
+            <Typography variant="button">Assessment</Typography>
           </Fab>
         </Box>
 
@@ -768,6 +807,8 @@ description={post.frontmatter.description}
               <Stack
                 position={"sticky"}
                 spacing={2}
+                py={2}
+                px={3}
                 direction={"row"}
                 alignItems={"center"}
               >
@@ -781,19 +822,26 @@ description={post.frontmatter.description}
               </Stack>
 
               {currentLesson && !currentLesson.isQuiz && (
-                <div>
-                  <iframe
-                    width="100%"
-                    height="700"
-                    allowFullScreen
-                    src={currentLesson?.videoUrl}
-                    frameBorder={0}
-                    title="YouTube video player"
-                    allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture; web-share"
-                  ></iframe>
-                  <Divider />
-                  <div style={{ display: "flex", marginTop: 20 }}>
+                <Stack spacing={4}>
+                  <Box
+                    width={"100%"}
+                    height={700}
+                    borderRadius={3}
+                    overflow={"hidden"}
+                  >
+                    <iframe
+                      width="100%"
+                      height="100%"
+                      allowFullScreen
+                      src={currentLesson?.videoUrl}
+                      frameBorder={0}
+                      title="YouTube video player"
+                      allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture; web-share"
+                    ></iframe>
+                  </Box>
+                  <Stack direction={"row"} flex={1}>
                     <Button
+                      style={Styles.Button.Outline}
                       onClick={goToPrev}
                       disabled={!canGoBack}
                       size="large"
@@ -804,6 +852,7 @@ description={post.frontmatter.description}
                     </Button>
                     <span style={{ flex: 1 }} />
                     <Button
+                      style={Styles.Button.Outline}
                       onClick={goToNext}
                       disabled={!canGoForward}
                       size="large"
@@ -812,8 +861,8 @@ description={post.frontmatter.description}
                     >
                       Next <ArrowRightOutlined />
                     </Button>
-                  </div>
-                </div>
+                  </Stack>
+                </Stack>
               )}
 
               <div style={{ marginTop: 0 }}>

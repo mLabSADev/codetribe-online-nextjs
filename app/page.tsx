@@ -1,31 +1,31 @@
-'use client'
+"use client";
 
-import React, { useState } from "react"
-import { Form, Input, Button, Row, Col, Alert } from "antd"
-import { Box, Stack, Typography } from "@mui/material"
-import { AuthService } from "./services/auth-service"
-import { useRouter } from "next/navigation"
+import React, { useState } from "react";
+import { Form, Input, Button, Row, Col, Alert } from "antd";
+import { Box, Stack, Typography } from "@mui/material";
+import { AuthService } from "./services/auth-service";
+import { useRouter } from "next/navigation";
 
 // import "swiper/css"
 const ForgotPassword = ({ email, onCancel }: any) => {
-  const [resettingPassword, setResettingPassword] = useState(false)
-  const [errorMessage, setErrorMessage] = useState()
-  const [success, setSuccess] = useState<boolean>()
+  const [resettingPassword, setResettingPassword] = useState(false);
+  const [errorMessage, setErrorMessage] = useState();
+  const [success, setSuccess] = useState<boolean>();
 
   const forgotPassword = ({ email }: any) => {
-    setResettingPassword(true)
+    setResettingPassword(true);
 
     return AuthService.forgotPassword(email)
       .then(() => {
-        setSuccess(true)
+        setSuccess(true);
       })
-      .catch(err => {
-        setErrorMessage(err.message)
+      .catch((err) => {
+        setErrorMessage(err.message);
       })
       .finally(() => {
-        setResettingPassword(false)
-      })
-  }
+        setResettingPassword(false);
+      });
+  };
 
   return (
     <div
@@ -138,88 +138,90 @@ const ForgotPassword = ({ email, onCancel }: any) => {
         </Col>
       </Row>
     </div>
-  )
-}
+  );
+};
 
 export default () => {
-  const [loggingIn, setIsLoggingIn] = useState(false)
-  const [errorMessage, setMessage] = useState(null)
-  const [showForgotPassword, setShowForgotPassword] = useState(false)
-  const [signInMethod, setSignInMethod] = useState<'new-user' | 'existing-user'>()
-  const router = useRouter()
+  const [loggingIn, setIsLoggingIn] = useState(false);
+  const [errorMessage, setMessage] = useState(null);
+  const [showForgotPassword, setShowForgotPassword] = useState(false);
+  const [signInMethod, setSignInMethod] = useState<
+    "new-user" | "existing-user"
+  >();
+  const router = useRouter();
 
-  let title = "Learn how to build Android & IOS Apps"
+  let title = "Learn how to build Android & IOS Apps";
   const onLogin = (values: any) => {
-    setIsLoggingIn(true)
-    setMessage(null)
+    setIsLoggingIn(true);
+    setMessage(null);
 
     if (!signInMethod) {
       AuthService.checkUser(values.email)
-        .then(user => {
-          console.log(user)
+        .then((user) => {
+          console.log(user);
           if (user.registered === false) {
-            setSignInMethod("new-user")
+            setSignInMethod("new-user");
           } else {
-            setSignInMethod("existing-user")
+            setSignInMethod("existing-user");
           }
         })
-        .catch(err => {
-          setMessage(err.message)
+        .catch((err) => {
+          setMessage(err.message);
         })
         .finally(() => {
-          setIsLoggingIn(false)
-        })
+          setIsLoggingIn(false);
+        });
     } else {
       if (signInMethod === "existing-user") {
         AuthService.login(values.email, values.password)
           .then(() => {
-            AuthService.currentUser().then(profile => {
-              onLoggedIn(profile)
-            })
+            AuthService.currentUser().then((profile) => {
+              onLoggedIn(profile);
+            });
           })
-          .catch(err => {
-            setMessage(err.message)
+          .catch((err) => {
+            setMessage(err.message);
           })
           .finally(() => {
-            setIsLoggingIn(false)
-          })
+            setIsLoggingIn(false);
+          });
       } else if (signInMethod === "new-user") {
         AuthService.confirmRegistration(values)
           .then(() => {
-            AuthService.currentUser().then(profile => {
-              onLoggedIn(profile)
-            })
+            AuthService.currentUser().then((profile) => {
+              onLoggedIn(profile);
+            });
           })
-          .catch(err => {
-            setMessage(err.message)
+          .catch((err) => {
+            setMessage(err.message);
           })
           .finally(() => {
-            setIsLoggingIn(false)
-          })
+            setIsLoggingIn(false);
+          });
       }
     }
-  }
+  };
 
   const layout = {
     labelCol: { span: 8 },
     wrapperCol: { span: 16 },
-  }
+  };
 
   const onLoggedIn = (profile: any) => {
     if (profile.bootcamp) {
-      router.push("/webinars")
+      router.push("/webinars");
     } else {
-      router.push("/home")
+      router.push("/home");
     }
-  }
+  };
 
   const onForgotPassword = () => {
-    setShowForgotPassword(true)
-  }
+    setShowForgotPassword(true);
+  };
 
   const onCloseForgotPassword = () => {
-    setShowForgotPassword(false)
-  }
+    setShowForgotPassword(false);
+  };
 
   return (
     <Stack
@@ -509,5 +511,5 @@ export default () => {
         <ForgotPassword onCancel={onCloseForgotPassword} />
       )}
     </Stack>
-  )
-}
+  );
+};

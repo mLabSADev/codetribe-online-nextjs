@@ -1,14 +1,14 @@
-import { Stack, Typography, Button } from "@mui/material"
-import { Col, Progress } from "antd"
-import React from "react"
+import { Stack, Typography, Button } from "@mui/material";
+import { Col, Progress } from "antd";
+import React from "react";
 
 interface IStudentProgress {
-    progress: number
-    title: string
-    course: string
-    lesson: number
-    link: string
-    locked: boolean
+  progress: number;
+  title: string;
+  course: string;
+  lesson: number;
+  link: string;
+  locked: boolean;
 }
 
 /**
@@ -81,8 +81,6 @@ function StudentProgress({
             disableElevation
             sx={{
               alignSelf: "flex-start",
-              borderRadius: 5,
-              backgroundColor: "#87d068", // TODO: need to figure out how to setup MUI provider for theming
             }}
             variant="contained"
           >
@@ -94,7 +92,7 @@ function StudentProgress({
         )}
       </Stack>
     </Stack>
-  )
+  );
 }
 
-export default StudentProgress
+export default StudentProgress;

@@ -1,11 +1,14 @@
-'use client'
+"use client";
 
-import { useEffect } from 'react'
-import './globals.css'
-import { Inter } from 'next/font/google'
-import firebase from 'firebase';
+import { useEffect } from "react";
+import "./globals.css";
+import { Inter } from "next/font/google";
+import firebase from "firebase";
+import { ConfigProvider } from "antd";
+import { Colors, Styles } from "./services/styles";
+import { ThemeProvider, createTheme } from "@mui/material";
 
-const inter = Inter({ subsets: ['latin'] })
+const inter = Inter({ subsets: ["latin"] });
 
 // export const metadata = {
 //   title: 'Create Next App',
@@ -15,7 +18,7 @@ const inter = Inter({ subsets: ['latin'] })
 export default function RootLayout({
   children,
 }: {
-  children: React.ReactNode
+  children: React.ReactNode;
 }) {
   const fonts = [
     "K2D-Bold",
@@ -33,7 +36,7 @@ export default function RootLayout({
     "K2D-SemiBoldItalic",
     "K2D-Thin",
     "K2D-ThinItalic",
-  ]
+  ];
 
   const config = {
     apiKey: "AIzaSyCSvPQ3-fpuAYGljNEBCrWTVO-yO9tepaU",
@@ -43,33 +46,88 @@ export default function RootLayout({
     storageBucket: "mlab-22bb9.appspot.com",
     messagingSenderId: "479164571450",
     appId: "1:479164571450:web:5d286c2c7e8eba82927a03",
-  }
+  };
 
   if (firebase.apps.length == 0) {
-    firebase.initializeApp(config)
+    firebase.initializeApp(config);
   }
-  
-
+  const MUItheme = createTheme({
+    palette: {
+      primary: {
+        main: Colors.Primary,
+      },
+      secondary: {
+        main: Colors.Secondary,
+      },
+    },
+    components: {
+      MuiButton: {
+        styleOverrides: {
+          contained: {
+            borderRadius: 30,
+            color: "white",
+          },
+        },
+      },
+      MuiFab: {},
+      MuiTypography: {
+        styleOverrides: {
+          button: {
+            color: "white",
+          },
+          h1: {
+            fontWeight: "bold",
+          },
+          h2: {
+            fontWeight: "bold",
+          },
+          h3: {
+            fontWeight: "bold",
+          },
+          h4: {
+            fontWeight: "bold",
+          },
+          h5: {
+            fontWeight: "bold",
+          },
+          h6: {
+            fontWeight: "bold",
+          },
+        },
+      },
+    },
+  });
   return (
     <html lang="en">
       <meta charSet="utf-8" />
-        <meta httpEquiv="x-ua-compatible" content="ie=edge" />
-        <meta
-          name="viewport"
-          content="width=device-width, initial-scale=1, shrink-to-fit=no"
-        />
-        {fonts.map(font => {
-          return (
-            <link
-              key={font}
-              rel="preload"
-              href={`/fonts/k2d/${font}.ttf`}
-              as="font"
-              crossOrigin="anonymous"
-            />
-          )
-        })}
-      <body className={inter.className}>{children}</body>
+      <meta httpEquiv="x-ua-compatible" content="ie=edge" />
+      <meta
+        name="viewport"
+        content="width=device-width, initial-scale=1, shrink-to-fit=no"
+      />
+      {fonts.map((font) => {
+        return (
+          <link
+            key={font}
+            rel="preload"
+            href={`/fonts/k2d/${font}.ttf`}
+            as="font"
+            crossOrigin="anonymous"
+          />
+        );
+      })}
+      <ThemeProvider theme={MUItheme}>
+        <ConfigProvider
+          theme={{
+            token: {
+              colorPrimary: Colors.Primary,
+              borderRadius: 30,
+            },
+          }}
+        >
+          <body className={inter.className}>{children}</body>
+        </ConfigProvider>
+      </ThemeProvider>
     </html>
-  )
+  );
 }

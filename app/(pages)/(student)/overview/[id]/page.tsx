@@ -14,7 +14,8 @@ import { CoursesService } from "@/app/services/courses-service";
 import Course from "@/app/dtos/course";
 import { LessonService } from "@/app/services/lesson-service";
 import Link from "next/link";
-
+import { Colors, Styles } from "@/app/services/styles";
+import { Stack, Typography, Box } from "@mui/material";
 export const DurationHelper = {
   secondsToText: (seconds: number) => {
     let hours = Math.floor(seconds / (60 * 60));
@@ -176,85 +177,69 @@ const CourseOverview = ({ params }: { params: { id: string } }) => {
   // })
 
   return (
-    <div>
+    <Stack p={3} spacing={2}>
       {course && (
         <Row>
           <Col xs={24} sm={24} md={24} lg={24}>
-            <div
-              style={{
-                background: "#efefef",
-                borderRadius: 20,
-                width: "100%",
-                padding: 20,
-                marginBottom: 20,
-                paddingLeft: 50,
-                paddingRight: 50,
-              }}
-            >
-              <div style={{ display: "flex", alignItems: "center" }}>
+            <Stack spacing={2}>
+              <Stack p={1}>
                 <Button
-                  style={{
-                    borderStyle: "none",
-                    background: "#dfdfdf",
-                    width: 35,
-                    height: 35,
-                    display: "flex",
-                    alignItems: "center",
-                    justifyContent: "center",
-                    marginRight: 20,
-                    borderRadius: "50%",
-                  }}
+                  size="large"
+                  style={{ ...Styles.Button.Filled, alignSelf: "self-start" }}
                   onClick={() => router.back()}
                 >
                   <LeftOutlined />
                 </Button>
-              </div>
-
-              <img
-                src={course.imageUrl}
-                alt={course.title}
-                style={{
-                  width: "100%",
-                  height: "50vh",
-                  marginBottom: 0,
-                  marginTop: 20,
-                  objectFit: "cover",
-                }}
-              />
-
-              <div style={{}}>
-                <h1>{course.title}</h1>
-              </div>
-
-              <Button
-                style={{
-                  borderRadius: 20,
-                  background: "#66e22c",
-                  color: "white",
-                  textTransform: "uppercase",
-                  borderStyle: "none",
-                }}
-                onClick={startCourse}
+              </Stack>
+              <Box
+                width={"100%"}
+                height={460}
+                borderRadius={3}
+                overflow={"hidden"}
               >
-                {"View Course"}
-              </Button>
+                <img
+                  src={course.imageUrl}
+                  alt={course.title}
+                  style={{
+                    width: "100%",
+                    height: "100%",
+                    marginBottom: 0,
+                    marginTop: 20,
+                    objectFit: "cover",
+                  }}
+                />
+              </Box>
 
-              <div
-                style={{
-                  overflow: "hidden",
-                  marginTop: 20,
-                }}
-                dangerouslySetInnerHTML={{ __html: course.excerpt }}
-              ></div>
+              <Stack spacing={3}>
+                <Typography variant="h3">{course.title}</Typography>
+                <Button
+                  size="large"
+                  style={{ ...Styles.Button.Filled, alignSelf: "self-start" }}
+                  onClick={startCourse}
+                >
+                  {"View Course"}
+                </Button>
+              </Stack>
+              <Stack spacing={2} py={2} pt={5}>
+                <Typography variant="h5">What you'll learn</Typography>
+                <div
+                  style={{
+                    overflow: "hidden",
+                    marginTop: 20,
+                  }}
+                  dangerouslySetInnerHTML={{ __html: course.excerpt }}
+                ></div>
+              </Stack>
 
               <div style={{ marginTop: 20 }}>
                 <Row>
                   {course.outline.map((overview: string, key: number) => {
                     return (
                       <Col key={key} xs={24} sm={24} md={12}>
-                        <div
+                        <Stack
+                          direction={"row"}
                           style={{
-                            background: "#dfdfdf",
+                            background: "rgba(38, 38, 38, 0.05)",
                             borderRadius: 20,
                             padding: 20,
                             marginBottom: 20,
@@ -269,8 +254,8 @@ const CourseOverview = ({ params }: { params: { id: string } }) => {
                               color: "green",
                             }}
                           />
-                          {overview}
-                        </div>
+                          <Typography variant="body2"> {overview}</Typography>
+                        </Stack>
                       </Col>
                     );
                   })}
@@ -303,10 +288,11 @@ const CourseOverview = ({ params }: { params: { id: string } }) => {
                     })} */}
                 </Row>
               </div>
-            </div>
+            </Stack>
           </Col>
           <Col xs={24} sm={24} md={24} lg={24}>
-            <div
+            <Stack
+              spacing={2}
               style={{
                 width: "100%",
                 maxWidth: "100%",
@@ -314,20 +300,8 @@ const CourseOverview = ({ params }: { params: { id: string } }) => {
                 borderRadius: 20,
               }}
             >
-              <div
-                style={{ paddingLeft: 20, paddingRight: 20, paddingTop: 20 }}
-              >
-                <h2 style={{ fontWeight: "bold" }}>Course Content</h2>
-                {/* <Link to={mainSlug}><h2 style={{color: '#97CA42', marginBottom: 0}}>{title}</h2><span style={{color: '#afafaf'}}>{totalDuration}</span></Link> */}
-                {/* <div style={{display: 'flex', alignItems: 'center'}}>
-                                            Progress
-                                            <div style={{background: '#cfcfcf', flex: 1, height: 5, marginLeft: 30, borderRadius: 3, overflow: 'hidden'}}>
-                                                <div style={{background: '#97CA42', width: `${progress}%`, height: 5}} />
-                                            </div>
-                                            <div style={{paddingLeft: 10}}>{isNaN(progress) ? '-' : progress}%</div>
-                                        </div> */}
-              </div>
-
+              <Typography variant="h5">Course Content</Typography>
+              <Stack></Stack>
               <Collapse
                 style={{
                   borderStyle: "none",
@@ -354,18 +328,17 @@ const CourseOverview = ({ params }: { params: { id: string } }) => {
                       showArrow={false}
                       // expandIconPosition="none"
                       header={
-                        <div
-                          style={{
-                            borderStyle: "none",
-                            background: "#efefef",
-                            padding: 20,
-                            borderRadius: 20,
-                            fontSize: "1.5em",
-                            fontWeight: "bold",
-                          }}
-                        >{`${chapter.title} (${DurationHelper.secondsToText(
-                          chapterTotalDuration
-                        )})`}</div>
+                        <Stack
+                          direction={"row"}
+                          spacing={1}
+                          alignItems={"center"}
+                        >
+                          <Typography variant="h6">{chapter.title}</Typography>
+
+                          <Typography variant="overline">
+                            {DurationHelper.secondsToText(chapterTotalDuration)}
+                          </Typography>
+                        </Stack>
                       }
                       key={`chapter-` + chapter.chapter}
                       style={{
@@ -373,14 +346,7 @@ const CourseOverview = ({ params }: { params: { id: string } }) => {
                         borderColor: "#f0f2f5",
                       }}
                     >
-                      <div
-                        style={{
-                          background: "#efefef",
-                          marginBottom: 10,
-                          padding: 20,
-                          borderRadius: 30,
-                        }}
-                      >
+                      <Stack>
                         <Timeline style={{ marginLeft: 20, marginTop: 10 }}>
                           {chapter.lessons.map((lesson, key) => {
                             return (
@@ -419,26 +385,40 @@ const CourseOverview = ({ params }: { params: { id: string } }) => {
                                     color: "#606060",
                                   }}
                                 >
-                                  {lesson.title} (
-                                  {DurationHelper.timeFormatToText(
-                                    lesson.duration
-                                  )}
-                                  )
+                                  <Stack flex={1} direction={"row"}>
+                                    <Typography flex={1} variant="body1">
+                                      {lesson.title}
+                                    </Typography>
+                                    <Typography variant="overline">
+                                      {DurationHelper.timeFormatToText(
+                                        lesson.duration
+                                      )}
+                                    </Typography>
+                                  </Stack>
                                 </Link>
                               </Timeline.Item>
                             );
                           })}
                         </Timeline>
-                      </div>
+                      </Stack>
                     </Collapse.Panel>
                   );
                 })}
               </Collapse>
-            </div>
+            </Stack>
+            <Stack py={3}>
+              <Button
+                size="large"
+                style={{ ...Styles.Button.Filled, alignSelf: "self-start" }}
+                onClick={startCourse}
+              >
+                {"View Course"}
+              </Button>
+            </Stack>
           </Col>
         </Row>
       )}
-    </div>
+    </Stack>
   );
 };
 
