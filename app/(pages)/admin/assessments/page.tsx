@@ -48,6 +48,7 @@ import { Assessment } from "@/app/services/assessments-service";
 import { AuthService } from "@/app/services/auth-service";
 import { CoursesService } from "@/app/services/courses-service";
 import Course from "@/app/dtos/course";
+import { Styles } from "@/app/services/styles";
 const { Column, ColumnGroup } = Table;
 const { Meta } = Card;
 // Dummy Data
@@ -302,6 +303,7 @@ function Assessments() {
         {/* Form */}
         <Form
           form={form}
+          layout="vertical"
           name="assessment"
           labelCol={{ span: 5 }}
           // wrapperCol={{ span: 8 }}
@@ -391,7 +393,7 @@ function Assessments() {
               <Button
                 size="large"
                 type="primary"
-                style={{ width: "100%" }}
+                style={{ ...Styles.Button.Filled, width: "100%" }}
                 htmlType="submit"
               >
                 Update
@@ -400,7 +402,7 @@ function Assessments() {
               <Button
                 size="large"
                 type="primary"
-                style={{ width: "100%" }}
+                style={{ ...Styles.Button.Filled, width: "100%" }}
                 htmlType="submit"
               >
                 Submit
@@ -409,7 +411,7 @@ function Assessments() {
             <Button
               size="large"
               type="ghost"
-              style={{ width: "100%", marginTop: 5 }}
+              style={{ ...Styles.Button.Outline, width: "100%", marginTop: 5 }}
               onClick={() => {
                 form.resetFields();
                 setUpdateEditorState(EditorState.createEmpty());
@@ -509,7 +511,7 @@ function Assessments() {
                       </Typography>
                     </Stack>
                     <Stack spacing={1} direction={{ sm: "column", md: "row" }}>
-                      <Button href={item.github} target="_blank" type="link">
+                      <Button href={item.github} target="_blank" type="link" style={Styles.Button.Outline}>
                         View Github
                       </Button>
                       {/* <Button type="text">View Live</Button> */}
@@ -538,6 +540,7 @@ function Assessments() {
         <Box sx={{ width: { xs: 20, sm: 15, md: 100, lg: 100 } }}></Box>
         <Typography variant="h5">Assessments</Typography>
         <Button
+          style={Styles.Button.Outline}
           onClick={() => {
             showModal(true);
             setUpdating(false);
@@ -556,6 +559,7 @@ function Assessments() {
             Your Assessments will be displayed here
           </Typography>
           <Button
+            style={Styles.Button.Filled}
             type="primary"
             onClick={() => {
               showModal(true);
@@ -734,6 +738,7 @@ function Assessments() {
                               </Stack>
                               {/* Submissions */}
                               <Button
+                                style={Styles.Button.Filled}
                                 type="primary"
                                 onClick={() => {
                                   console.log({

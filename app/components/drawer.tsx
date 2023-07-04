@@ -16,6 +16,8 @@ import { AuthService } from "../services/auth-service";
 import { ProfileService } from "../services/profile-service";
 import Link from "next/link";
 import { useRouter } from "next/navigation";
+import { Styles } from "../services/styles";
+import { Stack, Avatar, Typography } from "@mui/material";
 
 interface IMenuButton {
   children?: any;
@@ -24,7 +26,36 @@ interface IMenuButton {
   icon: any;
   onClick?: () => void;
 }
+export function stringToColor(string: string) {
+  let hash = 0;
+  let i;
 
+  /* eslint-disable no-bitwise */
+  for (i = 0; i < string.length; i += 1) {
+    hash = string.charCodeAt(i) + ((hash << 5) - hash);
+  }
+
+  let color = "#";
+
+  for (i = 0; i < 3; i += 1) {
+    const value = (hash >> (i * 8)) & 0xff;
+    color += `00${value.toString(16)}`.slice(-2);
+  }
+  /* eslint-enable no-bitwise */
+
+  return color;
+}
+
+export function stringAvatar(name: string) {
+  return {
+    sx: {
+      width: 56,
+      height: 56,
+      bgcolor: stringToColor(name),
+    },
+    children: `${name.split(" ")[0][0]}${name.split(" ")[1][0]}`,
+  };
+}
 const MenuButton = ({
   children,
   to,
@@ -34,28 +65,19 @@ const MenuButton = ({
 }: IMenuButton) => {
   return (
     <Link href={to ? to : ""}>
-      <button
+      <Button
+        type="ghost"
+        icon={icon}
         onClick={onClick}
+        size="large"
         style={{
-          background: "rgba(61, 61, 61, 0.05)",
-          borderStyle: "none",
-          padding: 10,
-          paddingLeft: 20,
-          paddingRight: 20,
-          borderRadius: 28,
-          color: active ? "rgb(143, 230, 76)" : "rgb(61, 61, 61)",
-          cursor: "pointer",
+          ...Styles.Button.Outline,
           width: "100%",
-          marginRight: 20,
-          fontWeight: "bold",
-          textAlign: "left",
-          marginBottom: 10,
-          display: "flex",
+          textAlign: "start",
         }}
       >
-        {icon && <div style={{ marginRight: 10 }}>{icon}</div>}
         {children}
-      </button>
+      </Button>
     </Link>
   );
 };
@@ -69,7 +91,17 @@ const Drawer = ({ active }: { active: string }) => {
   const [onCancel, setOnCancel] = useState(false);
   const [confirmLogout, setConfirmLogout] = useState(false);
   const router = useRouter();
-
+  const links = [
+    { link: "/home", title: "Browse", icon: <UnorderedListOutlined /> },
+    { link: "/admin/students", title: "Students", icon: <UserOutlined /> },
+    // { link: "/webinars", title: "Webinars", icon: <VideoCameraAddOutlined /> },
+    { link: "/admin/courses", title: "Courses", icon: <VideoCameraOutlined /> },
+    {
+      link: "/admin/assessments",
+      title: "Assessments",
+      icon: <BookOutlined />,
+    },
+  ];
   useEffect(() => {
     ProfileService.observerProfile((profile: any) => {
       setProfile(profile);
@@ -112,101 +144,7 @@ const Drawer = ({ active }: { active: string }) => {
   };
 
   return (
-    <div
-      style={{
-        display: "flex",
-        alignItems: "center",
-        flexDirection: "column",
-        minHeight: "100vh",
-        position: "fixed",
-        left: 0,
-        top: 0,
-        width: "300px",
-      }}
-    >
-      <div
-        style={{
-          background: "rgb(130, 200, 3)",
-          width: 70,
-          height: 70,
-          borderRadius: "50%",
-          display: "flex",
-          alignItems: "center",
-          justifyContent: "center",
-          fontWeight: "bold",
-          color: "white",
-          fontSize: "1.3em",
-          marginTop: 40,
-          marginBottom: 20,
-        }}
-      >
-        {profile?.firstname.substring(0, 1)}
-        {profile?.lastname.substring(0, 1)}
-      </div>
-
-      <div style={{ fontWeight: "bold" }}>
-        {profile?.firstname} {profile?.lastname}
-      </div>
-      <div style={{ marginBottom: 10 }}>
-        {profile?.role == "facilitator" ? "Facilitator" : profile?.location}
-      </div>
-
-      <EditOutlined onClick={onOpenEditProfile} />
-
-      <div style={{ padding: 20, width: "100%", marginTop: 20 }}>
-        {!profile?.bootcamp && (
-          <MenuButton
-            to={"/home"}
-            icon={<UnorderedListOutlined />}
-            active={active === "browse"}
-          >
-            Browse
-          </MenuButton>
-        )}
-        {/* <MenuButton
-            to={"/webinars"}
-            icon={<VideoCameraAddOutlined />}
-            active={active === "webinars"}
-          >
-            Webinars
-          </MenuButton> */}
-        {profile?.isAdmin && (
-          <MenuButton
-            to={"/admin/students"}
-            icon={<UserOutlined />}
-            active={active === "students"}
-          >
-            Students
-          </MenuButton>
-        )}
-        {profile?.isAdmin && (
-          <MenuButton
-            to={"/admin/courses"}
-            icon={<VideoCameraOutlined />}
-            active={active === "courses"}
-          >
-            Courses
-          </MenuButton>
-        )}
-        {profile?.isAdmin && (
-          <MenuButton
-            to={"/admin/assessments"}
-            icon={<BookOutlined />}
-            active={active === "assessments"}
-          >
-            Assessments
-          </MenuButton>
-        )}
-      </div>
-
-      <div style={{ flex: 1 }} />
-
-      <div style={{ padding: 20, width: "100%" }}>
-        <MenuButton onClick={onLogout} icon={<PoweroffOutlined />}>
-          Sign out
-        </MenuButton>
-      </div>
-
+    <Stack spacing={2} flex={1} position={"relative"}>
       <Modal
         title="Update Profile"
         open={showEditProfile}
@@ -343,7 +281,57 @@ const Drawer = ({ active }: { active: string }) => {
       >
         <p>Are you sure you want to logout?</p>
       </Modal>
-    </div>
+      <Stack alignItems={"center"} justifyContent={"center"} py={5}>
+        <Avatar
+          {...stringAvatar(
+            `${profile?.firstname || "C"} ${profile?.lastname || "T"}`
+          )}
+        />
+        <Typography variant="h6">
+          {profile?.firstname} {profile?.lastname}
+        </Typography>
+
+        <Typography variant="body2">
+          {profile?.role == "facilitator" ? "Facilitator" : profile?.location}
+        </Typography>
+        <EditOutlined onClick={onOpenEditProfile} />
+      </Stack>
+
+      {/* Navigation links */}
+      <Stack flex={1} height={"100%"} spacing={1}>
+        {links.map((link, i) => {
+          if (profile?.isAdmin) {
+            return (
+              <MenuButton
+                key={i}
+                to={link.link}
+                icon={link.icon}
+                active={active === link.title.toLowerCase()}
+              >
+                {link.title}
+              </MenuButton>
+            );
+          } else if (!profile?.bootcamp) {
+            return (
+              <MenuButton
+                key={i}
+                to={link.link}
+                icon={link.icon}
+                active={active === link.title.toLowerCase()}
+              >
+                {link.title}
+              </MenuButton>
+            );
+          }
+        })}
+      </Stack>
+
+      <Stack>
+        <MenuButton onClick={onLogout} icon={<PoweroffOutlined />}>
+          Sign out
+        </MenuButton>
+      </Stack>
+    </Stack>
   );
 };
 

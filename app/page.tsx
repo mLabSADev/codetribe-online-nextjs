@@ -5,6 +5,7 @@ import { Form, Input, Button, Row, Col, Alert } from "antd";
 import { Box, Stack, Typography } from "@mui/material";
 import { AuthService } from "./services/auth-service";
 import { useRouter } from "next/navigation";
+import { Styles } from "./services/styles";
 
 // import "swiper/css"
 const ForgotPassword = ({ email, onCancel }: any) => {
@@ -88,31 +89,14 @@ const ForgotPassword = ({ email, onCancel }: any) => {
                   },
                 ]}
               >
-                <Input
-                  placeholder="Email Address"
-                  style={{
-                    height: 50,
-                    borderRadius: 10,
-                    borderColor: "rgb(143, 230, 76)",
-                    borderStyle: "solid",
-                    padding: 10,
-                    borderWidth: 2,
-                  }}
-                />
+                <Input placeholder="Email Address" style={Styles.Input} />
               </Form.Item>
               <Button
                 size="large"
                 loading={resettingPassword}
                 disabled={resettingPassword}
                 htmlType="submit"
-                style={{
-                  background: "rgb(143, 230, 76)",
-                  borderStyle: "none",
-                  borderRadius: 28,
-                  color: "white",
-                  cursor: "pointer",
-                  width: "100%",
-                }}
+                style={Styles.Button.Text}
               >
                 Reset Password
               </Button>
@@ -120,16 +104,7 @@ const ForgotPassword = ({ email, onCancel }: any) => {
                 type="button"
                 disabled={resettingPassword}
                 onClick={onCancel}
-                style={{
-                  background: "rgba(61, 61, 61, 0.05)",
-                  borderStyle: "none",
-                  padding: 10,
-                  borderRadius: 28,
-                  color: "rgb(61, 61, 61)",
-                  cursor: "pointer",
-                  width: "100%",
-                  marginTop: 10,
-                }}
+                style={Styles.Button.Outline}
               >
                 Nevermind
               </button>
@@ -435,7 +410,7 @@ export default () => {
                     justifyItems={"flex-end"}
                   >
                     <Button
-                      style={{ borderRadius: 30 }}
+                      style={Styles.Button.Text}
                       type="link"
                       onClick={onForgotPassword}
                       size="small"
@@ -492,7 +467,7 @@ export default () => {
                 direction={{ xs: "column", sm: "column", md: "row", lg: "row" }}
               >
                 <Button
-                  style={{ width: "100%", borderRadius: 30 }}
+                  style={{ ...Styles.Button.Filled, width: "100%" }}
                   type="primary"
                   size="large"
                   loading={loggingIn}

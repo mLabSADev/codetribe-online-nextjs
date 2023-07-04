@@ -22,7 +22,7 @@ import { Button, IconButton } from "@mui/material";
 import { AuthService } from "@/app/services/auth-service";
 import Drawer from "@/app/components/drawer";
 import EditProfile from "@/app/modals/edit-profile";
-
+import { Stack } from "@mui/material";
 interface IPageLayout {
   children: any;
   active: string;
@@ -110,19 +110,15 @@ const PageLayout = ({ children, active }: IPageLayout) => {
 
       <ADrawer
         width={300}
+        height={"100%"}
         closable={false}
         open={!collapsed}
         placement="left"
         onClose={() => setCollapsed(true)}
       >
-        <div
-          style={{
-            position: "relative",
-            width: "100%",
-          }}
-        >
+        <Stack height={'100%'} flex={1}>
           <Drawer active={active} />
-        </div>
+        </Stack>
       </ADrawer>
 
       <Layout>
