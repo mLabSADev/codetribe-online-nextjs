@@ -609,6 +609,8 @@ export default ({
           onCancel={() => {
             setAssessmentDetails({ show: false, details: null, header: null });
           }}
+          bodyStyle={{ maxHeight: 'calc(100vh - 200px)', overflowY: 'auto' }}
+          className="custom-modal-wrapper"
           footer={[
             <Button
               style={Styles.Button.Outline}
