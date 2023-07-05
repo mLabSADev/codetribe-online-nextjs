@@ -17,7 +17,7 @@ import { ProfileService } from "../services/profile-service";
 import Link from "next/link";
 import { useRouter } from "next/navigation";
 import { Styles } from "../services/styles";
-import { Stack, Avatar, Typography } from "@mui/material";
+import { Stack, Avatar, Typography, Box } from "@mui/material";
 
 interface IMenuButton {
   children?: any;
@@ -91,6 +91,8 @@ const Drawer = ({ active }: { active: string }) => {
   const [onCancel, setOnCancel] = useState(false);
   const [confirmLogout, setConfirmLogout] = useState(false);
   const router = useRouter();
+
+  // Navigation Links
   const links = [
     { link: "/home", title: "Browse", icon: <UnorderedListOutlined /> },
     { link: "/admin/students", title: "Students", icon: <UserOutlined /> },
@@ -144,7 +146,7 @@ const Drawer = ({ active }: { active: string }) => {
   };
 
   return (
-    <Stack spacing={2} flex={1} position={"relative"}>
+    <Stack height={"100%"} position={"relative"} spacing={2} flex={1}>
       <Modal
         title="Update Profile"
         open={showEditProfile}
@@ -281,6 +283,7 @@ const Drawer = ({ active }: { active: string }) => {
       >
         <p>Are you sure you want to logout?</p>
       </Modal>
+      {/* User Profile */}
       <Stack alignItems={"center"} justifyContent={"center"} py={5}>
         <Avatar
           {...stringAvatar(
@@ -298,12 +301,12 @@ const Drawer = ({ active }: { active: string }) => {
       </Stack>
 
       {/* Navigation links */}
-      <Stack flex={1} height={"100%"} spacing={1}>
+      <Stack flex={1} spacing={1}>
         {links.map((link, i) => {
           if (profile?.isAdmin) {
             return (
               <MenuButton
-                key={i}
+                key={link.link}
                 to={link.link}
                 icon={link.icon}
                 active={active === link.title.toLowerCase()}
@@ -314,7 +317,7 @@ const Drawer = ({ active }: { active: string }) => {
           } else if (!profile?.bootcamp) {
             return (
               <MenuButton
-                key={i}
+                key={link.link}
                 to={link.link}
                 icon={link.icon}
                 active={active === link.title.toLowerCase()}
@@ -325,11 +328,23 @@ const Drawer = ({ active }: { active: string }) => {
           }
         })}
       </Stack>
-
+      <Box height={"100%"} flex={1}></Box>
+      {/* Signout */}
       <Stack>
-        <MenuButton onClick={onLogout} icon={<PoweroffOutlined />}>
+        <Button
+          type="link"
+          onClick={onLogout}
+          icon={<PoweroffOutlined />}
+          size="large"
+          style={{
+            ...Styles.Button.Outline,
+            width: "100%",
+            textAlign: "start",
+            color: "red",
+          }}
+        >
           Sign out
-        </MenuButton>
+        </Button>
       </Stack>
     </Stack>
   );

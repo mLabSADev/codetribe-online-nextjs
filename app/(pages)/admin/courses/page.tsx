@@ -7,7 +7,7 @@ import Course from "@/app/dtos/course";
 import Link from "next/link";
 import CreateEditCourse from "@/app/modals/create-edit-course";
 import { Styles } from "@/app/services/styles";
-import {Typography} from "@mui/material";
+import { Typography } from "@mui/material";
 
 export default () => {
   const [courses, setCourses] = useState<Course[] | null>();

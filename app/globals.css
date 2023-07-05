@@ -1,5 +1,25 @@
 @import "~antd/dist/antd.css";
+font-family: 'Inter Variable', sans-serif;
+/* width */
+::-webkit-scrollbar {
+  width: 10px;
+}
 
+/* Track */
+::-webkit-scrollbar-track {
+  background: #f1f1f1;
+}
+
+/* Handle */
+::-webkit-scrollbar-thumb {
+  background: #83c8033f;
+  border-radius: 30px;
+}
+
+/* Handle on hover */
+::-webkit-scrollbar-thumb:hover {
+  background: #82c803;
+}
 /* @font-face {
   font-family: 'K2D';
   font-style: bold;

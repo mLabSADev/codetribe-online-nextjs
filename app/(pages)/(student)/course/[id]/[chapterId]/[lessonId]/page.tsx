@@ -154,6 +154,7 @@ export default ({
   const [quizModal, setQuizModal] = React.useState(false);
   const [assessmentsLoading, setAssessmentsLoading] = React.useState(true);
   const { origin, hostname, pathname, ancestorOrigins, href } = window.location;
+  const [backNav, setBackNav] = useState("");
   const handleSlide = () => {
     setSlide((prev) => !prev);
   };
@@ -529,7 +530,11 @@ export default ({
     } else {
     }
   };
-  useEffect(() => {}, []);
+  useEffect(() => {
+    // back navigation
+    const splitted = href.split("/");
+    setBackNav(`/overview/${splitted[4]}`);
+  }, [currentLesson]);
 
   return (
     currentLesson?.key && (
@@ -842,7 +847,7 @@ description={post.frontmatter.description}
                 <Button
                   size="large"
                   style={{ ...Styles.Button.Outline, alignSelf: "self-start" }}
-                  onClick={() => router.back()}
+                  onClick={() => router.push(backNav)}
                 >
                   <LeftOutlined />
                 </Button>

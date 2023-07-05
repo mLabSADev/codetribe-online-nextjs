@@ -89,10 +89,16 @@ const Lessons = ({ course, chapter }: { course: Course; chapter: Chapter }) => {
       render: (_: any, record: Lesson) => {
         return (
           <Space size="middle">
-            <Button style={Styles.Button.Outline} onClick={() => onMoveUp(record)}>
+            <Button
+              style={Styles.Button.Outline}
+              onClick={() => onMoveUp(record)}
+            >
               <ArrowUpOutlined />
             </Button>
-            <Button style={Styles.Button.Outline} onClick={() => onMoveDown(record)}>
+            <Button
+              style={Styles.Button.Outline}
+              onClick={() => onMoveDown(record)}
+            >
               <ArrowDownOutlined />
             </Button>
           </Space>
@@ -119,8 +125,18 @@ const Lessons = ({ course, chapter }: { course: Course; chapter: Chapter }) => {
       render: (_: any, record: Lesson) => {
         return (
           <Space size="middle">
-            <Button style={Styles.Button.Outline} onClick={() => onEdit(record)}>Edit</Button>
-            <Button style={Styles.Button.Outline} onClick={() => setLessonToRemove(record)}>Remove</Button>
+            <Button
+              style={Styles.Button.Outline}
+              onClick={() => onEdit(record)}
+            >
+              Edit
+            </Button>
+            <Button
+              style={Styles.Button.Outline}
+              onClick={() => setLessonToRemove(record)}
+            >
+              Remove
+            </Button>
           </Space>
         );
       },
@@ -148,6 +164,24 @@ const Lessons = ({ course, chapter }: { course: Course; chapter: Chapter }) => {
         open={!!lessonToRemove}
         onOk={handleLessonRemove}
         onCancel={() => setLessonToRemove(undefined)}
+        footer={[
+          <Button
+            size="large"
+            style={Styles.Button.Outline}
+            onClick={() => {
+              setLessonToRemove(undefined);
+            }}
+          >
+            No
+          </Button>,
+          <Button
+            onClick={handleLessonRemove}
+            size="large"
+            style={Styles.Button.Outline}
+          >
+            Yes
+          </Button>,
+        ]}
       >
         <p>
           Are you sure you want to remove the lesson {lessonToRemove?.title}

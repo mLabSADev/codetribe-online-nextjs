@@ -7,7 +7,7 @@ import firebase from "firebase";
 import { ConfigProvider } from "antd";
 import { Colors, Styles } from "./services/styles";
 import { ThemeProvider, createTheme } from "@mui/material";
-
+import '@fontsource-variable/inter';
 const inter = Inter({ subsets: ["latin"] });
 
 // export const metadata = {

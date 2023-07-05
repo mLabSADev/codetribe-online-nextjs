@@ -186,7 +186,7 @@ const CourseOverview = ({ params }: { params: { id: string } }) => {
                 <Button
                   size="large"
                   style={{ ...Styles.Button.Outline, alignSelf: "self-start" }}
-                  onClick={() => router.back()}
+                  onClick={() => router.push('/home')}
                 >
                   <LeftOutlined />
                 </Button>

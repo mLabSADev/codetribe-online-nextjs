@@ -315,7 +315,12 @@ function Assessments() {
         >
           {/* Inputs */}
           <Form.Item name="course" label="Course" rules={[{ required: true }]}>
-            <Select onChange={onCourseChange} allowClear>
+            <Select
+              size="large"
+              style={{ ...Styles.Input, overflow: "hidden" }}
+              onChange={onCourseChange}
+              allowClear
+            >
               {COURSES.map((item) => (
                 <Select.Option value={item}>{item.toUpperCase()}</Select.Option>
               ))}
@@ -324,7 +329,12 @@ function Assessments() {
           <Form.Item name="lesson" label="Lesson" rules={[{ required: true }]}>
             {/* TODO: Component not behaving as expected */}
             {/* Using form does not fill this field's value */}
-            <Cascader options={courseLessons} onChange={onCascaderChange} />
+            <Cascader
+              size="large"
+              style={{ ...Styles.Input, overflow: "hidden" }}
+              options={courseLessons}
+              onChange={onCascaderChange}
+            />
           </Form.Item>
 
           <Form.Item
@@ -334,7 +344,10 @@ function Assessments() {
               { required: true, message: "Please input assessment title" },
             ]}
           >
-            <Input size="large" />
+            <Input
+              style={{ ...Styles.Input, overflow: "hidden" }}
+              size="large"
+            />
           </Form.Item>
           {/* New Assessment */}
           {updating && (
@@ -349,6 +362,7 @@ function Assessments() {
                 name="content"
                 editorState={updateEditorState}
                 readOnly={false}
+                style={{ ...Styles.Input, overflow: "hidden" }}
                 toolbar={{
                   inline: { inDropdown: true },
                   list: { inDropdown: true },
@@ -511,7 +525,12 @@ function Assessments() {
                       </Typography>
                     </Stack>
                     <Stack spacing={1} direction={{ sm: "column", md: "row" }}>
-                      <Button href={item.github} target="_blank" type="link" style={Styles.Button.Outline}>
+                      <Button
+                        href={item.github}
+                        target="_blank"
+                        type="link"
+                        style={Styles.Button.Outline}
+                      >
                         View Github
                       </Button>
                       {/* <Button type="text">View Live</Button> */}

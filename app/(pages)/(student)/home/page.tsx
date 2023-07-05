@@ -240,16 +240,7 @@ export default () => {
               }}
             >
               <Divider orientation="left">Your Progress</Divider>
-              {/* <Stack p={2}>
-                <Typography
-                  style={{
-                    fontWeight: "bold",
-                    fontSize: 23,
-                  }}
-                >
-                  Your Progress
-                </Typography>
-              </Stack> */}
+
               <Stack
                 spacing={1}
                 gap={1}
