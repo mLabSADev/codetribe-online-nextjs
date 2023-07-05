@@ -113,10 +113,10 @@ export default ({
   const [showAssessmentSubmission, setShowAssessmentSubmission] =
     useState(false);
   const [user, setUser] = useState({});
-  const canGoBack = true;
   let totalDuration;
   // let totalDurationUntilCurrentLesson = 0;
-  let canGoForward;
+  const [canGoBack, setCanGoBack] = useState(true);
+  const [canGoForward, setCanGoForward] = useState(true);
   const [position, setPosition] = useState<Position>();
   const [submissions, setSubmissions] = useState([]);
   const [totalDurationUntilCurrentLesson, setTotalDurationUntilCurrentLesson] =
@@ -131,6 +131,7 @@ export default ({
     details: null,
     header: null,
   });
+  const [currentIndex, setCurrentIndex] = useState(0);
   const [slide, setSlide] = React.useState(false);
   const slideContainerRef = React.useRef(null);
   const [updateEditorState, setUpdateEditorState] = React.useState(
@@ -278,8 +279,33 @@ export default ({
     //     }
     // }
   }, []);
-  totalDuration = DurationHelper.secondsToText(total);
 
+  useEffect(() => {
+    if (currentLesson?.lesson !== undefined) {
+      const lessonIndex = course?.chapters
+        .map((chapter) => chapter.lessons)
+        .flat()
+        .indexOf(currentLesson);
+      if (lessonIndex) {
+        setCurrentIndex(lessonIndex);
+      }
+    }
+  }, [currentLesson]);
+
+  useEffect(() => {
+    if (currentLesson?.lesson !== undefined && course) {
+      const allLessons = course.chapters
+        .map((chapter) => chapter.lessons)
+        .flat();
+      if (course.chapters.length > 1) {
+        setLesson(allLessons[currentIndex]);
+      }
+      setCanGoForward(currentIndex !== allLessons.length - 1);
+      setCanGoBack(currentIndex > 0);
+    }
+  }, [currentLesson, currentIndex]);
+
+  totalDuration = DurationHelper.secondsToText(total);
   const chapters = {};
   //   lessons.forEach(lesson => {
   //     if (lesson.frontmatter.lesson === 0 && lesson.frontmatter.chapter === 0) {
@@ -348,8 +374,10 @@ export default ({
     //     chapters[post.frontmatter.chapter].lessons[post.frontmatter.lesson - 1]
     // }
     // navigate(prevLesson.fields.slug)
+    setCurrentIndex((prevCurrentIndex) => prevCurrentIndex - 1);
   };
   const goToNext = () => {
+    setCurrentIndex((prevCurrentIndex) => prevCurrentIndex + 1);
     // let nextLesson
     // if (post.frontmatter.chapter === 0) {
     //   nextLesson = chapters[1].lessons[1]
@@ -779,7 +807,6 @@ description={post.frontmatter.description}
                   {currentLesson?.title}
                 </Typography>
               </Stack>
-
               {currentLesson && !currentLesson.isQuiz && (
                 <div>
                   <iframe
@@ -942,7 +969,7 @@ description={post.frontmatter.description}
                     }}
                   >
                     <Timeline style={{ marginLeft: 20, marginTop: 10 }}>
-                      {chapter.lessons.map((lesson, key) => {
+                      {chapter.lessons.map((lesson: any, key) => {
                         return (
                           <Timeline.Item
                             style={{ backgroundColor: "rgba(0,0,0,0)" }}
@@ -961,7 +988,7 @@ description={post.frontmatter.description}
                             <Link
                               href={
                                 isLegalPage(lesson)
-                                  ? `/course/${course?.key}/${chapter.key}/${lesson.key}`
+                                  ? `/course/${courseId}/${chapter.key}/${lesson.key}`
                                   : "undefined"
                               }
                               style={{

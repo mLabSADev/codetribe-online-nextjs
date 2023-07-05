@@ -414,7 +414,7 @@ const CourseOverview = ({ params }: { params: { id: string } }) => {
                               >
                                 {/* <Link style={{color: lesson.current ? '#97CA42' : '#606060', fontWeight: lesson.current ? 'bold' : 'normal'}}>{lesson.frontmatter.title} ({DurationHelper.timeFormatToText(lesson.frontmatter.duration)})</Link> */}
                                 <Link
-                                  href={""}
+                                  href={lesson.videoUrl}
                                   style={{
                                     color: "#606060",
                                   }}
