@@ -28,6 +28,7 @@ import {
   CheckOutlined,
   LeftOutlined,
   RightOutlined,
+  ReloadOutlined,
 } from "@ant-design/icons";
 // import Quiz from "../components/quiz"
 // import Disqus from "gatsby-plugin-disqus/components/Disqus"
@@ -718,12 +719,14 @@ export default ({
                 </Typography>
                 <Button
                   style={Styles.Button.Outline}
-                  type="dashed"
+                  type="ghost"
+                  shape="circle"
                   onClick={(e) => {
                     refreshSubmissions();
                   }}
+                  icon={<ReloadOutlined />}
                 >
-                  refresh
+                  {/* refresh */}
                 </Button>
               </Stack>
               <Stack spacing={2}>
