@@ -1,5 +1,17 @@
-import firebase from "firebase"
-
+import firebase from "firebase";
+const courses = {
+  chapterProgress: 0,
+  angular: {
+    chapterOne: {
+      total: 12,
+      completed: 2,
+      currentLesson: 3,
+    },
+    chapterTwo: {
+      // ...
+    },
+  },
+};
 export const AuthService = {
   createUser: (user: any) => {
     return firebase
@@ -8,9 +20,9 @@ export const AuthService = {
       .orderByChild("email")
       .equalTo(user.email)
       .once("value")
-      .then(snapshot => {
+      .then((snapshot) => {
         if (snapshot.exists()) {
-          throw new Error("User already exists")
+          throw new Error("User already exists");
         } else {
           return firebase
             .database()
@@ -19,30 +31,30 @@ export const AuthService = {
               ...user,
               registered: false,
               createdAt: firebase.database.ServerValue.TIMESTAMP,
-            })
+            });
         }
-      })
+      });
   },
   confirmRegistration: (user: any) => {
-    delete user.key
+    delete user.key;
 
-    return AuthService.checkUser(user.email).then(userInfo => {
-      const key = userInfo.key
+    return AuthService.checkUser(user.email).then((userInfo) => {
+      const key = userInfo.key;
 
       return firebase
         .auth()
         .createUserWithEmailAndPassword(user.email, user.password)
-        .then(registeredUser => {
-          delete user.password
-          delete user.confirmPassword
+        .then((registeredUser) => {
+          delete user.password;
+          delete user.confirmPassword;
 
           return firebase
             .database()
             .ref(`users/${key}`)
             .once("value")
-            .then(snapshot => {
+            .then((snapshot) => {
               if (snapshot.exists()) {
-                const userData = snapshot.val()
+                const userData = snapshot.val();
 
                 return firebase
                   .database()
@@ -53,14 +65,14 @@ export const AuthService = {
                     ...user,
                   })
                   .then(() => {
-                    return firebase.database().ref(`users/${key}`).remove()
-                  })
+                    return firebase.database().ref(`users/${key}`).remove();
+                  });
               } else {
-                throw new Error("Couldn't register user. An error occurred")
+                throw new Error("Couldn't register user. An error occurred");
               }
-            })
-        })
-    })
+            });
+        });
+    });
   },
   checkUser: (email: string) => {
     return firebase
@@ -69,56 +81,58 @@ export const AuthService = {
       .orderByChild("email")
       .equalTo(email)
       .once("value")
-      .then(snapshot => {
+      .then((snapshot) => {
         if (snapshot.exists()) {
-          const user = snapshot.val()
+          const user = snapshot.val();
 
-          const keys = Object.keys(user)
+          const keys = Object.keys(user);
 
           return {
             ...user[keys[0]],
             key: keys[0],
-          }
+          };
         } else {
-          throw new Error("User not found")
+          throw new Error("User not found");
         }
-      })
+      });
   },
   login: (email: string, password: string) => {
-    return firebase.auth().signInWithEmailAndPassword(email, password)
+    return firebase.auth().signInWithEmailAndPassword(email, password);
   },
   isLoggedIn: () => {
     return new Promise((resolve, reject) => {
-      firebase.auth().onAuthStateChanged(user => {
+      firebase.auth().onAuthStateChanged((user) => {
         if (user) {
-          resolve(user)
+          resolve(user);
         } else {
-          reject(-1)
+          reject(-1);
         }
-      })
-    })
+      });
+    });
   },
   currentUser: () => {
-    return AuthService.isLoggedIn().then((user: any) => {
-      return firebase
-        .database()
-        .ref(`users/${user.uid}`)
-        .once("value")
-        .then(result => {
-          const data = result.val()
+    return AuthService.isLoggedIn()
+      .then((user: any) => {
+        return firebase
+          .database()
+          .ref(`users/${user.uid}`)
+          .once("value")
+          .then((result) => {
+            const data = result.val();
 
-          return data
-        })
-    }).catch(err => err)
+            return data;
+          });
+      })
+      .catch((err) => err);
   },
   forgotPassword: (email: string) => {
-    return firebase.auth().sendPasswordResetEmail(email)
+    return firebase.auth().sendPasswordResetEmail(email);
   },
   logout: () => {
-    return firebase.auth().signOut()
+    return firebase.auth().signOut();
   },
   changePassword: (currentPassword: string, password: string) => {
-    const { email, uid } = firebase.auth().currentUser!
+    const { email, uid } = firebase.auth().currentUser!;
 
     return firebase
       .auth()
@@ -130,25 +144,25 @@ export const AuthService = {
           .then(() => {
             return firebase.database().ref(`users/${uid}`).update({
               changedPassword: true,
-            })
-          })
-      })
+            });
+          });
+      });
   },
   keepPassword: () => {
-    const { uid } = firebase.auth().currentUser!
+    const { uid } = firebase.auth().currentUser!;
 
     return firebase.database().ref(`users/${uid}`).update({
       changedPassword: true,
-    })
+    });
   },
   getUser: (id: string) => {
     return firebase
       .database()
       .ref(`users/${id}`)
       .once("value")
-      .then(snapshot => {
-        return snapshot.val()
-      })
+      .then((snapshot) => {
+        return snapshot.val();
+      });
   },
   getUserByLocation: (location: string) => {
     return firebase
@@ -157,8 +171,8 @@ export const AuthService = {
       .orderByChild("location")
       .equalTo(location)
       .once("value")
-      .then(res => {
-        return res.val()
-      })
+      .then((res) => {
+        return res.val();
+      });
   },
-}
+};

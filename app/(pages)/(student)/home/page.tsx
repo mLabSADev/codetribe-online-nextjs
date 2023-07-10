@@ -8,6 +8,8 @@ import { AuthService } from "@/app/services/auth-service";
 import StudentProgress from "@/app/components/student-progress";
 import TutorialListing from "@/app/components/tutorial-listing";
 import ResourceCards, { BackendCard } from "@/app/components/resources";
+import { Styles } from "@/app/services/styles";
+import { LessonService } from "@/app/services/lesson-service";
 export function stringToColor(string: string) {
   let hash = 0;
   let i;
@@ -240,6 +242,44 @@ export default () => {
               }}
             >
               <Divider orientation="left">Your Progress</Divider>
+              <Stack spacing={1} direction={"row"}>
+                <Button
+                  style={Styles.Button.Filled}
+                  onClick={() => {
+                    LessonService.updateLessonFinished(
+                      "courseName",
+                      "-ABC345",
+                      "-ZXY987"
+                    );
+                  }}
+                >
+                  Finish Course
+                </Button>
+                <Button
+                  style={Styles.Button.Filled}
+                  onClick={() => {
+                    LessonService.updateCurrentLesson(
+                      "courseName",
+                      "-ABC345",
+                      "-ZXY987"
+                    );
+                  }}
+                >
+                  Update Current Lesson
+                </Button>
+                <Button
+                  style={Styles.Button.Filled}
+                  onClick={() => {
+                    LessonService.updateCurrentChapter(
+                      "courseName",
+                      "-ABC345",
+                      "-ZXY987"
+                    );
+                  }}
+                >
+                  Update Current Chapter
+                </Button>
+              </Stack>
 
               <Stack
                 spacing={1}

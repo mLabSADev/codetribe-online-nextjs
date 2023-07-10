@@ -65,6 +65,7 @@ const CourseOverview = ({ params }: { params: { id: string } }) => {
     currentChapter: number;
     currentLesson: number;
   }>();
+  
   const router = useRouter();
 
   const isLegalPage = (lesson: Lesson) => {
@@ -186,7 +187,7 @@ const CourseOverview = ({ params }: { params: { id: string } }) => {
                 <Button
                   size="large"
                   style={{ ...Styles.Button.Outline, alignSelf: "self-start" }}
-                  onClick={() => router.push('/home')}
+                  onClick={() => router.push("/home")}
                 >
                   <LeftOutlined />
                 </Button>
@@ -378,7 +379,7 @@ const CourseOverview = ({ params }: { params: { id: string } }) => {
                               >
                                 {/* <Link style={{color: lesson.current ? '#97CA42' : '#606060', fontWeight: lesson.current ? 'bold' : 'normal'}}>{lesson.frontmatter.title} ({DurationHelper.timeFormatToText(lesson.frontmatter.duration)})</Link> */}
                                 <Link
-                                  href={lesson.videoUrl}
+                                  href={""}
                                   style={{
                                     color: "#606060",
                                   }}
