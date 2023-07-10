@@ -242,7 +242,6 @@ export default () => {
               }}
             >
               <Divider orientation="left">Your Progress</Divider>
-             
 
               <Stack
                 spacing={1}

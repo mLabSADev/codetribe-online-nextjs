@@ -167,4 +167,56 @@ export const LessonService = {
       });
     });
   },
+
+  getAllUserProgress: () => {
+    return new Promise((resolve, reject) => {
+      AuthService.isLoggedIn().then((res) => {
+        // 'lessons/AsQuLORppvdLG12RY9qaTrJekwM2'
+        firebase
+          .database()
+          .ref(`lessons/${res.uid}`)
+          .get()
+          .then((res) => {
+            resolve({ ...SUCCESS, res });
+          })
+          .catch((err) => {
+            reject({ ...ERROR, err });
+          });
+      });
+    });
+  },
+  getAllUserProgressByCourse: (course: string) => {
+    return new Promise((resolve, reject) => {
+      AuthService.isLoggedIn().then((res) => {
+        // 'lessons/AsQuLORppvdLG12RY9qaTrJekwM2'
+        firebase
+          .database()
+          .ref(`lessons/${res.uid}/${course}`)
+          .get()
+          .then((res) => {
+            resolve({ ...SUCCESS, res });
+          })
+          .catch((err) => {
+            reject({ ...ERROR, err });
+          });
+      });
+    });
+  },
+  getAllUserProgressByChapter: (course: string, chapterId: string) => {
+    return new Promise((resolve, reject) => {
+      AuthService.isLoggedIn().then((res) => {
+        // 'lessons/AsQuLORppvdLG12RY9qaTrJekwM2'
+        firebase
+          .database()
+          .ref(`lessons/${res.uid}/${course}/progress/${chapterId}`)
+          .get()
+          .then((res) => {
+            resolve({ ...SUCCESS, res });
+          })
+          .catch((err) => {
+            reject({ ...ERROR, err });
+          });
+      });
+    });
+  },
 };
