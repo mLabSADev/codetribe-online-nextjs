@@ -242,44 +242,7 @@ export default () => {
               }}
             >
               <Divider orientation="left">Your Progress</Divider>
-              <Stack spacing={1} direction={"row"}>
-                <Button
-                  style={Styles.Button.Filled}
-                  onClick={() => {
-                    LessonService.updateLessonFinished(
-                      "courseName",
-                      "-ABC345",
-                      "-ZXY987"
-                    );
-                  }}
-                >
-                  Finish Course
-                </Button>
-                <Button
-                  style={Styles.Button.Filled}
-                  onClick={() => {
-                    LessonService.updateCurrentLesson(
-                      "courseName",
-                      "-ABC345",
-                      "-ZXY987"
-                    );
-                  }}
-                >
-                  Update Current Lesson
-                </Button>
-                <Button
-                  style={Styles.Button.Filled}
-                  onClick={() => {
-                    LessonService.updateCurrentChapter(
-                      "courseName",
-                      "-ABC345",
-                      "-ZXY987"
-                    );
-                  }}
-                >
-                  Update Current Chapter
-                </Button>
-              </Stack>
+             
 
               <Stack
                 spacing={1}
