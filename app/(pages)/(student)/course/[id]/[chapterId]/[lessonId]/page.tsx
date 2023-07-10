@@ -57,6 +57,7 @@ import CloseIcon from "@mui/icons-material/Close";
 import AssessmentSubmission from "@/app/dtos/assessment-submission";
 import AssessmentIcon from "@mui/icons-material/Assessment";
 import { Colors, Styles } from "@/app/services/styles";
+import YouTube from "react-youtube";
 const AssessmentLoadingSkelleton = () => {
   return (
     <Stack spacing={1}>
@@ -142,7 +143,7 @@ export default ({
     details: null,
     header: null,
   });
-  const [currentIndex, setCurrentIndex] = useState(0);
+  const [currentIndex, setCurrentIndex] = React.useState(1);
   const [slide, setSlide] = React.useState(false);
   const slideContainerRef = React.useRef(null);
   const [updateEditorState, setUpdateEditorState] = React.useState(
@@ -153,7 +154,12 @@ export default ({
     error: false,
   });
   const [quizModal, setQuizModal] = React.useState(false);
+  const [videoId, setVideoId] = useState("");
   const [assessmentsLoading, setAssessmentsLoading] = React.useState(true);
+  const [courseProgress, setCourseProgress] = React.useState(0);
+  const [lessonsDoneCount, setLessonsDoneCount] = React.useState(0);
+  const [isDone, setIsDone] = React.useState(false);
+  const [lessonsDone, setLessonsDone] = React.useState<any[]>([]);
   const { origin, hostname, pathname, ancestorOrigins, href } = window.location;
   const handleSlide = () => {
     setSlide((prev) => !prev);
@@ -170,7 +176,6 @@ export default ({
       } else if (lesson.chapter > position.chapter) {
         hasToMove = true;
       }
-
       return !hasToMove;
     }
 
@@ -223,7 +228,6 @@ export default ({
       });
       setPosition(position);
     });
-
     //   if (
     //     currentChapter == position.chapter &&
     //     currentLesson > position.lesson
@@ -313,10 +317,19 @@ export default ({
       if (course.chapters.length > 1) {
         setLesson(allLessons[currentIndex]);
       }
-      setCanGoForward(currentIndex !== allLessons.length - 1);
+      setCanGoForward(currentIndex !== allLessons.length - 1 && isDone);
       setCanGoBack(currentIndex > 0);
+      setCourseProgress(
+        Math.round((lessonsDoneCount / allLessons.length) * 100)
+      );
+      if (allLessons[currentIndex] === currentLesson) {
+        const lessons = [...lessonsDone, currentLesson];
+        const uniqueLessons = Array.from(new Set(lessons));
+        setLessonsDone(uniqueLessons);
+      }
+      console.log(isDone, 'useEffe')
     }
-  }, [currentLesson, currentIndex]);
+  }, [currentLesson, currentIndex, lessonsDoneCount, courseProgress, setIsDone]);
 
   totalDuration = DurationHelper.secondsToText(total);
   const chapters = {};
@@ -391,6 +404,7 @@ export default ({
   };
   const goToNext = () => {
     setCurrentIndex((prevCurrentIndex) => prevCurrentIndex + 1);
+    setIsDone(false)
     // let nextLesson
     // if (post.frontmatter.chapter === 0) {
     //   nextLesson = chapters[1].lessons[1]
@@ -428,6 +442,31 @@ export default ({
     //   .finally(() => {
     //     setNextIsLoading(false)
     //   })
+  };
+
+  const handleIsDone = (key: any, i: any) => {
+    if (i * key + i === 0) {
+      return lessonsDone[key];
+    } else if (i * key + i > 0) {
+      return lessonsDone[11 * i + key];
+    }
+  };
+  useEffect(() => {
+    if (currentLesson) {
+      const regex = /embed\/(.+)/;
+      const id = currentLesson.videoUrl.match(regex);
+      if (id !== null) {
+        setVideoId(id[1]);
+      }
+    }
+  }, [currentLesson, lessonsDoneCount]);
+  const checkTime = (e: any) => {
+    const duration = e.target.getDuration();
+    const currentTime = e.target.getCurrentTime();
+    if (currentTime / duration > 0.99 && currentIndex > lessonsDoneCount) {
+      setLessonsDoneCount((prevLessonsDoneCount) => prevLessonsDoneCount + 1);
+      setIsDone(true);
+    }
   };
 
   const progress = Math.round((totalDurationUntilCurrentLesson / total) * 100);
@@ -561,372 +600,383 @@ export default ({
 
   return (
     currentLesson?.key && (
-      <Stack position={"relative"} ref={slideContainerRef}>
-        <Snackbar
-          open={openNotification.success}
-          autoHideDuration={3000}
-          message="Successfully Submitted Assessment"
-          action={
-            <IconButton
-              size="small"
-              aria-label="close"
-              color="inherit"
-              onClick={() => {
-                setOpenNotification({ error: false, success: false });
-              }}
-            >
-              <CloseIcon fontSize="small" />
-            </IconButton>
-          }
-        />
-        <Snackbar
-          open={openNotification.error}
-          autoHideDuration={3000}
-          onClose={() => {
-            setOpenNotification({ error: false, success: false });
-          }}
-          message="Failed to Submit Assessment"
-          action={
-            <IconButton
-              size="small"
-              aria-label="close"
-              color="inherit"
-              onClick={() => {
-                setOpenNotification({ error: false, success: false });
-              }}
-            >
-              <CloseIcon fontSize="small" />
-            </IconButton>
-          }
-        />
-        {/* Assessment Details Modal */}
-        <Modal
-          title="Assessment Details"
-          open={assessmentDetails.show}
-          onOk={() => {
-            setAssessmentDetails({ show: false, details: null, header: null });
-          }}
-          onCancel={() => {
-            setAssessmentDetails({ show: false, details: null, header: null });
-          }}
-          bodyStyle={{ maxHeight: 'calc(100vh - 200px)', overflowY: 'auto' }}
-          className="custom-modal-wrapper"
-          footer={[
-            <Button
-              style={Styles.Button.Outline}
-              key="back"
-              onClick={() => {
-                setAssessmentDetails({
-                  show: false,
-                  details: null,
-                  header: null,
-                });
-              }}
-            >
-              Okay
-            </Button>,
-          ]}
-        >
-          <Editor
-            name="content"
-            editorState={updateEditorState}
-            readOnly={false}
-            toolbarHidden
-            toolbar={{
-              inline: { inDropdown: true },
-              list: { inDropdown: true },
-              textAlign: { inDropdown: true },
-              link: { inDropdown: true },
-              history: { inDropdown: true },
-            }}
-            placeholder="Type here"
-            toolbarClassName="toolbarClassName"
-            wrapperClassName="wrapperClassName"
-            editorClassName="editorClassName"
+        <Stack position={"relative"} ref={slideContainerRef}>
+          <Snackbar
+            open={openNotification.success}
+            autoHideDuration={3000}
+            message="Successfully Submitted Assessment"
+            action={
+              <IconButton
+                size="small"
+                aria-label="close"
+                color="inherit"
+                onClick={() => {
+                  setOpenNotification({ error: false, success: false });
+                }}
+              >
+                <CloseIcon fontSize="small" />
+              </IconButton>
+            }
           />
-        </Modal>
-
-        {/* Quiz Modal */}
-        <Modal
-          title="Quiz"
-          open={quizModal}
-          onOk={() => {}}
-          onCancel={() => {}}
-          footer={[
-            <Button
-              style={Styles.Button.Outline}
-              key="back"
-              onClick={() => {
-                setQuizModal(false);
-              }}
-            >
-              Okay
-            </Button>,
-          ]}
-        >
-          <Typography variant="body1">
-            Quiz cannot be closed until the student completes it
-          </Typography>
-          <Typography variant="h6">Quiz</Typography>
-          <Typography variant="body2">Quiz content here....</Typography>
-        </Modal>
-        <Box sx={{ width: 500 }}>
-          <Slide
-            direction="right"
-            in={slide}
-            container={slideContainerRef.current}
-          >
-            <Stack
-              sx={{ width: 500, overflowY: "auto" }}
-              maxHeight={"100%"}
-              zIndex={5}
-              bgcolor={"white"}
-              position={"fixed"}
-              left={0}
-              top={0}
-              bottom={0}
-              p={3}
-            >
-              <Stack py={2}>
-                <Typography variant="h5">Submit Assessments</Typography>
-              </Stack>
-              <Stack spacing={2}>
-                {assessmentsLoading && <AssessmentLoadingSkelleton />}
-
-                {submissions.length === 0 && !assessmentsLoading ? (
-                  <Empty
-                    description={<Typography>No Assessments</Typography>}
-                  />
-                ) : null}
-                {submissions.map((sub: any, i: number) => {
-                  if (sub.show == "notsubmitted") {
-                    //  student did not submit assessment
-                    return (
-                      <Stack key={i} spacing={2}>
-                        <Stack direction={"row"} alignItems={"center"}>
-                          <Stack flex={1}>
-                            <Typography flex={1} variant="h6">
-                              {sub.title}
-                            </Typography>
-                          </Stack>
-
-                          <Button
-                            style={Styles.Button.Outline}
-                            onClick={() => {
-                              setUpdateEditorState(
-                                EditorState.createWithContent(
-                                  convertFromRaw({
-                                    entityMap:
-                                      sub.details.content.entityMap || {},
-                                    blocks: sub.details.content.blocks,
-                                  })
-                                )
-                              );
-                              setAssessmentDetails({
-                                show: true,
-                                details: sub.details.content,
-                                header: sub.title,
-                              });
-                            }}
-                          >
-                            Details
-                          </Button>
-                        </Stack>
-
-                        <Form
-                          name="basic"
-                          // wrapperCol={{ span: 16 }}
-                          initialValues={{
-                            remember: true,
-                          }}
-                          onFinish={(values) => {
-                            onFinish({ ...values, chapter: sub.title });
-                          }}
-                          onFinishFailed={onFinishFailed}
-                          autoComplete="off"
-                          layout="vertical"
-                        >
-                          <Form.Item
-                            label="Github URL"
-                            name="github"
-                            rules={[
-                              {
-                                required: true,
-                                message: "Link to Github Projet is required!",
-                              },
-                            ]}
-                          >
-                            <Input
-                              style={Styles.Input}
-                              placeholder="https://github.com/.../..."
-                            />
-                          </Form.Item>
-                          <Form.Item
-                            label="Live URL"
-                            name="live"
-                            rules={[
-                              {
-                                required: true,
-                                message: "Projet host URL is required",
-                              },
-                            ]}
-                          >
-                            <Input
-                              style={Styles.Input}
-                              placeholder="https://www.myhostedsite.com/.../..."
-                            />
-                          </Form.Item>
-                          <Form.Item>
-                            <Button
-                              size="large"
-                              style={Styles.Button.Filled}
-                              type="primary"
-                              htmlType="submit"
-                            >
-                              Submit
-                            </Button>
-                          </Form.Item>
-                        </Form>
-                      </Stack>
-                    );
-                  } else {
-                    {
-                      /* student submitted assessment */
-                    }
-                    return (
-                      <Stack
-                        borderRadius={3}
-                        key={i}
-                        bgcolor={"teal"}
-                        sx={{ color: "white" }}
-                        padding={2}
-                        spacing={2}
-                      >
-                        <Stack direction={"row"} gap={2} alignItems={"center"}>
-                          <CheckIcon />
-                          <Stack>
-                            <Typography color={"white"} variant="h6">
-                              Well done
-                            </Typography>
-                            <Typography color={"white"} variant="subtitle1">
-                              Submitted Assessment
-                            </Typography>
-                          </Stack>
-                        </Stack>
-                      </Stack>
-                    );
-                  }
-                })}
-
-                <Divider />
-              </Stack>
-            </Stack>
-          </Slide>
-        </Box>
-        <Box
-          sx={{ "& > :not(style)": { m: 1 } }}
-          position={"fixed"}
-          zIndex={6}
-          bottom={2}
-          left={2}
-        >
-          <Fab
-            onClick={() => {
-              handleSlide();
+          <Snackbar
+            open={openNotification.error}
+            autoHideDuration={3000}
+            onClose={() => {
+              setOpenNotification({ error: false, success: false });
             }}
-            color="primary"
-            variant="extended"
+            message="Failed to Submit Assessment"
+            action={
+              <IconButton
+                size="small"
+                aria-label="close"
+                color="inherit"
+                onClick={() => {
+                  setOpenNotification({ error: false, success: false });
+                }}
+              >
+                <CloseIcon fontSize="small" />
+              </IconButton>
+            }
+          />
+          {/* Assessment Details Modal */}
+          <Modal
+            title="Assessment Details"
+            open={assessmentDetails.show}
+            onOk={() => {
+              setAssessmentDetails({
+                show: false,
+                details: null,
+                header: null,
+              });
+            }}
+            onCancel={() => {
+              setAssessmentDetails({
+                show: false,
+                details: null,
+                header: null,
+              });
+            }}
+            bodyStyle={{ maxHeight: "calc(100vh - 200px)", overflowY: "auto" }}
+            className="custom-modal-wrapper"
+            footer={[
+              <Button
+                style={Styles.Button.Outline}
+                key="back"
+                onClick={() => {
+                  setAssessmentDetails({
+                    show: false,
+                    details: null,
+                    header: null,
+                  });
+                }}
+              >
+                Okay
+              </Button>,
+            ]}
           >
-            <AssessmentIcon sx={{ mr: 1, color: "white" }} />
-            <Typography variant="button">Assessment</Typography>
-          </Fab>
-        </Box>
+            <Editor
+              name="content"
+              editorState={updateEditorState}
+              readOnly={false}
+              toolbarHidden
+              toolbar={{
+                inline: { inDropdown: true },
+                list: { inDropdown: true },
+                textAlign: { inDropdown: true },
+                link: { inDropdown: true },
+                history: { inDropdown: true },
+              }}
+              placeholder="Type here"
+              toolbarClassName="toolbarClassName"
+              wrapperClassName="wrapperClassName"
+              editorClassName="editorClassName"
+            />
+          </Modal>
 
-        {/* <SEO
+          {/* Quiz Modal */}
+          <Modal
+            title="Quiz"
+            open={quizModal}
+            onOk={() => {}}
+            onCancel={() => {}}
+            footer={[
+              <Button
+                style={Styles.Button.Outline}
+                key="back"
+                onClick={() => {
+                  setQuizModal(false);
+                }}
+              >
+                Okay
+              </Button>,
+            ]}
+          >
+            <Typography variant="body1">
+              Quiz cannot be closed until the student completes it
+            </Typography>
+            <Typography variant="h6">Quiz</Typography>
+            <Typography variant="body2">Quiz content here....</Typography>
+          </Modal>
+          <Box sx={{ width: 500 }}>
+            <Slide
+              direction="right"
+              in={slide}
+              container={slideContainerRef.current}
+            >
+              <Stack
+                sx={{ width: 500, overflowY: "auto" }}
+                maxHeight={"100%"}
+                zIndex={5}
+                bgcolor={"white"}
+                position={"fixed"}
+                left={0}
+                top={0}
+                bottom={0}
+                p={3}
+              >
+                <Stack py={2}>
+                  <Typography variant="h5">Submit Assessments</Typography>
+                </Stack>
+                <Stack spacing={2}>
+                  {assessmentsLoading && <AssessmentLoadingSkelleton />}
+
+                  {submissions.length === 0 && !assessmentsLoading ? (
+                    <Empty
+                      description={<Typography>No Assessments</Typography>}
+                    />
+                  ) : null}
+                  {submissions.map((sub: any, i: number) => {
+                    if (sub.show == "notsubmitted") {
+                      //  student did not submit assessment
+                      return (
+                        <Stack key={i} spacing={2}>
+                          <Stack direction={"row"} alignItems={"center"}>
+                            <Stack flex={1}>
+                              <Typography flex={1} variant="h6">
+                                {sub.title}
+                              </Typography>
+                            </Stack>
+
+                            <Button
+                              style={Styles.Button.Outline}
+                              onClick={() => {
+                                setUpdateEditorState(
+                                  EditorState.createWithContent(
+                                    convertFromRaw({
+                                      entityMap:
+                                        sub.details.content.entityMap || {},
+                                      blocks: sub.details.content.blocks,
+                                    })
+                                  )
+                                );
+                                setAssessmentDetails({
+                                  show: true,
+                                  details: sub.details.content,
+                                  header: sub.title,
+                                });
+                              }}
+                            >
+                              Details
+                            </Button>
+                          </Stack>
+
+                          <Form
+                            name="basic"
+                            // wrapperCol={{ span: 16 }}
+                            initialValues={{
+                              remember: true,
+                            }}
+                            onFinish={(values) => {
+                              onFinish({ ...values, chapter: sub.title });
+                            }}
+                            onFinishFailed={onFinishFailed}
+                            autoComplete="off"
+                            layout="vertical"
+                          >
+                            <Form.Item
+                              label="Github URL"
+                              name="github"
+                              rules={[
+                                {
+                                  required: true,
+                                  message: "Link to Github Projet is required!",
+                                },
+                              ]}
+                            >
+                              <Input
+                                style={Styles.Input}
+                                placeholder="https://github.com/.../..."
+                              />
+                            </Form.Item>
+                            <Form.Item
+                              label="Live URL"
+                              name="live"
+                              rules={[
+                                {
+                                  required: true,
+                                  message: "Projet host URL is required",
+                                },
+                              ]}
+                            >
+                              <Input
+                                style={Styles.Input}
+                                placeholder="https://www.myhostedsite.com/.../..."
+                              />
+                            </Form.Item>
+                            <Form.Item>
+                              <Button
+                                size="large"
+                                style={Styles.Button.Filled}
+                                type="primary"
+                                htmlType="submit"
+                              >
+                                Submit
+                              </Button>
+                            </Form.Item>
+                          </Form>
+                        </Stack>
+                      );
+                    } else {
+                      {
+                        /* student submitted assessment */
+                      }
+                      return (
+                        <Stack
+                          borderRadius={3}
+                          key={i}
+                          bgcolor={"teal"}
+                          sx={{ color: "white" }}
+                          padding={2}
+                          spacing={2}
+                        >
+                          <Stack
+                            direction={"row"}
+                            gap={2}
+                            alignItems={"center"}
+                          >
+                            <CheckIcon />
+                            <Stack>
+                              <Typography color={"white"} variant="h6">
+                                Well done
+                              </Typography>
+                              <Typography color={"white"} variant="subtitle1">
+                                Submitted Assessment
+                              </Typography>
+                            </Stack>
+                          </Stack>
+                        </Stack>
+                      );
+                    }
+                  })}
+
+                  <Divider />
+                </Stack>
+              </Stack>
+            </Slide>
+          </Box>
+          <Box
+            sx={{ "& > :not(style)": { m: 1 } }}
+            position={"fixed"}
+            zIndex={6}
+            bottom={2}
+            left={2}
+          >
+            <Fab
+              onClick={() => {
+                handleSlide();
+              }}
+              color="primary"
+              variant="extended"
+            >
+              <AssessmentIcon sx={{ mr: 1, color: "white" }} />
+              <Typography variant="button">Assessment</Typography>
+            </Fab>
+          </Box>
+
+          {/* <SEO
 title={post.frontmatter.title}
 description={post.frontmatter.description}
 /> */}
-        <Stack
-          flex={1}
-          p={2}
-          spacing={2}
-          direction={{ xs: "column", sm: "column", md: "row", lg: "row" }}
-        >
-          <Stack flex={1}>
-            <Stack
-              flex={1}
-              sx={{
-                background: "#efefef",
-                borderRadius: 5,
-              }}
-              p={2}
-            >
+          <Stack
+            flex={1}
+            p={2}
+            spacing={2}
+            direction={{ xs: "column", sm: "column", md: "row", lg: "row" }}
+          >
+            <Stack flex={1}>
               <Stack
-                position={"sticky"}
-                spacing={2}
-                py={2}
-                px={3}
-                direction={"row"}
-                alignItems={"center"}
+                flex={1}
+                sx={{
+                  background: "#efefef",
+                  borderRadius: 5,
+                }}
+                p={2}
               >
-                <Button
-                  size="large"
-                  style={{ ...Styles.Button.Outline, alignSelf: "self-start" }}
-                  onClick={() => router.back()}
+                <Stack
+                  position={"sticky"}
+                  spacing={2}
+                  py={2}
+                  px={3}
+                  direction={"row"}
+                  alignItems={"center"}
                 >
-                  <LeftOutlined />
-                </Button>
-                <Typography fontWeight={"bold"} variant="h6">
-                  {currentLesson?.title}
-                </Typography>
-              </Stack>
-              {currentLesson && !currentLesson.isQuiz && (
-                <Stack spacing={4}>
-                  <Box
-                    width={"100%"}
-                    height={700}
-                    borderRadius={3}
-                    overflow={"hidden"}
+                  <Button
+                    size="large"
+                    style={{
+                      ...Styles.Button.Outline,
+                      alignSelf: "self-start",
+                    }}
+                    onClick={() => router.back()}
                   >
-                    <iframe
-                      width="100%"
-                      height="100%"
-                      allowFullScreen
-                      src={currentLesson?.videoUrl}
-                      frameBorder={0}
-                      title="YouTube video player"
-                      allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture; web-share"
-                    ></iframe>
-                  </Box>
-                  <Stack direction={"row"} flex={1}>
-                    <Button
-                      style={Styles.Button.Outline}
-                      onClick={goToPrev}
-                      disabled={!canGoBack}
-                      size="large"
-                      type="default"
-                      icon={<ArrowLeftOutlined />}
-                    >
-                      Previous
-                    </Button>
-                    <span style={{ flex: 1 }} />
-                    <Button
-                      style={Styles.Button.Outline}
-                      onClick={goToNext}
-                      disabled={!canGoForward}
-                      size="large"
-                      type="default"
-                      loading={nextIsLoading}
-                    >
-                      Next <ArrowRightOutlined />
-                    </Button>
-                  </Stack>
+                    <LeftOutlined />
+                  </Button>
+                  <Typography fontWeight={"bold"} variant="h6">
+                    {currentLesson?.title}
+                  </Typography>
                 </Stack>
-              )}
+                {currentLesson && !currentLesson.isQuiz && (
+                  <Stack spacing={4}>
+                    <Box
+                      width={"100%"}
+                      height={700}
+                      borderRadius={3}
+                      overflow={"hidden"}
+                    >
+                      <YouTube
+                        videoId={videoId}
+                        onStateChange={(e) => checkTime(e)}
+                        opts={{ height: 700, width: "100%" }}
+                      />
+                    </Box>
+                    <Stack direction={"row"} flex={1}>
+                      <Button
+                        style={Styles.Button.Outline}
+                        onClick={goToPrev}
+                        disabled={!canGoBack}
+                        size="large"
+                        type="default"
+                        icon={<ArrowLeftOutlined />}
+                      >
+                        Previous
+                      </Button>
+                      <span style={{ flex: 1 }} />
+                      <Button
+                        style={Styles.Button.Outline}
+                        onClick={goToNext}
+                        disabled={!canGoForward}
+                        size="large"
+                        type="default"
+                        loading={nextIsLoading}
+                      >
+                        Next <ArrowRightOutlined />
+                      </Button>
+                    </Stack>
+                  </Stack>
+                )}
 
-              <div style={{ marginTop: 0 }}>
-                <Row>
-                  {/* {course?.outline?.map(overview => {
+                <div style={{ marginTop: 0 }}>
+                  <Row>
+                    {/* {course?.outline?.map(overview => {
         return (
           <Col xs={24} sm={24} md={12}>
             <div
@@ -951,114 +1001,114 @@ description={post.frontmatter.description}
           </Col>
         )
       })} */}
-                </Row>
-              </div>
+                  </Row>
+                </div>
 
-              <Divider />
+                <Divider />
 
-              <div style={{ padding: 40, paddingTop: 20 }}>
-                {/* <Disqus /> */}
-              </div>
+                <div style={{ padding: 40, paddingTop: 20 }}>
+                  {/* <Disqus /> */}
+                </div>
+              </Stack>
             </Stack>
-          </Stack>
-          <Stack
-            sx={{
-              background: "#efefef",
-              maxHeight: `${96}vh`,
-              overflowY: "auto",
-              borderRadius: 5,
+            <Stack
+      sx={{
+        background: "#efefef",
+        maxHeight: `${96}vh`,
+        overflowY: "auto",
+        borderRadius: 5,
+      }}
+    >
+      <Stack p={2}>
+        <Typography variant="subtitle1" fontWeight={"bold"}>
+          Course Content
+        </Typography>
+        <Link href={"mainSlug"}>
+          <Typography
+            variant="h5"
+            style={{ color: "#97CA42", marginBottom: 0 }}
+          >
+            {currentLesson?.title}
+          </Typography>
+          <span style={{ color: "#afafaf" }}>{totalDuration}</span>
+        </Link>
+        <div style={{ display: "flex", alignItems: "center" }}>
+          Progress
+          <div
+            style={{
+              background: "#cfcfcf",
+              flex: 1,
+              height: 5,
+              marginLeft: 30,
+              borderRadius: 3,
+              overflow: "hidden",
             }}
           >
-            <Stack p={2}>
-              <Typography variant="subtitle1" fontWeight={"bold"}>
-                Course Content
-              </Typography>
-              <Link href={"mainSlug"}>
-                <Typography
-                  variant="h5"
-                  style={{ color: "#97CA42", marginBottom: 0 }}
-                >
-                  {currentLesson?.title}
-                </Typography>
-                <span style={{ color: "#afafaf" }}>{totalDuration}</span>
-              </Link>
-              <div style={{ display: "flex", alignItems: "center" }}>
-                Progress
-                <div
-                  style={{
-                    background: isNaN(progress) ? "red" : "#cfcfcf",
-                    flex: 1,
-                    height: 5,
-                    marginLeft: 30,
-                    borderRadius: 3,
-                    overflow: "hidden",
-                  }}
-                >
-                  <div
-                    style={{
-                      background: "#97CA42",
-                      width: isNaN(progress) ? 0 : `${progress}`,
-                      height: 5,
-                    }}
-                  />
-                </div>
-                <div style={{ paddingLeft: 10 }}>
-                  {isNaN(progress) ? "Error" : `${progress}%`}
-                </div>
-              </div>
-            </Stack>
+            <div
+              style={{
+                background: "#97CA42",
+                width: courseProgress > 0 ? courseProgress : 0,
+                height: 5,
+              }}
+            />
+          </div>
+          <div style={{ paddingLeft: 10 }}>
+            {isNaN(courseProgress) ? "Error" : `${courseProgress}%`}
+          </div>
+        </div>
+      </Stack>
 
-            <Collapse
-              style={{ background: "transparent" }}
-              defaultActiveKey={[currentLesson.chapterKey]}
-              bordered={false}
-              expandIconPosition="end"
+      <Collapse
+        style={{ background: "transparent" }}
+        defaultActiveKey={[currentLesson.chapterKey]}
+        bordered={false}
+        expandIconPosition="end"
+      >
+        {course!.chapters.map((chapter, i) => {
+          let submitted = false;
+          let chapterTotalDuration = 0;
+          for (let chapterLesson of chapter.lessons) {
+            if (!chapterLesson) continue;
+
+            const [min, sec] = chapterLesson.duration.split(":");
+
+            chapterTotalDuration += parseInt(min) * 60 + parseInt(sec);
+          }
+          const chapterTotalDurationText =
+            DurationHelper.secondsToText(chapterTotalDuration);
+
+          return (
+            <Collapse.Panel
+              // expandIconPosition="end"
+
+              header={
+                <Stack direction={"row"} flex={1}>
+                  <Typography flex={1} variant="subtitle1">
+                    {chapter.title}
+                  </Typography>
+                  <Typography variant="overline">
+                    {chapterTotalDurationText}
+                  </Typography>
+                </Stack>
+              }
+              key={chapter.key}
+              style={{
+                backgroundColor:
+                  chapter.key === currentLesson.chapterKey
+                    ? Colors.SmokeWhite
+                    : "rgba(0,0,0,0)",
+                borderColor: "#f0f2f5",
+              }}
             >
-              {course!.chapters.map((chapter, i) => {
-                let submitted = false;
-                let chapterTotalDuration = 0;
-                for (let chapterLesson of chapter.lessons) {
-                  if (!chapterLesson) continue;
-
-                  const [min, sec] = chapterLesson.duration.split(":");
-
-                  chapterTotalDuration += parseInt(min) * 60 + parseInt(sec);
-                }
-                const chapterTotalDurationText =
-                  DurationHelper.secondsToText(chapterTotalDuration);
-
-                return (
-                  <Collapse.Panel
-                    // expandIconPosition="end"
-
-                    header={
-                      <Stack direction={"row"} flex={1}>
-                        <Typography flex={1} variant="subtitle1">
-                          {chapter.title}
-                        </Typography>
-                        <Typography variant="overline">
-                          {chapterTotalDurationText}
-                        </Typography>
-                      </Stack>
-                    }
-                    key={chapter.key}
-                    style={{
-                      backgroundColor:
-                        chapter.key === currentLesson.chapterKey
-                          ? Colors.SmokeWhite
-                          : "rgba(0,0,0,0)",
-                      borderColor: "#f0f2f5",
-                    }}
-                  >
-                    <Timeline style={{ marginLeft: 20, marginTop: 10 }}>
-                      {chapter.lessons.map((lesson: any, key) => {
-                        return (
-                          <Timeline.Item
-                            style={{ backgroundColor: "rgba(0,0,0,0)" }}
-                            key={key}
-                            dot={
-                              <Stack>
-                                {isLegalPage(lesson) ? (
+              <Timeline style={{ marginLeft: 20, marginTop: 10 }}>
+                {chapter.lessons.map((lesson: any, key) => {
+                  return (
+                    <Timeline.Item
+                      style={{ backgroundColor: "rgba(0,0,0,0)" }}
+                      key={key}
+                      dot={
+                        <Stack>
+                          {/* {isLegalPage(lesson) ? (
                                   <CheckBoxIcon
                                     sx={{ color: Colors.Primary }}
                                   />
@@ -1066,73 +1116,106 @@ description={post.frontmatter.description}
                                   <CheckBoxOutlineBlankIcon
                                     sx={{ color: Colors.Primary }}
                                   />
-                                )}
-                              </Stack>
-                            }
-                          >
-                            {/* <Link style={{color: lesson.current ? '#97CA42' : '#606060', fontWeight: lesson.current ? 'bold' : 'normal'}}>{lesson.frontmatter.title} ({DurationHelper.timeFormatToText(lesson.frontmatter.duration)})</Link> */}
-                            <Link
-                              href={
-                                isLegalPage(lesson)
-                                  ? `/course/${courseId}/${chapter.key}/${lesson.key}`
-                                  : "undefined"
-                              }
-                              style={{
-                                color: "#606060",
-                                fontWeight:
-                                  currentLesson.key === lesson.key
-                                    ? "bold"
-                                    : "normal",
-                              }}
-                            >
-                              {lesson.title}
-                              {/* (
+                                )} */}
+                          {handleIsDone(key, i) ? (
+                            <CheckBoxIcon sx={{ color: Colors.Primary }} />
+                          ) : (
+                            <CheckBoxOutlineBlankIcon
+                              sx={{ color: Colors.Primary }}
+                            />
+                          )}
+                        </Stack>
+                      }
+                    >
+                      {/* <Link style={{color: lesson.current ? '#97CA42' : '#606060', fontWeight: lesson.current ? 'bold' : 'normal'}}>{lesson.frontmatter.title} ({DurationHelper.timeFormatToText(lesson.frontmatter.duration)})</Link> */}
+                      {lessonsDone.length > 1 &&
+                      lessonsDone[lessonsDoneCount] ? (
+                        <Link
+                          href={
+                            isLegalPage(lesson)
+                              ? `/course/${courseId}/${chapter.key}/${lesson.key}`
+                              : "undefined"
+                          }
+                          style={{
+                            color: "#606060",
+                            fontWeight:
+                              currentLesson.key === lesson.key
+                                ? "bold"
+                                : "normal",
+                          }}
+                        >
+                          {lesson.title}
+                          {/* (
                   {DurationHelper.timeFormatToText(
                     lesson.frontmatter.duration
                   )}
                   ) */}
-                            </Link>
-                          </Timeline.Item>
-                        );
-                      })}
-                      <Stack
-                        borderRadius={4}
-                        p={2}
-                        bgcolor={Colors.Primary}
-                        color={"white"}
-                        spacing={2}
-                      >
-                        <Typography color={"white"} variant="h5">
-                          Quiz Test
-                        </Typography>
-                        <Typography>Pass test to open next section</Typography>
-                        <Button
-                          style={Styles.Button.Filled}
-                          type="ghost"
-                          icon={<RightOutlined />}
-                          size={"large"}
-                          onClick={() => {
-                            setQuizModal(true);
+                        </Link>
+                      ) : (
+                        <Link
+                          href={
+                            isLegalPage(lesson)
+                              ? `/course/${courseId}/${chapter.key}/${lesson.key}`
+                              : "undefined"
+                          }
+                          style={{
+                            // pointerEvents: "none",
+                            color: "#606060",
+                            fontWeight:
+                              currentLesson.key === lesson.key
+                                ? "bold"
+                                : "normal",
                           }}
                         >
-                          Begin Quiz
-                        </Button>
-                      </Stack>
-                    </Timeline>
+                          {lesson.title}
+                          {/* (
+                {DurationHelper.timeFormatToText(
+                  lesson.frontmatter.duration
+                )}
+                ) */}
+                        </Link>
+                      )}
+                    </Timeline.Item>
+                  );
+                })}
+                <Stack
+                  borderRadius={4}
+                  p={2}
+                  bgcolor={Colors.Primary}
+                  color={"white"}
+                  spacing={2}
+                >
+                  <Typography color={"white"} variant="h5">
+                    Quiz Test
+                  </Typography>
+                  <Typography>Pass test to open next section</Typography>
+                  <Button
+                    style={Styles.Button.Filled}
+                    type="ghost"
+                    icon={<RightOutlined />}
+                    size={"large"}
+                    onClick={() => {
+                      setQuizModal(true);
+                    }}
+                  >
+                    Begin Quiz
+                  </Button>
+                </Stack>
+              </Timeline>
 
-                    {/* Student assessment submission */}
-                    {/* {checkSubmitted().then((res) => {
+              {/* Student assessment submission */}
+              {/* {checkSubmitted().then((res) => {
           return <Typography>Graeae</Typography>;
         })} */}
 
-                    <Divider />
-                  </Collapse.Panel>
-                );
-              })}
-            </Collapse>
+              <Divider />
+            </Collapse.Panel>
+          );
+        })}
+      </Collapse>
+    </Stack>
           </Stack>
         </Stack>
-      </Stack>
     )
   );
 };
