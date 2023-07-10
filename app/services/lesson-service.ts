@@ -185,7 +185,7 @@ export const LessonService = {
       });
     });
   },
-  getAllUserProgressByCourse: (course: string) => {
+  getUserProgressByCourse: (course: string) => {
     return new Promise((resolve, reject) => {
       AuthService.isLoggedIn().then((res) => {
         // 'lessons/AsQuLORppvdLG12RY9qaTrJekwM2'
@@ -202,7 +202,7 @@ export const LessonService = {
       });
     });
   },
-  getAllUserProgressByChapter: (course: string, chapterId: string) => {
+  getUserProgressByChapter: (course: string, chapterId: string) => {
     return new Promise((resolve, reject) => {
       AuthService.isLoggedIn().then((res) => {
         // 'lessons/AsQuLORppvdLG12RY9qaTrJekwM2'

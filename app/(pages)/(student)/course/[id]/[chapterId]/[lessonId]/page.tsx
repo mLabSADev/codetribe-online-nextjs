@@ -458,6 +458,8 @@ export default ({
           .then((res) => {
             setShowAssessmentSubmission(false);
             setOpenNotification({ error: false, success: true });
+            setAssessmentsLoading(true);
+            refreshSubmissions();
           })
           .catch((err) => {
             console.log(err);
@@ -467,7 +469,20 @@ export default ({
       })
       .then((err) => {});
   };
-
+  const refreshSubmissions = () => {
+    submissions.length = 0;
+    setSubmissions(submissions);
+    setAssessmentsLoading(true);
+    let i = 0;
+    console.log(submissions);
+    course?.chapters.forEach((element, i) => {
+      RunAssessmentFunc({
+        course: course.key,
+        chapter: element.title,
+      });
+    });
+    // setAssessmentsLoading(false);
+  };
   const onFinishFailed = (errorInfo: any) => {
     console.log("Failed:", errorInfo);
   };
@@ -511,9 +526,13 @@ export default ({
   };
   /**
    * Get's assessments & submissions per lesson
-   * @param data  course: 'React', chapter: 'Lesson One'
+   * @param data  - {course: 'React', chapter: 'Lesson One'}
    */
+  let i = 1;
   const RunAssessmentFunc = async (data) => {
+    console.log("====================================");
+    console.log(`Called RunAssessmentFunc: ${i++} times`);
+    console.log("====================================");
     const createdAssessment = await Assessment.getOne({
       course: data.course,
       chapter: data.chapter,
@@ -545,6 +564,7 @@ export default ({
           title: data.chapter,
         });
         setSubmissions(submissions);
+
         setAssessmentsLoading(false);
       } else {
         submissions.unshift({
@@ -614,7 +634,7 @@ export default ({
           onCancel={() => {
             setAssessmentDetails({ show: false, details: null, header: null });
           }}
-          bodyStyle={{ maxHeight: 'calc(100vh - 200px)', overflowY: 'auto' }}
+          bodyStyle={{ maxHeight: "calc(100vh - 200px)", overflowY: "auto" }}
           className="custom-modal-wrapper"
           footer={[
             <Button
@@ -692,8 +712,19 @@ export default ({
               bottom={0}
               p={3}
             >
-              <Stack py={2}>
-                <Typography variant="h5">Submit Assessments</Typography>
+              <Stack py={2} direction={"row"} alignItems={"center"}>
+                <Typography flex={1} variant="h5">
+                  Submit Assessments
+                </Typography>
+                <Button
+                  style={Styles.Button.Outline}
+                  type="dashed"
+                  onClick={(e) => {
+                    refreshSubmissions();
+                  }}
+                >
+                  refresh
+                </Button>
               </Stack>
               <Stack spacing={2}>
                 {assessmentsLoading && <AssessmentLoadingSkelleton />}
