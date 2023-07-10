@@ -97,6 +97,7 @@ export const LessonService = {
   },
 
   // Student Progress & Tracking
+  // Updates the lesson true
   updateLessonFinished: (
     course: string,
     chapterId: string,
@@ -120,6 +121,8 @@ export const LessonService = {
       });
     });
   },
+
+  // updates currentChapter
   updateCurrentChapter: (
     course: string,
     chapterId: string,
@@ -141,6 +144,8 @@ export const LessonService = {
       });
     });
   },
+
+  // updates currentLesson
   updateCurrentLesson: (
     course: string,
     chapterId: string,
@@ -163,8 +168,3 @@ export const LessonService = {
     });
   },
 };
-interface FinishCourse {
-  chapterId: string;
-  lessonId: string;
-  nextLesson: any;
-}
