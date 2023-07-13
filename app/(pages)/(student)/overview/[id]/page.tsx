@@ -94,7 +94,7 @@ const CourseOverview = ({ params }: { params: { id: string } }) => {
       router.push(`/course/${course?.key}/${currentChapter}/${currentLesson}`);
     } else {
       router.push(
-        `/course/${course?.key}/${course?.chapters[0].key}/${course?.chapters[0].lessons[1].key}`
+        `/course/${course?.key}/${course?.chapters[0].key}/${course?.chapters[0].lessons[0].key}`
       );
     }
   };
