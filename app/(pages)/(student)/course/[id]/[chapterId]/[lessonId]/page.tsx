@@ -28,7 +28,6 @@ import {
   CheckOutlined,
   LeftOutlined,
   RightOutlined,
-  ReloadOutlined,
 } from "@ant-design/icons";
 // import Quiz from "../components/quiz"
 // import Disqus from "gatsby-plugin-disqus/components/Disqus"
@@ -58,6 +57,8 @@ import CloseIcon from "@mui/icons-material/Close";
 import AssessmentSubmission from "@/app/dtos/assessment-submission";
 import AssessmentIcon from "@mui/icons-material/Assessment";
 import { Colors, Styles } from "@/app/services/styles";
+import YouTube from "react-youtube";
+import LessonProgress from "@/app/dtos/lesson-progress";
 const AssessmentLoadingSkelleton = () => {
   return (
     <Stack spacing={1}>
@@ -143,7 +144,7 @@ export default ({
     details: null,
     header: null,
   });
-  const [currentIndex, setCurrentIndex] = useState(0);
+  const [currentIndex, setCurrentIndex] = React.useState(0);
   const [slide, setSlide] = React.useState(false);
   const slideContainerRef = React.useRef(null);
   const [updateEditorState, setUpdateEditorState] = React.useState(
@@ -154,9 +155,11 @@ export default ({
     error: false,
   });
   const [quizModal, setQuizModal] = React.useState(false);
+  const [videoId, setVideoId] = useState("");
   const [assessmentsLoading, setAssessmentsLoading] = React.useState(true);
+  const [courseProgress, setCourseProgress] = React.useState(0);
+  const [finishedLessons, setFinishedLessons] = React.useState<any[]>([]);
   const { origin, hostname, pathname, ancestorOrigins, href } = window.location;
-  const [backNav, setBackNav] = useState("");
   const handleSlide = () => {
     setSlide((prev) => !prev);
   };
@@ -172,7 +175,6 @@ export default ({
       } else if (lesson.chapter > position.chapter) {
         hasToMove = true;
       }
-
       return !hasToMove;
     }
 
@@ -202,8 +204,6 @@ export default ({
 
         for (let lesson of lessons) {
           if (lesson.key === lessonId) {
-            console.log(lesson);
-
             setLesson(lesson);
           }
           if (
@@ -225,7 +225,6 @@ export default ({
       });
       setPosition(position);
     });
-
     //   if (
     //     currentChapter == position.chapter &&
     //     currentLesson > position.lesson
@@ -301,6 +300,19 @@ export default ({
         .map((chapter) => chapter.lessons)
         .flat()
         .indexOf(currentLesson);
+      if (course) {
+        LessonService.updateCurrentLesson(courseId, currentLesson.key).then(
+          (res) => {
+            console.log(res);
+          }
+        );
+        LessonService.updateCurrentChapter(
+          courseId,
+          currentLesson.chapterKey
+        ).then((res) => {
+          console.log(res);
+        });
+      }
       if (lessonIndex) {
         setCurrentIndex(lessonIndex);
       }
@@ -317,8 +329,32 @@ export default ({
       }
       setCanGoForward(currentIndex !== allLessons.length - 1);
       setCanGoBack(currentIndex > 0);
+      LessonService.getUserFinishedLessons(courseId, currentLesson.chapterKey)
+        .then((lessons: any) => {
+          let array = [];
+          for (const chapterKey in lessons) {
+            if (lessons.hasOwnProperty(chapterKey)) {
+              const finishedChapter = lessons[chapterKey];
+              for (const lessonKey in finishedChapter) {
+                if (finishedChapter.hasOwnProperty(lessonKey)) {
+                  const finishedLesson = finishedChapter[lessonKey];
+                  array.push(finishedLesson);
+                }
+              }
+            }
+          }
+          setFinishedLessons(array);
+        })
+        .catch((err) => {
+          console.log(err);
+        });
     }
-  }, [currentLesson, currentIndex]);
+  }, [
+    // currentLesson,
+    currentIndex,
+    courseProgress,
+    finishedLessons,
+  ]);
 
   totalDuration = DurationHelper.secondsToText(total);
   const chapters = {};
@@ -392,6 +428,18 @@ export default ({
     setCurrentIndex((prevCurrentIndex) => prevCurrentIndex - 1);
   };
   const goToNext = () => {
+    if (course) {
+      const allLessons = course.chapters
+        .map((chapter) => chapter.lessons)
+        .flat();
+      LessonService.getCurrentLesson(courseId).then((res) => {
+        for (const lesson of allLessons) {
+          if (lesson.key === res) {
+            setLesson(lesson);
+          }
+        }
+      });
+    }
     setCurrentIndex((prevCurrentIndex) => prevCurrentIndex + 1);
     // let nextLesson
     // if (post.frontmatter.chapter === 0) {
@@ -432,6 +480,47 @@ export default ({
     //   })
   };
 
+  const isLessonDone = (lesson: Lesson, key: any, chapterIndex: any) => {
+    if (
+      finishedLessons.findIndex(
+        (lessonObj) => lessonObj.lesson.key === lesson.key
+      ) > -1
+    ) {
+      return true;
+    }
+    return false;
+  };
+  useEffect(() => {
+    if (currentLesson) {
+      const regex = /embed\/(.+)/;
+      const id = currentLesson.videoUrl.match(regex);
+      if (id !== null) {
+        setVideoId(id[1]);
+      }
+    }
+  }, [currentLesson]);
+  const checkTime = (e: any, course: any, chapterId: any, lessonId: any) => {
+    const duration = e.target.getDuration();
+    const currentTime = e.target.getCurrentTime();
+    if (currentLesson) {
+      if (
+        currentTime / duration > 1 &&
+        finishedLessons.findIndex(
+          (less) => less.lesson.key === currentLesson.key
+        ) === -1
+      ) {
+        LessonService.addFinishedLesson(
+          course,
+          chapterId,
+          lessonId,
+          currentLesson
+        ).then((res) => {
+          console.log(res, "res");
+        });
+      }
+    }
+  };
+
   const progress = Math.round((totalDurationUntilCurrentLesson / total) * 100);
   const onFinish = (values: any) => {
     const currentURL = window.location.href;
@@ -459,8 +548,6 @@ export default ({
           .then((res) => {
             setShowAssessmentSubmission(false);
             setOpenNotification({ error: false, success: true });
-            setAssessmentsLoading(true);
-            refreshSubmissions();
           })
           .catch((err) => {
             console.log(err);
@@ -470,20 +557,7 @@ export default ({
       })
       .then((err) => {});
   };
-  const refreshSubmissions = () => {
-    submissions.length = 0;
-    setSubmissions(submissions);
-    setAssessmentsLoading(true);
-    let i = 0;
-    console.log(submissions);
-    course?.chapters.forEach((element, i) => {
-      RunAssessmentFunc({
-        course: course.key,
-        chapter: element.title,
-      });
-    });
-    // setAssessmentsLoading(false);
-  };
+
   const onFinishFailed = (errorInfo: any) => {
     console.log("Failed:", errorInfo);
   };
@@ -527,13 +601,9 @@ export default ({
   };
   /**
    * Get's assessments & submissions per lesson
-   * @param data  - {course: 'React', chapter: 'Lesson One'}
+   * @param data  course: 'React', chapter: 'Lesson One'
    */
-  let i = 1;
   const RunAssessmentFunc = async (data) => {
-    console.log("====================================");
-    console.log(`Called RunAssessmentFunc: ${i++} times`);
-    console.log("====================================");
     const createdAssessment = await Assessment.getOne({
       course: data.course,
       chapter: data.chapter,
@@ -565,7 +635,6 @@ export default ({
           title: data.chapter,
         });
         setSubmissions(submissions);
-
         setAssessmentsLoading(false);
       } else {
         submissions.unshift({
@@ -579,11 +648,7 @@ export default ({
     } else {
     }
   };
-  useEffect(() => {
-    // back navigation
-    const splitted = href.split("/");
-    setBackNav(`/overview/${splitted[4]}`);
-  }, [currentLesson]);
+  useEffect(() => {}, []);
 
   return (
     currentLesson?.key && (
@@ -630,10 +695,18 @@ export default ({
           title="Assessment Details"
           open={assessmentDetails.show}
           onOk={() => {
-            setAssessmentDetails({ show: false, details: null, header: null });
+            setAssessmentDetails({
+              show: false,
+              details: null,
+              header: null,
+            });
           }}
           onCancel={() => {
-            setAssessmentDetails({ show: false, details: null, header: null });
+            setAssessmentDetails({
+              show: false,
+              details: null,
+              header: null,
+            });
           }}
           bodyStyle={{ maxHeight: "calc(100vh - 200px)", overflowY: "auto" }}
           className="custom-modal-wrapper"
@@ -713,21 +786,8 @@ export default ({
               bottom={0}
               p={3}
             >
-              <Stack py={2} direction={"row"} alignItems={"center"}>
-                <Typography flex={1} variant="h5">
-                  Submit Assessments
-                </Typography>
-                <Button
-                  style={Styles.Button.Outline}
-                  type="ghost"
-                  shape="circle"
-                  onClick={(e) => {
-                    refreshSubmissions();
-                  }}
-                  icon={<ReloadOutlined />}
-                >
-                  {/* refresh */}
-                </Button>
+              <Stack py={2}>
+                <Typography variant="h5">Submit Assessments</Typography>
               </Stack>
               <Stack spacing={2}>
                 {assessmentsLoading && <AssessmentLoadingSkelleton />}
@@ -910,8 +970,11 @@ description={post.frontmatter.description}
               >
                 <Button
                   size="large"
-                  style={{ ...Styles.Button.Outline, alignSelf: "self-start" }}
-                  onClick={() => router.push(backNav)}
+                  style={{
+                    ...Styles.Button.Outline,
+                    alignSelf: "self-start",
+                  }}
+                  onClick={() => router.back()}
                 >
                   <LeftOutlined />
                 </Button>
@@ -927,15 +990,18 @@ description={post.frontmatter.description}
                     borderRadius={3}
                     overflow={"hidden"}
                   >
-                    <iframe
-                      width="100%"
-                      height="100%"
-                      allowFullScreen
-                      src={currentLesson?.videoUrl}
-                      frameBorder={0}
-                      title="YouTube video player"
-                      allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture; web-share"
-                    ></iframe>
+                    <YouTube
+                      videoId={videoId}
+                      onStateChange={(e) =>
+                        checkTime(
+                          e,
+                          courseId,
+                          currentLesson.chapterKey,
+                          currentLesson.key
+                        )
+                      }
+                      opts={{ height: 700, width: "100%" }}
+                    />
                   </Box>
                   <Stack direction={"row"} flex={1}>
                     <Button
@@ -1019,13 +1085,13 @@ description={post.frontmatter.description}
                 >
                   {currentLesson?.title}
                 </Typography>
-                <span style={{ color: "#afafaf" }}>{totalDuration}</span>
+                {/* <span style={{ color: "#afafaf" }}>{totalDuration}</span> */}
               </Link>
               <div style={{ display: "flex", alignItems: "center" }}>
                 Progress
                 <div
                   style={{
-                    background: isNaN(progress) ? "red" : "#cfcfcf",
+                    background: "#cfcfcf",
                     flex: 1,
                     height: 5,
                     marginLeft: 30,
@@ -1036,13 +1102,13 @@ description={post.frontmatter.description}
                   <div
                     style={{
                       background: "#97CA42",
-                      width: isNaN(progress) ? 0 : `${progress}`,
+                      width: courseProgress > 0 ? courseProgress : 0,
                       height: 5,
                     }}
                   />
                 </div>
                 <div style={{ paddingLeft: 10 }}>
-                  {isNaN(progress) ? "Error" : `${progress}%`}
+                  {isNaN(courseProgress) ? "Error" : `${courseProgress}%`}
                 </div>
               </div>
             </Stack>
@@ -1090,14 +1156,16 @@ description={post.frontmatter.description}
                     }}
                   >
                     <Timeline style={{ marginLeft: 20, marginTop: 10 }}>
-                      {chapter.lessons.map((lesson: any, key) => {
-                        return (
-                          <Timeline.Item
-                            style={{ backgroundColor: "rgba(0,0,0,0)" }}
-                            key={key}
-                            dot={
-                              <Stack>
-                                {isLegalPage(lesson) ? (
+                      {chapter.lessons
+                        .filter((lesson: any) => lesson.videoUrl !== "")
+                        .map((lesson: any, key) => {
+                          return (
+                            <Timeline.Item
+                              style={{ backgroundColor: "rgba(0,0,0,0)" }}
+                              key={key}
+                              dot={
+                                <Stack>
+                                  {/* {isLegalPage(lesson) ? (
                                   <CheckBoxIcon
                                     sx={{ color: Colors.Primary }}
                                   />
@@ -1105,35 +1173,48 @@ description={post.frontmatter.description}
                                   <CheckBoxOutlineBlankIcon
                                     sx={{ color: Colors.Primary }}
                                   />
-                                )}
-                              </Stack>
-                            }
-                          >
-                            {/* <Link style={{color: lesson.current ? '#97CA42' : '#606060', fontWeight: lesson.current ? 'bold' : 'normal'}}>{lesson.frontmatter.title} ({DurationHelper.timeFormatToText(lesson.frontmatter.duration)})</Link> */}
-                            <Link
-                              href={
-                                isLegalPage(lesson)
-                                  ? `/course/${courseId}/${chapter.key}/${lesson.key}`
-                                  : "undefined"
+                                )} */}
+                                  {isLessonDone(lesson, key, i) ? (
+                                    <CheckBoxIcon
+                                      sx={{ color: Colors.Primary }}
+                                    />
+                                  ) : (
+                                    <CheckBoxOutlineBlankIcon
+                                      sx={{ color: Colors.Primary }}
+                                    />
+                                  )}
+                                </Stack>
                               }
-                              style={{
-                                color: "#606060",
-                                fontWeight:
-                                  currentLesson.key === lesson.key
-                                    ? "bold"
-                                    : "normal",
-                              }}
                             >
-                              {lesson.title}
-                              {/* (
+                              {/* <Link style={{color: lesson.current ? '#97CA42' : '#606060', fontWeight: lesson.current ? 'bold' : 'normal'}}>{lesson.frontmatter.title} ({DurationHelper.timeFormatToText(lesson.frontmatter.duration)})</Link> */}
+                              <Link
+                                href={
+                                  // isLegalPage(lesson)
+                                  lesson
+                                    ? `/course/${courseId}/${chapter.key}/${lesson.key}`
+                                    : "undefined"
+                                }
+                                style={{
+                                  color: "#606060",
+                                  // ...(!isLessonDone(lesson, key, i)
+                                  //   ? { pointerEvents: "none" }
+                                  //   : undefined),
+                                  fontWeight:
+                                    currentLesson.key === lesson.key
+                                      ? "bold"
+                                      : "normal",
+                                }}
+                              >
+                                {lesson.title}
+                                {/* (
                   {DurationHelper.timeFormatToText(
                     lesson.frontmatter.duration
                   )}
                   ) */}
-                            </Link>
-                          </Timeline.Item>
-                        );
-                      })}
+                              </Link>
+                            </Timeline.Item>
+                          );
+                        })}
                       <Stack
                         borderRadius={4}
                         p={2}

@@ -90,10 +90,13 @@ const CourseOverview = ({ params }: { params: { id: string } }) => {
     // if (hasToMove || (currentChapter == 0 && currentLesson == 0)) {
     //   router.push(`/home/overview/${lessonToMoveTo?.lesson}`)
     // }
-
-    router.push(
-      `/course/${course?.key}/${course?.chapters[0].key}/${course?.chapters[0].lessons[1].key}`
-    );
+    if (course && currentChapter) {
+      router.push(`/course/${course?.key}/${currentChapter}/${currentLesson}`);
+    } else {
+      router.push(
+        `/course/${course?.key}/${course?.chapters[0].key}/${course?.chapters[0].lessons[1].key}`
+      );
+    }
   };
 
   useEffect(() => {
@@ -101,7 +104,7 @@ const CourseOverview = ({ params }: { params: { id: string } }) => {
     console.log("Getting course", courseId);
     CoursesService.course(courseId)
       .then((course) => {
-        console.log(`Course: `);
+        console.log(`Course: ${course}`);
         let c = { ...course, key: courseId };
         console.log(c);
         setCourse(c);
@@ -116,8 +119,21 @@ const CourseOverview = ({ params }: { params: { id: string } }) => {
   }, []);
 
   const [course, setCourse] = useState<Course>();
+  const [currentChapter, setCurrentChapter] = useState<any>();
+  const [currentLesson, setCurrentLesson] = useState<any>();
 
-  useEffect(() => {}, []);
+  useEffect(() => {
+    LessonService.getCurrentChapter(params["id"])
+      .then((res) => {
+        setCurrentChapter(res);
+      })
+      .catch((err) => {
+        console.log(err);
+      });
+    LessonService.getCurrentLesson(params["id"]).then((res) => {
+      setCurrentLesson(res);
+    });
+  }, []);
 
   // const lessons = data.allMarkdownRemark.edges
   //   .map(edge => {

@@ -1,5 +1,8 @@
 import firebase from "firebase";
 import { AuthService } from "./auth-service";
+import { resolve } from "path";
+import Lesson from "../dtos/lesson";
+import { rejects } from "assert";
 // const lessons = {
 //   uid: {
 //     angular: {
@@ -97,23 +100,72 @@ export const LessonService = {
   },
 
   // Student Progress & Tracking
-  // Updates the lesson true
+  addFinishedLesson: (
+    course: string,
+    chapterId: string,
+    lessonId: string,
+    currentLesson: Lesson
+  ) => {
+    return new Promise((resolve, reject) => {
+      AuthService.isLoggedIn().then((res: any) => {
+        const obj: any = {
+          lesson: currentLesson,
+          isDone: true,
+        };
+        firebase
+          .database()
+          .ref(`lessons/${res.uid}/${course}/progress/${chapterId}/`)
+          .push()
+          .set(obj)
+          .then((res) => {
+            resolve({ ...SUCCESS });
+          })
+          .catch((err) => {
+            reject({ ...ERROR });
+          });
+      });
+    });
+  },
+  getUserFinishedLessons: (course: string, chapterId: string) => {
+    return new Promise((resolve, reject) => {
+      AuthService.isLoggedIn().then((res: any) => {
+        firebase
+          .database()
+          .ref(`lessons/${res.uid}/${course}/progress/`)
+          .once("value")
+          .then((snapshot) => {
+            const lessons = snapshot.val();
+
+            resolve(lessons);
+          })
+          .catch((err) => {
+            reject(err);
+          });
+      });
+    });
+  },
   updateLessonFinished: (
     course: string,
     chapterId: string,
     lessonId: string
   ) => {
     return new Promise((resolve, reject) => {
-      AuthService.isLoggedIn().then((res) => {
-        const obj: any = {};
-        obj[`${lessonId}`] = true;
-        // 'lessons/AsQuLORppvdLG12RY9qaTrJekwM2/angular/progress/-NYIAo4sdBRnBCBYJtYk'
-        firebase
+      AuthService.isLoggedIn().then((res: any) => {
+        const obj: any = {
+          lessonKey: `${lessonId}`,
+          isDone: true,
+        };
+        const lessonsRef = firebase
           .database()
-          .ref(`lessons/${res.uid}/${course}/progress/${chapterId}/`)
-          .update(obj)
-          .then((res) => {
-            resolve({ ...SUCCESS, res });
+          .ref(`lessons/${res.uid}/${course}/progress/${chapterId}/`);
+        lessonsRef
+          .push()
+          .set(obj)
+          .then(() => {
+            lessonsRef.once("value", (snapshot) => {
+              const lessons = snapshot.val();
+              resolve({ ...SUCCESS, lessons });
+            });
           })
           .catch((err) => {
             reject({ ...ERROR, err });
@@ -121,16 +173,30 @@ export const LessonService = {
       });
     });
   },
-
-  // updates currentChapter
+  getCurrentChapter: (course: string) => {
+    return new Promise((resolve, reject) => {
+      AuthService.isLoggedIn().then((res) => {
+        firebase
+          .database()
+          .ref(`lessons/${res.uid}/${course}/currentChapter`)
+          .once("value")
+          .then((snapshot) => {
+            const currentChapter = snapshot.val();
+            resolve(currentChapter);
+          })
+          .catch((err) => {
+            reject(err);
+          });
+      });
+    });
+  },
   updateCurrentChapter: (
     course: string,
-    chapterId: string,
+    // chapterId: string,
     currentChapterId: string
   ) => {
     return new Promise((resolve, reject) => {
       AuthService.isLoggedIn().then((res) => {
-        // 'lessons/AsQuLORppvdLG12RY9qaTrJekwM2/angular/progress/-NYIAo4sdBRnBCBYJtYk'
         firebase
           .database()
           .ref(`lessons/${res.uid}/${course}`)
@@ -144,74 +210,37 @@ export const LessonService = {
       });
     });
   },
-
-  // updates currentLesson
+  getCurrentLesson: (course: string) => {
+    return new Promise((resolve, reject) => {
+      AuthService.isLoggedIn().then((res: any) => {
+        firebase
+          .database()
+          .ref(`lessons/${res.uid}/${course}/currentLesson`)
+          .once("value")
+          .then((snapshot) => {
+            const currentLesson = snapshot.val();
+            resolve(currentLesson);
+          })
+          .catch((err) => {
+            reject(err);
+          });
+      });
+    });
+  },
   updateCurrentLesson: (
     course: string,
-    chapterId: string,
+    // chapterId: string,
     currentLessonId: string
   ) => {
     return new Promise((resolve, reject) => {
-      AuthService.isLoggedIn().then((res) => {
-        // 'lessons/AsQuLORppvdLG12RY9qaTrJekwM2/angular/'
+      AuthService.isLoggedIn().then((res: any) => {
+        console.log(course, 'currenCourse')
         firebase
           .database()
           .ref(`lessons/${res.uid}/${course}/`)
           .update({ currentLesson: currentLessonId })
           .then((res) => {
-            resolve({ ...SUCCESS, res });
-          })
-          .catch((err) => {
-            reject({ ...ERROR, err });
-          });
-      });
-    });
-  },
-
-  getAllUserProgress: () => {
-    return new Promise((resolve, reject) => {
-      AuthService.isLoggedIn().then((res) => {
-        // 'lessons/AsQuLORppvdLG12RY9qaTrJekwM2'
-        firebase
-          .database()
-          .ref(`lessons/${res.uid}`)
-          .get()
-          .then((res) => {
-            resolve({ ...SUCCESS, res });
-          })
-          .catch((err) => {
-            reject({ ...ERROR, err });
-          });
-      });
-    });
-  },
-  getUserProgressByCourse: (course: string) => {
-    return new Promise((resolve, reject) => {
-      AuthService.isLoggedIn().then((res) => {
-        // 'lessons/AsQuLORppvdLG12RY9qaTrJekwM2'
-        firebase
-          .database()
-          .ref(`lessons/${res.uid}/${course}`)
-          .get()
-          .then((res) => {
-            resolve({ ...SUCCESS, res });
-          })
-          .catch((err) => {
-            reject({ ...ERROR, err });
-          });
-      });
-    });
-  },
-  getUserProgressByChapter: (course: string, chapterId: string) => {
-    return new Promise((resolve, reject) => {
-      AuthService.isLoggedIn().then((res) => {
-        // 'lessons/AsQuLORppvdLG12RY9qaTrJekwM2'
-        firebase
-          .database()
-          .ref(`lessons/${res.uid}/${course}/progress/${chapterId}`)
-          .get()
-          .then((res) => {
-            resolve({ ...SUCCESS, res });
+            resolve({ ...SUCCESS, res: res });
           })
           .catch((err) => {
             reject({ ...ERROR, err });
@@ -220,3 +249,8 @@ export const LessonService = {
     });
   },
 };
+interface FinishCourse {
+  chapterId: string;
+  lessonId: string;
+  nextLesson: any;
+}
