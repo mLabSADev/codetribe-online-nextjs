@@ -87,6 +87,7 @@ const PageLayout = ({ children, active }: IPageLayout) => {
     <Layout
       style={{
         minHeight: "100vh",
+        height: "100%",
       }}
       hasSider
     >
@@ -116,7 +117,7 @@ const PageLayout = ({ children, active }: IPageLayout) => {
         placement="left"
         onClose={() => setCollapsed(true)}
       >
-        <Stack height={'100%'} flex={1}>
+        <Stack height={"100%"} flex={1}>
           <Drawer active={active} />
         </Stack>
       </ADrawer>

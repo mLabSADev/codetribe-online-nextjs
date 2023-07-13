@@ -8,6 +8,8 @@ import { AuthService } from "@/app/services/auth-service";
 import StudentProgress from "@/app/components/student-progress";
 import TutorialListing from "@/app/components/tutorial-listing";
 import ResourceCards, { BackendCard } from "@/app/components/resources";
+import { Styles } from "@/app/services/styles";
+import { LessonService } from "@/app/services/lesson-service";
 export function stringToColor(string: string) {
   let hash = 0;
   let i;
@@ -240,16 +242,7 @@ export default () => {
               }}
             >
               <Divider orientation="left">Your Progress</Divider>
-              {/* <Stack p={2}>
-                <Typography
-                  style={{
-                    fontWeight: "bold",
-                    fontSize: 23,
-                  }}
-                >
-                  Your Progress
-                </Typography>
-              </Stack> */}
+
               <Stack
                 spacing={1}
                 gap={1}
