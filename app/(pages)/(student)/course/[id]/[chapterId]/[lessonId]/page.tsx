@@ -504,7 +504,7 @@ export default ({
     const currentTime = e.target.getCurrentTime();
     if (currentLesson) {
       if (
-        currentTime / duration > 1 &&
+        currentTime / duration > 0.99 &&
         finishedLessons.findIndex(
           (less) => less.lesson.key === currentLesson.key
         ) === -1
