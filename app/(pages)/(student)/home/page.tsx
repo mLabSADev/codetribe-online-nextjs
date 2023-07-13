@@ -210,6 +210,7 @@ export default () => {
       chapterTitle: "",
       lessonTitle: "",
       progress: 0,
+      link: "",
     };
 
     // run through the courses
@@ -220,15 +221,22 @@ export default () => {
         chapterTitle: "",
         lessonTitle: "",
         progress: 0,
+        link: "",
       };
 
       progress.course = course.title;
-
+      var studentProgress = 0;
+      var chapterTotal = 0;
       // Check if course has been started
       // object should be available if true
       if (courseProgress[course.key]) {
         // iterate progress chapters keys
         Object.keys(courseProgress[course.key].progress).map((chapter) => {
+          chapterTotal = Object.keys(course.chapters[chapter].lessons).length;
+
+          console.log(
+            `${course.title} chapter: ${chapter} has ${chapterTotal} total lessons`
+          );
           // console.log("Chapter: >>", chapter);
           progress.chapterTitle = course.chapters[chapter].title;
 
@@ -237,19 +245,30 @@ export default () => {
             (lesson) => {
               progress.lessonTitle = course.chapters[chapter].lessons[lesson];
               if (courseProgress[course.key].progress[chapter][lesson].isDone) {
-                progress.progress = progress.progress + 10;
+                studentProgress = studentProgress + 1;
+                progress.link = `course/${course.key}/${chapter}/${lesson}`;
               }
               // console.log("Lesson: >>>", lesson);
             }
           );
         });
       } else {
+        console.log(`${course.title} not started`);
+
         // course not started
       }
-      progressList.push(progress);
-      setProgressList(progressList);
-      console.log(`${course.title} progress : `, progress);
-      console.log(">> ", progressList);
+      // (part/whole) * 100
+      const p = ((studentProgress / chapterTotal) * 100).toFixed(2);
+      progress.progress = p * 1;
+      if (progress.progress) {
+        progressList.push(progress);
+      }
+      setTimeout(() => {
+        console.log("updated list");
+
+        setProgressList(progressList);
+      }, 3000);
+      console.log("All Progress", progressList);
     });
   };
   useEffect(() => {
@@ -351,9 +370,7 @@ export default () => {
 
                   return (
                     <StudentProgress
-                      link={
-                        "https://codetribe.mlab.co.za/lessons/react/lesson-three/introduction/"
-                      }
+                      link={item.link}
                       locked={false}
                       key={i}
                       lesson={item.lesson || "N/A"}

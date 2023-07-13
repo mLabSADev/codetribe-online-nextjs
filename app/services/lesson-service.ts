@@ -114,8 +114,7 @@ export const LessonService = {
         };
         firebase
           .database()
-          .ref(`lessons/${res.uid}/${course}/progress/${chapterId}/`)
-          .push()
+          .ref(`lessons/${res.uid}/${course}/progress/${chapterId}/${lessonId}`)
           .set(obj)
           .then((res) => {
             resolve({ ...SUCCESS });
