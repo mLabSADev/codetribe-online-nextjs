@@ -196,10 +196,11 @@ export const LessonService = {
     currentChapterId: string
   ) => {
     return new Promise((resolve, reject) => {
-      AuthService.isLoggedIn().then((res) => {
+      AuthService.isLoggedIn().then((user) => {
+        // 'lessons/AsQuLORppvdLG12RY9qaTrJekwM2/angular/progress/-NYIAo4sdBRnBCBYJtYk'
         firebase
           .database()
-          .ref(`lessons/${res.uid}/${course}`)
+          .ref(`lessons/${user.uid}/${course}`)
           .update({ currentChapter: currentChapterId })
           .then((res) => {
             resolve({ ...SUCCESS, res });
@@ -233,14 +234,80 @@ export const LessonService = {
     currentLessonId: string
   ) => {
     return new Promise((resolve, reject) => {
-      AuthService.isLoggedIn().then((res: any) => {
-        console.log(course, 'currenCourse')
+      AuthService.isLoggedIn().then((user) => {
+        // 'lessons/AsQuLORppvdLG12RY9qaTrJekwM2/angular/'
         firebase
           .database()
-          .ref(`lessons/${res.uid}/${course}/`)
+          .ref(`lessons/${user.uid}/${course}/`)
           .update({ currentLesson: currentLessonId })
           .then((res) => {
-            resolve({ ...SUCCESS, res: res });
+            resolve({ ...SUCCESS, res });
+          })
+          .catch((err) => {
+            reject({ ...ERROR, err });
+          });
+      });
+    });
+  },
+
+  getAllUserProgress: () => {
+    return new Promise((resolve, reject) => {
+      AuthService.isLoggedIn().then((user) => {
+        // 'lessons/AsQuLORppvdLG12RY9qaTrJekwM2'
+        firebase
+          .database()
+          .ref(`lessons/${user.uid}`)
+          .once("value")
+          .then((snapshot) => {
+            const data = snapshot.val();
+            resolve({ ...SUCCESS, data });
+          })
+          .catch((err) => {
+            reject({ ...ERROR, err });
+          });
+      });
+    });
+  },
+  /**
+   *
+   * @param course course key not title
+   * @returns
+   */
+  getUserProgressByCourse: (course: string) => {
+    return new Promise((resolve, reject) => {
+      AuthService.isLoggedIn().then((user) => {
+        // 'lessons/AsQuLORppvdLG12RY9qaTrJekwM2'
+        firebase
+          .database()
+          .ref(`lessons/${user.uid}/${course}`)
+          .once("value")
+          .then((snapshot) => {
+            const data = snapshot.val();
+            resolve({ ...SUCCESS, data });
+          })
+          .catch((err) => {
+            reject({ ...ERROR, err });
+          });
+      });
+    });
+  },
+  /**
+   *
+   * @param course course key not title
+   * @param chapterId firebase chapter key
+   * @returns
+   */
+  getUserProgressByChapter: (course: string, chapterId: string) => {
+    return new Promise((resolve, reject) => {
+      AuthService.isLoggedIn().then((user) => {
+        // 'lessons/AsQuLORppvdLG12RY9qaTrJekwM2'
+        firebase
+          .database()
+          .ref(`lessons/${user.uid}/${course}/progress/${chapterId}`)
+          .once("value")
+          .then((snapshot) => {
+            const data = snapshot.val();
+            resolve({ ...SUCCESS, data });
           })
           .catch((err) => {
             reject({ ...ERROR, err });

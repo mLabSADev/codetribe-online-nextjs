@@ -65,7 +65,7 @@ const CourseOverview = ({ params }: { params: { id: string } }) => {
     currentChapter: number;
     currentLesson: number;
   }>();
-  
+
   const router = useRouter();
 
   const isLegalPage = (lesson: Lesson) => {

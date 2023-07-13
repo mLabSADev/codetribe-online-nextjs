@@ -5,6 +5,7 @@ import Course from "../dtos/course";
 import { useRouter } from "next/navigation";
 import Image from "next/image";
 import { CoursesService } from "../services/courses-service";
+import { Chip, Stack } from "@mui/material";
 const { Meta } = Card;
 
 const CourseCard = ({ course }: { course: Course }) => {
@@ -45,6 +46,13 @@ const CourseCard = ({ course }: { course: Course }) => {
         ]}
       >
         <Meta title={course.title} description={course.excerpt} />
+        <Stack py={2} spacing={1}>
+          <Chip
+            sx={{ alignSelf: "flex-start" }}
+            size="small"
+            label={`by ${course.author}`}
+          />
+        </Stack>
       </Card>
     );
   }
@@ -76,7 +84,6 @@ const TutorialListing = ({ type, category, limit }: ITutorialListing) => {
   // if (limit) {
   //   posts = posts.slice(0, limit)
   // }
-  console.log(courses);
 
   return (
     <div>

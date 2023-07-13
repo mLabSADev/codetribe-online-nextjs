@@ -119,7 +119,6 @@ export const AuthService = {
           .once("value")
           .then((result) => {
             const data = result.val();
-
             return data;
           });
       })

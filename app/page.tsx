@@ -1,12 +1,12 @@
 "use client";
 
-import React, { useState } from "react";
+import React, { useEffect, useState } from "react";
 import { Form, Input, Button, Row, Col, Alert } from "antd";
-import { Box, Stack, Typography } from "@mui/material";
+import { Box, Stack, Typography, Fab } from "@mui/material";
 import { AuthService } from "./services/auth-service";
 import { useRouter } from "next/navigation";
 import { Styles } from "./services/styles";
-
+import RefreshIcon from "@mui/icons-material/Refresh";
 // import "swiper/css"
 const ForgotPassword = ({ email, onCancel }: any) => {
   const [resettingPassword, setResettingPassword] = useState(false);
@@ -120,6 +120,10 @@ export default () => {
   const [loggingIn, setIsLoggingIn] = useState(false);
   const [errorMessage, setMessage] = useState(null);
   const [showForgotPassword, setShowForgotPassword] = useState(false);
+  const [bgLink, setBGLink] = useState({
+    link: "https://my.spline.design/abstractgradientbackground-ae8ec1cf1d3539574dc82e8925f79a95/",
+    color: "white",
+  });
   const [signInMethod, setSignInMethod] = useState<
     "new-user" | "existing-user"
   >();
@@ -197,7 +201,36 @@ export default () => {
   const onCloseForgotPassword = () => {
     setShowForgotPassword(false);
   };
-
+  const RunBGFunc = () => {
+    const links = [
+      {
+        link: "https://my.spline.design/textdesignamazing-ec110a8793e2b183f03490dd3d3fafc5/",
+        color: "white",
+      },
+      {
+        link: "https://my.spline.design/abstractgradientbackground-ae8ec1cf1d3539574dc82e8925f79a95/",
+        color: "black",
+      },
+      {
+        link: "https://my.spline.design/dna-e81e566cdc6122a9727be890f316b28d/",
+        color: "white",
+      },
+      {
+        link: "https://my.spline.design/typegraveyard03-b53d5f44964d33717d2b7818154cf07b/",
+        color: "white",
+      },
+      {
+        link: "https://my.spline.design/cybersamurai-49ea362c364514cbac86265ea1f41839/",
+        color: "white",
+      },
+    ];
+    const index = Math.floor(Math.random() * links.length);
+    setBGLink(links[index]);
+    console.log(index);
+  };
+  useEffect(() => {
+    RunBGFunc();
+  }, []);
   return (
     <Stack
       flex={1}
@@ -213,9 +246,21 @@ export default () => {
           "linear-gradient(227deg, #fffedb 0%, hsl(283, 100%, 88%) 100%)",
       }}
     >
+      <Box position={"absolute"} bottom={10} left={10} zIndex={5}>
+        <Fab
+          onClick={() => {
+            RunBGFunc();
+          }}
+          color="inherit"
+          size="small"
+        >
+          <RefreshIcon />
+        </Fab>
+      </Box>
       <Box position={"absolute"} top={0} left={0} right={0} bottom={0}>
         <iframe
-          src="https://my.spline.design/abstractgradientbackground-ae8ec1cf1d3539574dc82e8925f79a95/"
+          style={{ border: 0 }}
+          src={bgLink.link}
           // frameborder="0"
           width="100%"
           height="100%"
@@ -238,25 +283,45 @@ export default () => {
           <Stack zIndex={3} flex={1} spacing={2}>
             {/* ...Responsive title text... */}
             <Box display={{ xs: "none", sm: "none", md: "none", lg: "block" }}>
-              <Typography variant={"h2"} fontFamily={"K2D"}>
+              <Typography
+                color={bgLink.color}
+                variant={"h2"}
+                fontFamily={"K2D"}
+              >
                 {title}
               </Typography>
             </Box>
             <Box display={{ xs: "none", sm: "none", md: "block", lg: "none" }}>
-              <Typography variant={"h3"} fontFamily={"K2D"}>
+              <Typography
+                color={bgLink.color}
+                variant={"h3"}
+                fontFamily={"K2D"}
+              >
                 {title}
               </Typography>
             </Box>
             <Box display={{ xs: "block", sm: "block", md: "none", lg: "none" }}>
-              <Typography variant={"h4"} fontFamily={"K2D"}>
+              <Typography
+                color={bgLink.color}
+                variant={"h4"}
+                fontFamily={"K2D"}
+              >
                 {title}
               </Typography>
             </Box>
             {/* .... */}
-            <Typography variant="h5" fontFamily={"Poppins"}>
+            <Typography
+              color={bgLink.color}
+              variant="h5"
+              fontFamily={"Poppins"}
+            >
               Welcome to Codetribe Coding Academy!
             </Typography>
-            <Typography variant="body2" fontFamily={"Poppins"}>
+            <Typography
+              color={bgLink.color}
+              variant="body2"
+              fontFamily={"Poppins"}
+            >
               We are excited that you have managed to join the team. Your
               hardwork and dedication has been recognized. We have an amazing
               team that is willing to train, guide and mentor you on your
