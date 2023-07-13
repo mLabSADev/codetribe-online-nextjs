@@ -652,7 +652,7 @@ export default ({
 
   return (
     currentLesson?.key && (
-      <Stack position={"relative"} ref={slideContainerRef}>
+      <Stack flex={1} position={"relative"} ref={slideContainerRef}>
         <Snackbar
           open={openNotification.success}
           autoHideDuration={3000}
@@ -950,21 +950,27 @@ description={post.frontmatter.description}
           p={2}
           spacing={2}
           direction={{ xs: "column", sm: "column", md: "row", lg: "row" }}
+          overflow={"hidden"}
         >
-          <Stack flex={1}>
-            <Stack
-              flex={1}
-              sx={{
-                background: "#efefef",
-                borderRadius: 5,
-              }}
-              p={2}
-            >
+          <Stack
+            flex={1}
+            position={"relative"}
+            sx={{
+              background: "#efefef",
+              maxHeight: `${96}vh`,
+              overflowY: "auto",
+              borderRadius: 5,
+            }}
+          >
+            <Stack flex={1} p={2}>
               <Stack
-                position={"sticky"}
+                position={"fixed"}
+                top={5}
+                left={0}
+                right={440}
+                zIndex={5}
                 spacing={2}
-                py={2}
-                px={3}
+                p={4}
                 direction={"row"}
                 alignItems={"center"}
               >
@@ -983,7 +989,7 @@ description={post.frontmatter.description}
                 </Typography>
               </Stack>
               {currentLesson && !currentLesson.isQuiz && (
-                <Stack spacing={4}>
+                <Stack spacing={4} pt={8}>
                   <Box
                     width={"100%"}
                     height={700}
@@ -1072,6 +1078,8 @@ description={post.frontmatter.description}
               maxHeight: `${96}vh`,
               overflowY: "auto",
               borderRadius: 5,
+              minWidth: 400,
+              maxWidth: 400,
             }}
           >
             <Stack p={2}>

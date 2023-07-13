@@ -199,7 +199,7 @@ const CourseOverview = ({ params }: { params: { id: string } }) => {
         <Row>
           <Col xs={24} sm={24} md={24} lg={24}>
             <Stack spacing={2}>
-              <Stack p={1}>
+              <Stack p={1} position={"fixed"} left={0} right={0} top={0} p={4}>
                 <Button
                   size="large"
                   style={{ ...Styles.Button.Outline, alignSelf: "self-start" }}
@@ -209,6 +209,7 @@ const CourseOverview = ({ params }: { params: { id: string } }) => {
                 </Button>
               </Stack>
               <Box
+                pt={5}
                 width={"100%"}
                 height={460}
                 borderRadius={3}
