@@ -226,6 +226,7 @@ export default () => {
       progress.course = course.title;
       var studentProgress = 0;
       var chapterTotal = 0;
+      
       // Check if course has been started
       if (courseProgress[course.key]) {
         // iterate progress chapters keys
@@ -258,13 +259,16 @@ export default () => {
             // (part/whole) * 100
             const p = ((studentProgress / chapterTotal) * 100).toFixed(0);
             progress.progress = p * 1;
+            
             if (progress.progress) {
               progressList.push(progress);
             }
-            setTimeout(() => {
-              console.log("updated list");
-              setProgressList(progressList);
-            }, 3000);
+
+            setProgressList([...progressList])
+            // setTimeout(() => {
+            //   console.log("updated list");
+            //   setProgressList(progressList);
+            // }, 3000);
             progress = {
               course: progress.course,
               chapterTitle: "",

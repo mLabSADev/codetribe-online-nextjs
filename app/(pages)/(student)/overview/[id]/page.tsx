@@ -110,9 +110,6 @@ const CourseOverview = ({ params }: { params: { id: string } }) => {
         console.log(c);
         setCourse(c);
       })
-      .catch((err) => {
-        console.log(`Could not get course: ${err.message}`);
-      });
 
     LessonService.currentLessonPosition(params.id).then((position) => {
       setPosition(position);
@@ -126,13 +123,19 @@ const CourseOverview = ({ params }: { params: { id: string } }) => {
   useEffect(() => {
     LessonService.getCurrentChapter(params["id"])
       .then((res) => {
-        setCurrentChapter(res);
+        if (res)
+          setCurrentChapter(res);
       })
       .catch((err) => {
         console.log(err);
       });
+
+      console.log(params["id"])
     LessonService.getCurrentLesson(params["id"]).then((res) => {
-      setCurrentLesson(res);
+      // console.log(res);
+      
+      if (res)
+        setCurrentLesson(res);
     });
   }, []);
 
@@ -200,7 +203,7 @@ const CourseOverview = ({ params }: { params: { id: string } }) => {
         <Row>
           <Col xs={24} sm={24} md={24} lg={24}>
             <Stack spacing={2}>
-              <Stack p={1} position={"fixed"} left={0} right={0} top={0} p={4}>
+              <Stack position={"fixed"} left={0} right={0} top={0} p={4}>
                 <Button
                   size="large"
                   style={{ ...Styles.Button.Outline, alignSelf: "self-start" }}
