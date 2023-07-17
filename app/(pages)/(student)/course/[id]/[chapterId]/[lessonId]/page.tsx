@@ -968,9 +968,10 @@ description={post.frontmatter.description}
                 top={5}
                 left={0}
                 right={440}
-                zIndex={5}
+                zIndex={10}
                 spacing={2}
-                p={4}
+                px={4}
+                py={3}
                 direction={"row"}
                 alignItems={"center"}
               >

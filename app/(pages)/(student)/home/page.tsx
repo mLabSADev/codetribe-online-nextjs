@@ -183,7 +183,7 @@ export default () => {
   useEffect(() => {
     setLoading(true);
     AuthService.currentUser().then((result) => {
-      console.log(result.res);
+      console.log(result);
       setUser(result);
       setLoading(false);
     });
@@ -191,6 +191,12 @@ export default () => {
 
   // Logic to generate progress
   const RunProgressFunc = async () => {
+    /**
+     * Access course name
+     * Access course chapter
+     * Access chapter lesson
+     * Calculate Progress
+     */
     let progressCard = {
       percent: 0,
       lessonTitle: "",
@@ -228,37 +234,40 @@ export default () => {
       var studentProgress = 0;
       var chapterTotal = 0;
       // Check if course has been started
-      // object should be available if true
       if (courseProgress[course.key]) {
         // iterate progress chapters keys
-        Object.keys(courseProgress[course.key].progress).map((chapter) => {
-          chapterTotal = Object.keys(course.chapters[chapter].lessons).length;
+        if (courseProgress[course.key].progress != null) {
+          Object.keys(courseProgress[course.key].progress).map((chapter) => {
+            chapterTotal = Object.keys(course.chapters[chapter].lessons).length;
+            console.log(
+              `${course.title} chapter: ${chapter} has ${chapterTotal} total lessons`
+            );
+            // console.log("Chapter: >>", chapter);
+            progress.chapterTitle = course.chapters[chapter].title;
 
-          console.log(
-            `${course.title} chapter: ${chapter} has ${chapterTotal} total lessons`
-          );
-          // console.log("Chapter: >>", chapter);
-          progress.chapterTitle = course.chapters[chapter].title;
-
-          // iterate progress lessons keys
-          Object.keys(courseProgress[course.key].progress[chapter]).map(
-            (lesson) => {
-              progress.lessonTitle = course.chapters[chapter].lessons[lesson];
-              if (courseProgress[course.key].progress[chapter][lesson].isDone) {
-                studentProgress = studentProgress + 1;
-                progress.link = `course/${course.key}/${chapter}/${lesson}`;
+            // iterate progress lessons keys
+            Object.keys(courseProgress[course.key].progress[chapter]).map(
+              (lesson) => {
+                progress.lessonTitle =
+                  course.chapters[chapter].lessons[lesson].title;
+                if (
+                  courseProgress[course.key].progress[chapter][lesson].isDone
+                ) {
+                  studentProgress = studentProgress + 1;
+                  progress.link = `course/${course.key}/${chapter}/${lesson}`;
+                }
+                // console.log("Lesson: >>>", lesson);
               }
-              // console.log("Lesson: >>>", lesson);
-            }
-          );
-        });
+            );
+          });
+        }
       } else {
         console.log(`${course.title} not started`);
 
         // course not started
       }
       // (part/whole) * 100
-      const p = ((studentProgress / chapterTotal) * 100).toFixed(2);
+      const p = ((studentProgress / chapterTotal) * 100).toFixed(0);
       progress.progress = p * 1;
       if (progress.progress) {
         progressList.push(progress);
@@ -271,14 +280,8 @@ export default () => {
       console.log("All Progress", progressList);
     });
   };
-  useEffect(() => {
-    /**
-     * Access course name
-     * Access course chapter
-     * Access chapter lesson
-     *
-     */
 
+  useEffect(() => {
     CoursesService.courses().then((c) => {
       c.forEach((element) => {
         courses.push(element);
@@ -363,6 +366,7 @@ export default () => {
                       Upon starting your course you will be able to see your
                       progress here. View any course and start learning.
                     </MUITypography>
+                    <Button>Refresh</Button>
                   </Stack>
                 ) : null}
                 {progressList.map((item, i) => {
@@ -373,9 +377,9 @@ export default () => {
                       link={item.link}
                       locked={false}
                       key={i}
-                      lesson={item.lesson || "N/A"}
+                      lesson={item.chapterTitle || "N/A"}
                       course={item.course || "N/A"}
-                      title={item.section || "N/A"}
+                      title={item.lessonTitle || "N/A"}
                       progress={item.progress || "N/A"}
                     />
                   );
