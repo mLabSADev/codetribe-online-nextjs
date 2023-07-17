@@ -197,12 +197,12 @@ export default () => {
      * Access chapter lesson
      * Calculate Progress
      */
-    let progressCard = {
-      percent: 0,
-      lessonTitle: "",
+    let progress = {
+      course: "",
       chapterTitle: "",
-      courseTitle: "",
-      continueLearning: "", // course/angular/-NYIAo4sdBRnBCBYJtYk/-NYIAo9n-Ndd9iScBA1k
+      lessonTitle: "",
+      progress: 0,
+      link: "", // course/angular/-NYIAo4sdBRnBCBYJtYk/-NYIAo9n-Ndd9iScBA1k
     };
     let courseProgress = await LessonService.getAllUserProgress().then(
       (res) => {
@@ -211,13 +211,6 @@ export default () => {
     );
     console.log({ courses, courseProgress });
     // Check progress for each course
-    let progress = {
-      course: "",
-      chapterTitle: "",
-      lessonTitle: "",
-      progress: 0,
-      link: "",
-    };
 
     // run through the courses
     courses.forEach((course) => {
@@ -239,11 +232,10 @@ export default () => {
         if (courseProgress[course.key].progress != null) {
           Object.keys(courseProgress[course.key].progress).map((chapter) => {
             chapterTotal = Object.keys(course.chapters[chapter].lessons).length;
-            console.log(
-              `${course.title} chapter: ${chapter} has ${chapterTotal} total lessons`
-            );
+            console.log(">> Set Chapter Total: ", chapterTotal);
             // console.log("Chapter: >>", chapter);
             progress.chapterTitle = course.chapters[chapter].title;
+            console.log(">> Set Title: ", progress.chapterTitle);
 
             // iterate progress lessons keys
             Object.keys(courseProgress[course.key].progress[chapter]).map(
@@ -259,6 +251,28 @@ export default () => {
                 // console.log("Lesson: >>>", lesson);
               }
             );
+            console.log(
+              studentProgress,
+              Object.keys(course.chapters[chapter].lessons).length
+            );
+            // (part/whole) * 100
+            const p = ((studentProgress / chapterTotal) * 100).toFixed(0);
+            progress.progress = p * 1;
+            if (progress.progress) {
+              progressList.push(progress);
+            }
+            setTimeout(() => {
+              console.log("updated list");
+              setProgressList(progressList);
+            }, 3000);
+            progress = {
+              course: progress.course,
+              chapterTitle: "",
+              lessonTitle: "",
+              progress: 0,
+              link: "",
+            };
+            studentProgress = 0;
           });
         }
       } else {
@@ -266,18 +280,7 @@ export default () => {
 
         // course not started
       }
-      // (part/whole) * 100
-      const p = ((studentProgress / chapterTotal) * 100).toFixed(0);
-      progress.progress = p * 1;
-      if (progress.progress) {
-        progressList.push(progress);
-      }
-      setTimeout(() => {
-        console.log("updated list");
-
-        setProgressList(progressList);
-      }, 3000);
-      console.log("All Progress", progressList);
+      console.log(">> All Progress: ", progressList);
     });
   };
 

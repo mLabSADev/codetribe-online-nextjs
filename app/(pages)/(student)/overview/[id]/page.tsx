@@ -101,7 +101,8 @@ const CourseOverview = ({ params }: { params: { id: string } }) => {
 
   useEffect(() => {
     const courseId = params["id"];
-    console.log("Getting course", courseId);
+
+    console.log("Getting course", courseId.trim());
     CoursesService.course(courseId)
       .then((course) => {
         console.log(`Course: ${course}`);

@@ -66,7 +66,9 @@ function StudentProgress({
       <Stack spacing={2}>
         <Stack>
           <Typography variant="subtitle2" color={"gray"}>
-            {progress == 100 ? `Well Done` : `${course} - ${lesson}`}
+            {progress == 100
+              ? `Well Done - ${lesson}`
+              : `${course} - ${lesson}`}
           </Typography>
           <Typography variant="subtitle1" fontWeight={"bold"}>
             {progress == 100 ? `${course} Course Completed` : title}
