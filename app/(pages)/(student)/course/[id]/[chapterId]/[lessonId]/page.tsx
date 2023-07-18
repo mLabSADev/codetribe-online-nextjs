@@ -348,6 +348,8 @@ export default ({
         .catch((err) => {
           console.log(err);
         });
+        //Temporary
+        setCourseProgress(Math.round((finishedLessons.length / allLessons.length) * 100))
     }
   }, [
     // currentLesson,
@@ -1007,7 +1009,10 @@ description={post.frontmatter.description}
                           currentLesson.key
                         )
                       }
-                      opts={{ height: 700, width: "100%" }}
+                      opts={{ height: "100%", width: "100%" }}
+                      style={{
+                        height: "100%"
+                      }}
                     />
                   </Box>
                   <Stack direction={"row"} flex={1}>
@@ -1111,7 +1116,7 @@ description={post.frontmatter.description}
                   <div
                     style={{
                       background: "#97CA42",
-                      width: courseProgress > 0 ? courseProgress : 0,
+                      width: courseProgress > 0 ? `${courseProgress}%` : 0,
                       height: 5,
                     }}
                   />
@@ -1166,7 +1171,7 @@ description={post.frontmatter.description}
                   >
                     <Timeline style={{ marginLeft: 20, marginTop: 10 }}>
                       {chapter.lessons
-                        .filter((lesson: any) => lesson.videoUrl !== "")
+                        // .filter((lesson: any) => lesson.videoUrl !== "")
                         .map((lesson: any, key) => {
                           return (
                             <Timeline.Item
