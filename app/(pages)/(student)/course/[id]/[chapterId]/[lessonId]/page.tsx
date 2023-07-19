@@ -161,6 +161,7 @@ export default ({
   const [assessmentsLoading, setAssessmentsLoading] = React.useState(true);
   const [courseProgress, setCourseProgress] = React.useState(0);
   const [finishedLessons, setFinishedLessons] = React.useState<any[]>([]);
+  const [isVideoFinished, setisVideoFinished] = React.useState(false)
   const { origin, hostname, pathname, ancestorOrigins, href } = window.location;
   const handleSlide = () => {
     setSlide((prev) => !prev);
@@ -329,7 +330,11 @@ export default ({
       if (course.chapters.length > 1) {
         setLesson(allLessons[currentIndex]);
       }
-      setCanGoForward(currentIndex !== allLessons.length - 1);
+      if(!isVideoFinished){
+        setCanGoForward(false)
+      } else {
+        setCanGoForward(true)
+      }
       setCanGoBack(currentIndex > 0);
       LessonService.getUserFinishedLessons(courseId, currentLesson.chapterKey)
         .then((lessons: any) => {
@@ -350,13 +355,10 @@ export default ({
         .catch((err) => {
           console.log(err);
         });
-      //Temporary
-      setCourseProgress(
-        Math.round((finishedLessons.length / allLessons.length) * 100)
-      );
+        setCourseProgress(Math.round((finishedLessons.length / allLessons.length) * 100))
     }
   }, [
-    // currentLesson,
+    currentLesson,
     currentIndex,
     courseProgress,
     finishedLessons,
@@ -447,6 +449,7 @@ export default ({
       });
     }
     setCurrentIndex((prevCurrentIndex) => prevCurrentIndex + 1);
+    setisVideoFinished(false)
     // let nextLesson
     // if (post.frontmatter.chapter === 0) {
     //   nextLesson = chapters[1].lessons[1]
@@ -507,22 +510,21 @@ export default ({
   }, [currentLesson]);
   const checkTime = (e: any, course: any, chapterId: any, lessonId: any) => {
     const duration = e.target.getDuration();
-    const currentTime = e.target.getCurrentTime();
+    const currentTime = e.target.getCurrentTime();  
     if (currentLesson) {
-      if (
-        currentTime / duration > 0.99 &&
-        finishedLessons.findIndex(
-          (less) => less.lesson.key === currentLesson.key
-        ) === -1
-      ) {
-        LessonService.addFinishedLesson(
-          course,
-          chapterId,
-          lessonId,
-          currentLesson
-        ).then((res) => {
-          console.log(res, "res");
-        });
+      const isLessonFinished = finishedLessons.some(less => less.lesson.key === currentLesson.key);
+      
+      if (currentTime / duration > 0.98 && !isLessonFinished) {
+        setisVideoFinished(true);
+        LessonService.addFinishedLesson(course, chapterId, lessonId, currentLesson)
+          .then(res => {
+            console.log(res, "res");
+          })
+          .catch(err => {
+            console.log(err, 'error');
+          });
+      } else if (isLessonFinished) {
+        setisVideoFinished(true);
       }
     }
   };
@@ -1183,15 +1185,6 @@ description={post.frontmatter.description}
                               key={key}
                               dot={
                                 <Stack flex={1}>
-                                  {/* {isLegalPage(lesson) ? (
-                                  <CheckBoxIcon
-                                    sx={{ color: Colors.Primary }}
-                                  />
-                                ) : (
-                                  <CheckBoxOutlineBlankIcon
-                                    sx={{ color: Colors.Primary }}
-                                  />
-                                )} */}
                                   {isLessonDone(lesson, key, i) ? (
                                     <CheckBoxIcon
                                       sx={{ color: Colors.Primary }}
@@ -1216,9 +1209,9 @@ description={post.frontmatter.description}
                                     }
                                     style={{
                                       color: "#606060",
-                                      // ...(!isLessonDone(lesson, key, i)
-                                      //   ? { pointerEvents: "none" }
-                                      //   : undefined),
+                                      ...(!isLessonDone(lesson, key, i)
+                                        ? { pointerEvents: "none" }
+                                        : undefined),
                                       fontWeight:
                                         currentLesson.key === lesson.key
                                           ? "bold"
