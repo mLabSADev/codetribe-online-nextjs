@@ -267,6 +267,21 @@ export const LessonService = {
       });
     });
   },
+  getProgressByUID: (uid: string) => {
+    return new Proomise((resolve, reject) => {
+      firebase
+        .database()
+        .ref(`lessons/${uid}`)
+        .once("value")
+        .then((snapshot) => {
+          const data = snapshot.val();
+          resolve({ ...SUCCESS, data });
+        })
+        .catch((err) => {
+          reject({ ...ERROR, err });
+        });
+    });
+  },
   /**
    *
    * @param course course key not title

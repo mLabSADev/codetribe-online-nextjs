@@ -361,6 +361,7 @@ function Assessments() {
               <Editor
                 name="content"
                 editorState={updateEditorState}
+                onEditorStateChange={setUpdateEditorState}
                 readOnly={false}
                 style={{ ...Styles.Input, overflow: "hidden" }}
                 toolbar={{
@@ -721,7 +722,7 @@ function Assessments() {
                               {/* {item.lesson || "Please Update"} */}
                             </Typography>
                             <Typography color={"GrayText"} variant="subtitle2">
-                              {/* {item.content.blocks[0].text} */}
+                              {item.content.blocks[0].text}
                             </Typography>
                             <Button
                               size="small"

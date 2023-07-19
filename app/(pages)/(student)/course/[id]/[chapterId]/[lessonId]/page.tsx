@@ -20,6 +20,7 @@ import {
   Skeleton,
   Timeline,
   message,
+  Drawer,
 } from "antd";
 import {
   ArrowLeftOutlined,
@@ -39,6 +40,7 @@ import {
   Fab,
   Slide,
   Snackbar,
+  Chip,
 } from "@mui/material";
 import Course from "@/app/dtos/course";
 import CheckIcon from "@mui/icons-material/Check";
@@ -348,8 +350,10 @@ export default ({
         .catch((err) => {
           console.log(err);
         });
-        //Temporary
-        setCourseProgress(Math.round((finishedLessons.length / allLessons.length) * 100))
+      //Temporary
+      setCourseProgress(
+        Math.round((finishedLessons.length / allLessons.length) * 100)
+      );
     }
   }, [
     // currentLesson,
@@ -746,7 +750,159 @@ export default ({
             editorClassName="editorClassName"
           />
         </Modal>
+        <Drawer
+          title="Submit Assessments"
+          placement="left"
+          onClose={() => {
+            handleSlide();
+          }}
+          open={slide}
+        >
+          <Stack
+            sx={{ width: 500, overflowY: "auto" }}
+            maxHeight={"100%"}
+            zIndex={5}
+            bgcolor={"white"}
+            position={"fixed"}
+            left={0}
+            top={0}
+            bottom={0}
+            spacing={2}
+            p={3}
+          >
+            <Stack py={2}>
+              <Typography>Submit Assessments</Typography>
+            </Stack>
+            <Stack spacing={2}>
+              {assessmentsLoading && <AssessmentLoadingSkelleton />}
 
+              {submissions.length === 0 && !assessmentsLoading ? (
+                <Empty description={<Typography>No Assessments</Typography>} />
+              ) : null}
+              {submissions.map((sub: any, i: number) => {
+                if (sub.show == "notsubmitted") {
+                  //  student did not submit assessment
+                  return (
+                    <Stack key={i} spacing={2}>
+                      <Stack direction={"row"} alignItems={"center"}>
+                        <Stack flex={1}>
+                          <Typography flex={1} variant="h6">
+                            {sub.title}
+                          </Typography>
+                        </Stack>
+
+                        <Button
+                          style={Styles.Button.Outline}
+                          onClick={() => {
+                            setUpdateEditorState(
+                              EditorState.createWithContent(
+                                convertFromRaw({
+                                  entityMap:
+                                    sub.details.content.entityMap || {},
+                                  blocks: sub.details.content.blocks,
+                                })
+                              )
+                            );
+                            setAssessmentDetails({
+                              show: true,
+                              details: sub.details.content,
+                              header: sub.title,
+                            });
+                          }}
+                        >
+                          Details
+                        </Button>
+                      </Stack>
+
+                      <Form
+                        name="basic"
+                        // wrapperCol={{ span: 16 }}
+                        initialValues={{
+                          remember: true,
+                        }}
+                        onFinish={(values) => {
+                          onFinish({ ...values, chapter: sub.title });
+                        }}
+                        onFinishFailed={onFinishFailed}
+                        autoComplete="off"
+                        layout="vertical"
+                      >
+                        <Form.Item
+                          label="Github URL"
+                          name="github"
+                          rules={[
+                            {
+                              required: true,
+                              message: "Link to Github Projet is required!",
+                            },
+                          ]}
+                        >
+                          <Input
+                            style={Styles.Input}
+                            placeholder="https://github.com/.../..."
+                          />
+                        </Form.Item>
+                        <Form.Item
+                          label="Live URL"
+                          name="live"
+                          rules={[
+                            {
+                              required: true,
+                              message: "Projet host URL is required",
+                            },
+                          ]}
+                        >
+                          <Input
+                            style={Styles.Input}
+                            placeholder="https://www.myhostedsite.com/.../..."
+                          />
+                        </Form.Item>
+                        <Form.Item>
+                          <Button
+                            size="large"
+                            style={Styles.Button.Filled}
+                            type="primary"
+                            htmlType="submit"
+                          >
+                            Submit
+                          </Button>
+                        </Form.Item>
+                      </Form>
+                    </Stack>
+                  );
+                } else {
+                  {
+                    /* student submitted assessment */
+                  }
+                  return (
+                    <Stack
+                      borderRadius={3}
+                      key={i}
+                      bgcolor={"teal"}
+                      sx={{ color: "white" }}
+                      padding={2}
+                      spacing={2}
+                    >
+                      <Stack direction={"row"} gap={2} alignItems={"center"}>
+                        <CheckIcon />
+                        <Stack>
+                          <Typography color={"white"} variant="h6">
+                            Well done
+                          </Typography>
+                          <Typography color={"white"} variant="subtitle1">
+                            Submitted Assessment
+                          </Typography>
+                        </Stack>
+                      </Stack>
+                    </Stack>
+                  );
+                }
+              })}
+
+              <Divider />
+            </Stack>
+          </Stack>
+        </Drawer>
         {/* Quiz Modal */}
         <Modal
           title="Quiz"
@@ -771,159 +927,7 @@ export default ({
           <Typography variant="h6">Quiz</Typography>
           <Typography variant="body2">Quiz content here....</Typography>
         </Modal>
-        <Box sx={{ width: 500 }}>
-          <Slide
-            direction="right"
-            in={slide}
-            container={slideContainerRef.current}
-          >
-            <Stack
-              sx={{ width: 500, overflowY: "auto" }}
-              maxHeight={"100%"}
-              zIndex={5}
-              bgcolor={"white"}
-              position={"fixed"}
-              left={0}
-              top={0}
-              bottom={0}
-              p={3}
-            >
-              <Stack py={2}>
-                <Typography variant="h5">Submit Assessments</Typography>
-              </Stack>
-              <Stack spacing={2}>
-                {assessmentsLoading && <AssessmentLoadingSkelleton />}
 
-                {submissions.length === 0 && !assessmentsLoading ? (
-                  <Empty
-                    description={<Typography>No Assessments</Typography>}
-                  />
-                ) : null}
-                {submissions.map((sub: any, i: number) => {
-                  if (sub.show == "notsubmitted") {
-                    //  student did not submit assessment
-                    return (
-                      <Stack key={i} spacing={2}>
-                        <Stack direction={"row"} alignItems={"center"}>
-                          <Stack flex={1}>
-                            <Typography flex={1} variant="h6">
-                              {sub.title}
-                            </Typography>
-                          </Stack>
-
-                          <Button
-                            style={Styles.Button.Outline}
-                            onClick={() => {
-                              setUpdateEditorState(
-                                EditorState.createWithContent(
-                                  convertFromRaw({
-                                    entityMap:
-                                      sub.details.content.entityMap || {},
-                                    blocks: sub.details.content.blocks,
-                                  })
-                                )
-                              );
-                              setAssessmentDetails({
-                                show: true,
-                                details: sub.details.content,
-                                header: sub.title,
-                              });
-                            }}
-                          >
-                            Details
-                          </Button>
-                        </Stack>
-
-                        <Form
-                          name="basic"
-                          // wrapperCol={{ span: 16 }}
-                          initialValues={{
-                            remember: true,
-                          }}
-                          onFinish={(values) => {
-                            onFinish({ ...values, chapter: sub.title });
-                          }}
-                          onFinishFailed={onFinishFailed}
-                          autoComplete="off"
-                          layout="vertical"
-                        >
-                          <Form.Item
-                            label="Github URL"
-                            name="github"
-                            rules={[
-                              {
-                                required: true,
-                                message: "Link to Github Projet is required!",
-                              },
-                            ]}
-                          >
-                            <Input
-                              style={Styles.Input}
-                              placeholder="https://github.com/.../..."
-                            />
-                          </Form.Item>
-                          <Form.Item
-                            label="Live URL"
-                            name="live"
-                            rules={[
-                              {
-                                required: true,
-                                message: "Projet host URL is required",
-                              },
-                            ]}
-                          >
-                            <Input
-                              style={Styles.Input}
-                              placeholder="https://www.myhostedsite.com/.../..."
-                            />
-                          </Form.Item>
-                          <Form.Item>
-                            <Button
-                              size="large"
-                              style={Styles.Button.Filled}
-                              type="primary"
-                              htmlType="submit"
-                            >
-                              Submit
-                            </Button>
-                          </Form.Item>
-                        </Form>
-                      </Stack>
-                    );
-                  } else {
-                    {
-                      /* student submitted assessment */
-                    }
-                    return (
-                      <Stack
-                        borderRadius={3}
-                        key={i}
-                        bgcolor={"teal"}
-                        sx={{ color: "white" }}
-                        padding={2}
-                        spacing={2}
-                      >
-                        <Stack direction={"row"} gap={2} alignItems={"center"}>
-                          <CheckIcon />
-                          <Stack>
-                            <Typography color={"white"} variant="h6">
-                              Well done
-                            </Typography>
-                            <Typography color={"white"} variant="subtitle1">
-                              Submitted Assessment
-                            </Typography>
-                          </Stack>
-                        </Stack>
-                      </Stack>
-                    );
-                  }
-                })}
-
-                <Divider />
-              </Stack>
-            </Stack>
-          </Slide>
-        </Box>
         <Box
           sx={{ "& > :not(style)": { m: 1 } }}
           position={"fixed"}
@@ -1011,7 +1015,7 @@ description={post.frontmatter.description}
                       }
                       opts={{ height: "100%", width: "100%" }}
                       style={{
-                        height: "100%"
+                        height: "100%",
                       }}
                     />
                   </Box>
@@ -1178,7 +1182,7 @@ description={post.frontmatter.description}
                               style={{ backgroundColor: "rgba(0,0,0,0)" }}
                               key={key}
                               dot={
-                                <Stack>
+                                <Stack flex={1}>
                                   {/* {isLegalPage(lesson) ? (
                                   <CheckBoxIcon
                                     sx={{ color: Colors.Primary }}
@@ -1201,35 +1205,46 @@ description={post.frontmatter.description}
                               }
                             >
                               {/* <Link style={{color: lesson.current ? '#97CA42' : '#606060', fontWeight: lesson.current ? 'bold' : 'normal'}}>{lesson.frontmatter.title} ({DurationHelper.timeFormatToText(lesson.frontmatter.duration)})</Link> */}
-                              <Link
-                                href={
-                                  // isLegalPage(lesson)
-                                  lesson
-                                    ? `/course/${courseId}/${chapter.key}/${lesson.key}`
-                                    : "undefined"
-                                }
-                                style={{
-                                  color: "#606060",
-                                  // ...(!isLessonDone(lesson, key, i)
-                                  //   ? { pointerEvents: "none" }
-                                  //   : undefined),
-                                  fontWeight:
-                                    currentLesson.key === lesson.key
-                                      ? "bold"
-                                      : "normal",
-                                }}
-                              >
-                                {lesson.title}
-                                {/* (
+                              <Stack flex={1} direction={"row"}>
+                                <Stack flex={1}>
+                                  <Link
+                                    href={
+                                      // isLegalPage(lesson)
+                                      lesson
+                                        ? `/course/${courseId}/${chapter.key}/${lesson.key}`
+                                        : "undefined"
+                                    }
+                                    style={{
+                                      color: "#606060",
+                                      // ...(!isLessonDone(lesson, key, i)
+                                      //   ? { pointerEvents: "none" }
+                                      //   : undefined),
+                                      fontWeight:
+                                        currentLesson.key === lesson.key
+                                          ? "bold"
+                                          : "normal",
+                                    }}
+                                  >
+                                    {lesson.title}
+                                    {/* (
                   {DurationHelper.timeFormatToText(
                     lesson.frontmatter.duration
                   )}
                   ) */}
-                              </Link>
+                                  </Link>
+                                </Stack>
+
+                                <Chip
+                                  variant="outlined"
+                                  color="primary"
+                                  size="small"
+                                  label={"Quiz"}
+                                />
+                              </Stack>
                             </Timeline.Item>
                           );
                         })}
-                      <Stack
+                      {/* <Stack
                         borderRadius={4}
                         p={2}
                         bgcolor={Colors.Primary}
@@ -1251,15 +1266,12 @@ description={post.frontmatter.description}
                         >
                           Begin Quiz
                         </Button>
-                      </Stack>
+                      </Stack> */}
                     </Timeline>
-
                     {/* Student assessment submission */}
                     {/* {checkSubmitted().then((res) => {
           return <Typography>Graeae</Typography>;
         })} */}
-
-                    <Divider />
                   </Collapse.Panel>
                 );
               })}

@@ -1,8 +1,11 @@
 "use client";
-
+import "swiper/css";
+import "swiper/css/navigation";
+import "swiper/css/pagination";
+import "swiper/css/scrollbar";
 import React, { useEffect, useState } from "react";
 import { useRouter } from "next/navigation";
-import { Avatar, Stack, Typography as MUITypography } from "@mui/material";
+import { Avatar, Stack, Typography as MUITypography, Box } from "@mui/material";
 import { Button, Divider, Input, Typography } from "antd";
 import { AuthService } from "@/app/services/auth-service";
 import StudentProgress from "@/app/components/student-progress";
@@ -12,7 +15,8 @@ import { Styles } from "@/app/services/styles";
 import { LessonService } from "@/app/services/lesson-service";
 import Course from "@/app/dtos/course";
 import { CoursesService } from "@/app/services/courses-service";
-
+import { Swiper, SwiperSlide } from "swiper/react";
+import { Navigation, Pagination, Mousewheel, Keyboard } from "swiper/modules";
 export function stringToColor(string: string) {
   let hash = 0;
   let i;
@@ -41,32 +45,7 @@ export function stringAvatar(name: string) {
     children: `${name.split(" ")[0][0]}${name.split(" ")[1][0]}`,
   };
 }
-const ProgressData = [
-  {
-    progress: 100,
-    course: "NodeJS",
-    lesson: 4,
-    section: "Create Page Login and Signup",
-    duration: "4min",
-    link: "",
-  },
-  {
-    progress: 84,
-    course: "ReactJS",
-    lesson: 2,
-    section: "Create Page Login and Signup",
-    duration: "4min",
-    link: "",
-  },
-  {
-    progress: 0,
-    course: "React Native",
-    lesson: 1,
-    section: "Create Page Login and Signup",
-    duration: "4min",
-    link: "",
-  },
-];
+
 const FrontEndResourceData = [
   {
     image: "/images/resources/IONIC.jpg",
@@ -226,7 +205,7 @@ export default () => {
       progress.course = course.title;
       var studentProgress = 0;
       var chapterTotal = 0;
-      
+
       // Check if course has been started
       if (courseProgress[course.key]) {
         // iterate progress chapters keys
@@ -259,12 +238,12 @@ export default () => {
             // (part/whole) * 100
             const p = ((studentProgress / chapterTotal) * 100).toFixed(0);
             progress.progress = p * 1;
-            
+
             if (progress.progress) {
               progressList.push(progress);
             }
 
-            setProgressList([...progressList])
+            setProgressList([...progressList]);
             // setTimeout(() => {
             //   console.log("updated list");
             //   setProgressList(progressList);
@@ -344,6 +323,8 @@ export default () => {
       <Stack p={1}>
         <div>
           <div style={{ flex: 1 }}>
+           
+
             {/* Courses */}
             <div
               style={{
@@ -373,24 +354,38 @@ export default () => {
                       Upon starting your course you will be able to see your
                       progress here. View any course and start learning.
                     </MUITypography>
-                    <Button>Refresh</Button>
                   </Stack>
                 ) : null}
-                {progressList.map((item, i) => {
-                  console.log("Progress Item >>> ", item);
 
-                  return (
-                    <StudentProgress
-                      link={item.link}
-                      locked={false}
-                      key={i}
-                      lesson={item.chapterTitle || "N/A"}
-                      course={item.course || "N/A"}
-                      title={item.lessonTitle || "N/A"}
-                      progress={item.progress || "N/A"}
-                    />
-                  );
-                })}
+                <Swiper
+                  direction={"horizontal"}
+                  slidesPerView={3}
+                  spaceBetween={30}
+                  mousewheel={true}
+                  pagination={{
+                    clickable: true,
+                  }}
+                  modules={[Mousewheel, Pagination]}
+                  className="mySwiper"
+                >
+                  {progressList.map((item, i) => {
+                    console.log("Progress Item >>> ", item);
+
+                    return (
+                      <SwiperSlide>
+                        <StudentProgress
+                          link={item.link}
+                          locked={false}
+                          key={i}
+                          lesson={item.chapterTitle || "N/A"}
+                          course={item.course || "N/A"}
+                          title={item.lessonTitle || "N/A"}
+                          progress={item.progress || "N/A"}
+                        />
+                      </SwiperSlide>
+                    );
+                  })}
+                </Swiper>
               </Stack>
               <Divider />
               <Stack p={2}>
