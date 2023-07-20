@@ -155,7 +155,7 @@ export default () => {
   const [loading, setLoading] = useState(false);
   const [isLoggedIn, setIsLoggedIn] = useState(false);
   const [courses, setCourses] = useState([]);
-  const [progressList, setProgressList] = useState([]);
+  const [progressList, setProgressList] = useState<any>([]);
   const router = useRouter();
 
   const [user, setUser] = useState<any>(null);
@@ -184,7 +184,7 @@ export default () => {
       link: "", // course/angular/-NYIAo4sdBRnBCBYJtYk/-NYIAo9n-Ndd9iScBA1k
     };
     let courseProgress = await LessonService.getAllUserProgress().then(
-      (res) => {
+      (res: any) => {
         return res.data;
       }
     );
@@ -192,7 +192,7 @@ export default () => {
     // Check progress for each course
 
     // run through the courses
-    courses.forEach((course) => {
+    courses.forEach((course: any) => {
       console.log("Course: >", course.key);
       progress = {
         course: "",
@@ -236,7 +236,7 @@ export default () => {
               Object.keys(course.chapters[chapter].lessons).length
             );
             // (part/whole) * 100
-            const p = ((studentProgress / chapterTotal) * 100).toFixed(0);
+            const p: any = ((studentProgress / chapterTotal) * 100).toFixed(0);
             progress.progress = p * 1;
 
             if (progress.progress) {
@@ -269,8 +269,8 @@ export default () => {
 
   useEffect(() => {
     CoursesService.courses().then((c) => {
-      c.forEach((element) => {
-        courses.push(element);
+      c.forEach((element: any) => {
+        // courses.push(element);
       });
       setCourses(courses);
       RunProgressFunc();
@@ -334,6 +334,8 @@ export default () => {
               <Divider orientation="left">Your Progress</Divider>
 
               <Stack
+                width={"100%"}
+                flex={1}
                 spacing={1}
                 gap={1}
                 sx={{ overflowX: "auto" }}
@@ -341,6 +343,7 @@ export default () => {
               >
                 {progressList.length == 0 ? (
                   <Stack
+                    width={"100%"}
                     flex={1}
                     padding={5}
                     textAlign={"center"}
@@ -354,36 +357,37 @@ export default () => {
                     </MUITypography>
                   </Stack>
                 ) : null}
+                {progressList.length > 0 ? (
+                  <Swiper
+                    direction={"horizontal"}
+                    slidesPerView={3}
+                    spaceBetween={30}
+                    mousewheel={true}
+                    pagination={{
+                      clickable: true,
+                    }}
+                    modules={[Mousewheel, Pagination]}
+                    className="mySwiper"
+                  >
+                    {progressList.map((item: any, i: number) => {
+                      console.log("Progress Item >>> ", item);
 
-                <Swiper
-                  direction={"horizontal"}
-                  slidesPerView={3}
-                  spaceBetween={30}
-                  mousewheel={true}
-                  pagination={{
-                    clickable: true,
-                  }}
-                  modules={[Mousewheel, Pagination]}
-                  className="mySwiper"
-                >
-                  {progressList.map((item, i) => {
-                    console.log("Progress Item >>> ", item);
-
-                    return (
-                      <SwiperSlide>
-                        <StudentProgress
-                          link={item.link}
-                          locked={false}
-                          key={i}
-                          lesson={item.chapterTitle || "N/A"}
-                          course={item.course || "N/A"}
-                          title={item.lessonTitle || "N/A"}
-                          progress={item.progress || "N/A"}
-                        />
-                      </SwiperSlide>
-                    );
-                  })}
-                </Swiper>
+                      return (
+                        <SwiperSlide>
+                          <StudentProgress
+                            link={item.link}
+                            locked={false}
+                            key={i}
+                            lesson={item.chapterTitle || "N/A"}
+                            course={item.course || "N/A"}
+                            title={item.lessonTitle || "N/A"}
+                            progress={item.progress || "N/A"}
+                          />
+                        </SwiperSlide>
+                      );
+                    })}
+                  </Swiper>
+                ) : null}
               </Stack>
               <Divider />
               <Stack p={2}>

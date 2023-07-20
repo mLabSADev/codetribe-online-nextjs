@@ -77,7 +77,7 @@ const checkSubmitted = () => {
       const { origin, hostname, pathname, ancestorOrigins, href } =
         window.location;
       let splitter = href.split("/");
-      AuthService.isLoggedIn().then((res) => {
+      AuthService.isLoggedIn().then((res: any) => {
         AuthService.currentUser().then((profile) => {
           const item = {
             uid: res.uid,
@@ -85,7 +85,7 @@ const checkSubmitted = () => {
             course: splitter[4],
             location: profile.location || profile.groups[0],
           };
-          Assessment.getSubmission(item).then((res) => {
+          Assessment.getOneSubmission(item).then((res) => {
             resolve(res);
           });
         });
@@ -133,7 +133,7 @@ export default ({
   const [canGoBack, setCanGoBack] = useState(true);
   const [canGoForward, setCanGoForward] = useState(true);
   const [position, setPosition] = useState<Position>();
-  const [submissions, setSubmissions] = useState([]);
+  const [submissions, setSubmissions] = useState<any>([]);
   const [totalDurationUntilCurrentLesson, setTotalDurationUntilCurrentLesson] =
     useState(0);
   const [total, setTotal] = useState(0);
@@ -194,7 +194,7 @@ export default ({
     // }
 
     LessonService.currentLessonPosition(courseId).then((position) => {
-      CoursesService.course(courseId).then((course) => {
+      CoursesService.course(courseId).then((course: Course) => {
         const lessons: Lesson[] = [];
 
         setCourse(course);
@@ -573,7 +573,7 @@ export default ({
   const onFinishFailed = (errorInfo: any) => {
     console.log("Failed:", errorInfo);
   };
-  const getSubmission = (data) => {
+  const getSubmission = (data: any) => {
     const { origin, hostname, pathname, ancestorOrigins, href } =
       window.location;
     let splitter = href.split("/");
@@ -615,7 +615,7 @@ export default ({
    * Get's assessments & submissions per lesson
    * @param data  course: 'React', chapter: 'Lesson One'
    */
-  const RunAssessmentFunc = async (data) => {
+  const RunAssessmentFunc = async (data: any) => {
     const createdAssessment = await Assessment.getOne({
       course: data.course,
       chapter: data.chapter,
@@ -740,7 +740,6 @@ export default ({
           ]}
         >
           <Editor
-            name="content"
             editorState={updateEditorState}
             readOnly={false}
             toolbarHidden
@@ -844,8 +843,8 @@ export default ({
                             },
                             {
                               type: "url",
-                              message: "This field must be a valid url."
-                          }
+                              message: "This field must be a valid url.",
+                            },
                           ]}
                         >
                           <Input
@@ -1006,7 +1005,7 @@ description={post.frontmatter.description}
                   {currentLesson?.title}
                 </Typography>
               </Stack>
-              {currentLesson && !currentLesson.isQuiz && (
+              {currentLesson && !currentLesson.quiz && (
                 <Stack spacing={4} pt={8}>
                   <Box
                     width={"100%"}

@@ -76,7 +76,7 @@ const lessonNames = {
 
 const StudentInfo = ({ student }: { student: Student }) => {
   const [courses, setCourses] = useState([]);
-  const [progressList, setProgressList] = useState([]);
+  const [progressList, setProgressList] = useState<any>([]);
 
   const tutorials = ["react", "react-native", "ionic"];
 
@@ -138,7 +138,10 @@ const StudentInfo = ({ student }: { student: Student }) => {
                     // console.log("Lesson: >>>", lesson);
                   });
                   // (part/whole) * 100
-                  const p = ((studentProgress / chapterTotal) * 100).toFixed(0);
+                  const p: any = (
+                    (studentProgress / chapterTotal) *
+                    100
+                  ).toFixed(0);
                   progress.progress = p * 1; // convert string to integer
 
                   if (progress.progress) {
@@ -199,7 +202,7 @@ const StudentInfo = ({ student }: { student: Student }) => {
     <div>
       <h3>{student.firstname}'s Progress</h3>
       <Stack direction={"row"} spacing={2}>
-        {progressList.map((progress) => {
+        {progressList.map((progress: any) => {
           return (
             <Progress
               type="circle"
@@ -213,7 +216,7 @@ const StudentInfo = ({ student }: { student: Student }) => {
                   <MUITypography variant="overline">
                     {progress.chapterTitle}
                   </MUITypography>
-                  <MUITypography variant="s1">{percent}%</MUITypography>
+                  <MUITypography variant="subtitle1">{percent}%</MUITypography>
                 </Stack>
               )}
             />
