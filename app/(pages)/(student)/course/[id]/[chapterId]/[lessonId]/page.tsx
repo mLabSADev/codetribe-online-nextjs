@@ -161,7 +161,7 @@ export default ({
   const [assessmentsLoading, setAssessmentsLoading] = React.useState(true);
   const [courseProgress, setCourseProgress] = React.useState(0);
   const [finishedLessons, setFinishedLessons] = React.useState<any[]>([]);
-  const [isVideoFinished, setisVideoFinished] = React.useState(false)
+  const [isVideoFinished, setisVideoFinished] = React.useState(false);
   const { origin, hostname, pathname, ancestorOrigins, href } = window.location;
   const handleSlide = () => {
     setSlide((prev) => !prev);
@@ -330,10 +330,10 @@ export default ({
       if (course.chapters.length > 1) {
         setLesson(allLessons[currentIndex]);
       }
-      if(!isVideoFinished){
-        setCanGoForward(false)
+      if (!isVideoFinished) {
+        setCanGoForward(false);
       } else {
-        setCanGoForward(true)
+        setCanGoForward(true);
       }
       setCanGoBack(currentIndex > 0);
       LessonService.getUserFinishedLessons(courseId, currentLesson.chapterKey)
@@ -355,14 +355,11 @@ export default ({
         .catch((err) => {
           console.log(err);
         });
-        setCourseProgress(Math.round((finishedLessons.length / allLessons.length) * 100))
+      setCourseProgress(
+        Math.round((finishedLessons.length / allLessons.length) * 100)
+      );
     }
-  }, [
-    currentLesson,
-    currentIndex,
-    courseProgress,
-    finishedLessons,
-  ]);
+  }, [currentLesson, currentIndex, courseProgress, finishedLessons]);
 
   totalDuration = DurationHelper.secondsToText(total);
   const chapters = {};
@@ -449,7 +446,7 @@ export default ({
       });
     }
     setCurrentIndex((prevCurrentIndex) => prevCurrentIndex + 1);
-    setisVideoFinished(false)
+    setisVideoFinished(false);
     // let nextLesson
     // if (post.frontmatter.chapter === 0) {
     //   nextLesson = chapters[1].lessons[1]
@@ -510,18 +507,25 @@ export default ({
   }, [currentLesson]);
   const checkTime = (e: any, course: any, chapterId: any, lessonId: any) => {
     const duration = e.target.getDuration();
-    const currentTime = e.target.getCurrentTime();  
+    const currentTime = e.target.getCurrentTime();
     if (currentLesson) {
-      const isLessonFinished = finishedLessons.some(less => less.lesson.key === currentLesson.key);
-      
+      const isLessonFinished = finishedLessons.some(
+        (less) => less.lesson.key === currentLesson.key
+      );
+
       if (currentTime / duration > 0.98 && !isLessonFinished) {
         setisVideoFinished(true);
-        LessonService.addFinishedLesson(course, chapterId, lessonId, currentLesson)
-          .then(res => {
+        LessonService.addFinishedLesson(
+          course,
+          chapterId,
+          lessonId,
+          currentLesson
+        )
+          .then((res) => {
             console.log(res, "res");
           })
-          .catch(err => {
-            console.log(err, 'error');
+          .catch((err) => {
+            console.log(err, "error");
           });
       } else if (isLessonFinished) {
         setisVideoFinished(true);
@@ -1198,7 +1202,11 @@ description={post.frontmatter.description}
                               }
                             >
                               {/* <Link style={{color: lesson.current ? '#97CA42' : '#606060', fontWeight: lesson.current ? 'bold' : 'normal'}}>{lesson.frontmatter.title} ({DurationHelper.timeFormatToText(lesson.frontmatter.duration)})</Link> */}
-                              <Stack flex={1} direction={"row"}>
+                              <Stack
+                                flex={1}
+                                direction={"row"}
+                                alignItems={"center"}
+                              >
                                 <Stack flex={1}>
                                   <Link
                                     href={
@@ -1227,12 +1235,14 @@ description={post.frontmatter.description}
                                   </Link>
                                 </Stack>
 
-                                <Chip
-                                  variant="outlined"
-                                  color="primary"
-                                  size="small"
-                                  label={"Quiz"}
-                                />
+                                {lesson.isQuiz && (
+                                  <Chip
+                                    variant="outlined"
+                                    color="primary"
+                                    size="small"
+                                    label={"Quiz"}
+                                  />
+                                )}
                               </Stack>
                             </Timeline.Item>
                           );
