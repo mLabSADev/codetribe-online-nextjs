@@ -658,6 +658,7 @@ export default ({
         setAssessmentsLoading(false);
       }
     } else {
+      setAssessmentsLoading(false);
     }
   };
   useEffect(() => {}, []);
