@@ -842,6 +842,10 @@ export default ({
                               required: true,
                               message: "Link to Github Projet is required!",
                             },
+                            {
+                              type: "url",
+                              message: "This field must be a valid url."
+                          }
                           ]}
                         >
                           <Input

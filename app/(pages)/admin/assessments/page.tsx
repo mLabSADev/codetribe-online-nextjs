@@ -250,7 +250,7 @@ function Assessments() {
       .then((res) => {
         Object.keys(res).map((item) => {
           submissions.push({ ...res[item], key: item });
-          setSubmissions(submissions);
+          setSubmissions([...submissions]);
         });
       })
       .catch((err) => {
