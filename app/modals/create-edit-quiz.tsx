@@ -65,7 +65,13 @@ const CreateEditQuiz = ({
       videoUrl: "",
       quiz: currentQuiz,
       title: "Quiz",
+      isQuiz: true
     };
+
+    console.log('Checking');
+    console.log(lessonToSave);
+    
+    
 
     return CoursesService.saveLesson(course!.key, chapter!, lessonToSave)
       .then(() => {
@@ -74,6 +80,8 @@ const CreateEditQuiz = ({
         onCancel();
       })
       .catch((err) => {
+        console.log(err);
+        
         setErrorMessage(err.message);
       });
   };

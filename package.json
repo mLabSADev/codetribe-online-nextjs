@@ -33,7 +33,7 @@
     "react-dom": "18.2.0",
     "react-draft-wysiwyg": "^1.15.0",
     "react-quill": "^2.0.0",
-    "react-quiz-component": "^0.3.7",
+    "react-quiz-component": "^0.5.1",
     "react-youtube": "^10.1.0",
     "save-dev": "^0.0.1-security",
     "swiper": "^10.0.4",
