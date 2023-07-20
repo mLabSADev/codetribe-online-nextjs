@@ -9,7 +9,7 @@ interface Lesson {
     lesson: number
     chapter: number
     title: string
-    quiz?: Quiz
+    isQuiz?: Quiz
 }
 
 export default Lesson

@@ -1006,6 +1006,11 @@ description={post.frontmatter.description}
                   {currentLesson?.title}
                 </Typography>
               </Stack>
+              {currentLesson && currentLesson.isQuiz && (
+                <Stack spacing={4} pt={8}>
+                  <div>Quiz here</div>
+                </Stack>
+              )}
               {currentLesson && !currentLesson.isQuiz && (
                 <Stack spacing={4} pt={8}>
                   <Box

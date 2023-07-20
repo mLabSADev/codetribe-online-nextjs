@@ -87,7 +87,7 @@ export const CoursesService = {
       });
   },
 
-  saveLesson: (
+  saveLesson: async (
     courseId: string,
     chapter: Chapter,
     lesson: Lesson,
@@ -109,19 +109,30 @@ export const CoursesService = {
 
     lesson.chapter = chapter.chapter;
 
-    const videoSplit = lesson.videoUrl.split("/");
-    const videoId = videoSplit[videoSplit.length - 1];
+    
 
-    const url = `https://www.googleapis.com/youtube/v3/videos?id=${videoId}&part=contentDetails&key=AIzaSyCSvPQ3-fpuAYGljNEBCrWTVO-yO9tepaU`;
+    let duration = '2:00';
 
-    return axios.get(url).then((result) => {
-      const duration = result.data.items[0].contentDetails.duration
+    if (lesson.isQuiz) {
+
+    } else {
+      const videoSplit = lesson.videoUrl.split("/");
+      const videoId = videoSplit[videoSplit.length - 1];
+
+      const url = `https://www.googleapis.com/youtube/v3/videos?id=${videoId}&part=contentDetails&key=AIzaSyCSvPQ3-fpuAYGljNEBCrWTVO-yO9tepaU`;
+
+      const result = await axios.get(url)
+
+      console.log(result.data);
+      
+      duration = result.data.items[0].contentDetails.duration
         .split("PT")
         .join("")
         .split("M")
         .join(":")
         .split("S")
         .join("");
+    }
 
       if (currentLessonId) {
         return firebase
@@ -143,7 +154,6 @@ export const CoursesService = {
             duration: duration,
           });
       }
-    });
   },
   saveCourse: (course: Course, file: string) => {
     console.log(course);
