@@ -486,7 +486,7 @@ export default ({
     //   })
   };
 
-  const isLessonDone = (lesson: Lesson, key: any, chapterIndex: any) => {
+  const isLessonDone = (lesson: Lesson) => {
     if (
       finishedLessons.findIndex(
         (lessonObj) => lessonObj.lesson.key === lesson.key
@@ -505,7 +505,7 @@ export default ({
       }
     }
   }, [currentLesson]);
-  const checkTime = (e: any, course: any, chapterId: any, lessonId: any) => {
+  const checkTime = (e: any, course: string, chapterId: string, lessonId: string) => {
     const duration = e.target.getDuration();
     const currentTime = e.target.getCurrentTime();
     if (currentLesson) {
@@ -1199,7 +1199,7 @@ description={post.frontmatter.description}
                               key={key}
                               dot={
                                 <Stack flex={1}>
-                                  {isLessonDone(lesson, key, i) ? (
+                                  {isLessonDone(lesson) ? (
                                     <CheckBoxIcon
                                       sx={{ color: Colors.Primary }}
                                     />
@@ -1227,7 +1227,7 @@ description={post.frontmatter.description}
                                     }
                                     style={{
                                       color: "#606060",
-                                      ...(!isLessonDone(lesson, key, i)
+                                      ...(!isLessonDone(lesson)
                                         ? { pointerEvents: "none" }
                                         : undefined),
                                       fontWeight:
@@ -1245,7 +1245,7 @@ description={post.frontmatter.description}
                                   </Link>
                                 </Stack>
 
-                                {lesson.isQuiz && (
+                                {lesson.quiz && (
                                   <Chip
                                     variant="outlined"
                                     color="primary"
