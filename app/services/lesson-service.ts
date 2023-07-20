@@ -75,13 +75,16 @@ export const LessonService = {
       return null;
     });
   },
-  saveQuiz: (lessonId: string, chapter: number, results: any) => {
+  saveQuiz: (courseId: string, chapter: string, quizId: string, results: any) => {
     return AuthService.isLoggedIn().then((user: any) => {
       if (user) {
         return firebase
           .database()
-          .ref(`quizes/${user.uid}/${lessonId}/${chapter}`)
-          .set(results);
+          .ref(`quizResponses/${user.uid}/${courseId}/${chapter}/${quizId}`)
+          .set({
+            attempts: 1,
+            results
+          });
       }
     });
   },

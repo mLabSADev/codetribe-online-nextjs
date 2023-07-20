@@ -61,6 +61,7 @@ import AssessmentIcon from "@mui/icons-material/Assessment";
 import { Colors, Styles } from "@/app/services/styles";
 import YouTube from "react-youtube";
 import LessonProgress from "@/app/dtos/lesson-progress";
+import QuizView from "@/app/components/quiz";
 const AssessmentLoadingSkelleton = () => {
   return (
     <Stack spacing={1}>
@@ -1008,7 +1009,7 @@ description={post.frontmatter.description}
               </Stack>
               {currentLesson && currentLesson.isQuiz && (
                 <Stack spacing={4} pt={8}>
-                  <div>Quiz here</div>
+                  <QuizView quiz={currentLesson.quiz} />
                 </Stack>
               )}
               {currentLesson && !currentLesson.isQuiz && (
