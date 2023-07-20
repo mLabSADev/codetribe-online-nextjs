@@ -1,11 +1,12 @@
 "use client";
-import { Button, Col, Row, Space, Spin, Table } from "antd";
+import { Button, Col, Row, Space, Spin, Table, Progress } from "antd";
 import React, { useEffect, useState } from "react";
 import { LessonService } from "@/app/services/lesson-service";
 import Student from "@/app/dtos/student";
 import { StudentsService } from "@/app/services/students-service";
 import CreateEditStudent from "@/app/modals/create-edit-student";
 import { Styles } from "@/app/services/styles";
+import { Stack, Typography as MUITypography } from "@mui/material";
 import { CoursesService } from "@/app/services/courses-service";
 
 const lessonNames = {
@@ -78,13 +79,10 @@ const StudentInfo = ({ student }: { student: Student }) => {
   const [progressList, setProgressList] = useState([]);
 
   const tutorials = ["react", "react-native", "ionic"];
-  const RunProgressFunc = async () => {
-    /**
-     * Access course name
-     * Access course chapter
-     * Access chapter lesson
-     * Calculate Progress
-     */
+
+  // student.key
+
+  useEffect(() => {
     let progress = {
       course: "",
       chapterTitle: "",
@@ -92,96 +90,96 @@ const StudentInfo = ({ student }: { student: Student }) => {
       progress: 0,
       link: "", // course/angular/-NYIAo4sdBRnBCBYJtYk/-NYIAo9n-Ndd9iScBA1k
     };
-    let courseProgress = await LessonService.getAllUserProgress().then(
-      (res) => {
-        return res.data;
-      }
-    );
-    console.log({ courses, courseProgress });
-    // Check progress for each course
+    /**
+     * Access course name
+     * Access student progress
+     * Access course chapter
+     * Access chapter lesson
+     * Calculate Progress
+     */
+    console.log("====================================");
+    console.log(student);
+    console.log("====================================");
+    CoursesService.courses().then((allcourses) => {
+      // setCourses((prev) => [allcourses]);
+      // RunProgressFunc();
+      // /"AsQuLORppvdLG12RY9qaTrJekwM2"
+      LessonService.getProgressByUID(student.key).then((myProgress: any) => {
+        allcourses.forEach((course) => {
+          progress.course = course.title;
+          console.log("====================================");
+          console.log(progress.course);
+          console.log("====================================");
+          var studentProgress = 0;
+          var chapterTotal = 0;
 
-    // run through the courses
-    courses.forEach((course) => {
-      console.log("Course: >", course.key);
-      progress = {
-        course: "",
-        chapterTitle: "",
-        lessonTitle: "",
-        progress: 0,
-        link: "",
-      };
+          if (myProgress.data) {
+            if (myProgress.data[course.key]?.progress != null) {
+              Object.keys(myProgress.data[course.key].progress).map(
+                (chapter: any) => {
+                  chapterTotal = Object.keys(
+                    course.chapters[chapter].lessons
+                  ).length;
+                  // console.log("Chapter: >>", chapter);
+                  progress.chapterTitle = course.chapters[chapter].title;
+                  // iterate progress lessons keys
+                  Object.keys(
+                    myProgress.data[course.key].progress[chapter]
+                  ).map((lesson: any) => {
+                    progress.lessonTitle =
+                      course.chapters[chapter].lessons[lesson].title;
+                    if (
+                      myProgress.data[course.key].progress[chapter][lesson]
+                        .isDone
+                    ) {
+                      studentProgress = studentProgress + 1;
+                      progress.link = `course/${course.key}/${chapter}/${lesson}`;
+                    }
+                    // console.log("Lesson: >>>", lesson);
+                  });
+                  // (part/whole) * 100
+                  const p = ((studentProgress / chapterTotal) * 100).toFixed(0);
+                  progress.progress = p * 1; // convert string to integer
 
-      progress.course = course.title;
-      var studentProgress = 0;
-      var chapterTotal = 0;
+                  if (progress.progress) {
+                    progressList.push(progress);
+                  }
 
-      // Check if course has been started
-      if (courseProgress[course.key]) {
-        // iterate progress chapters keys
-        if (courseProgress[course.key].progress != null) {
-          Object.keys(courseProgress[course.key].progress).map((chapter) => {
-            chapterTotal = Object.keys(course.chapters[chapter].lessons).length;
-            console.log(">> Set Chapter Total: ", chapterTotal);
-            // console.log("Chapter: >>", chapter);
-            progress.chapterTitle = course.chapters[chapter].title;
-            console.log(">> Set Title: ", progress.chapterTitle);
-
-            // iterate progress lessons keys
-            Object.keys(courseProgress[course.key].progress[chapter]).map(
-              (lesson) => {
-                progress.lessonTitle =
-                  course.chapters[chapter].lessons[lesson].title;
-                if (
-                  courseProgress[course.key].progress[chapter][lesson].isDone
-                ) {
-                  studentProgress = studentProgress + 1;
-                  progress.link = `course/${course.key}/${chapter}/${lesson}`;
+                  setProgressList([...progressList]);
+                  // setTimeout(() => {
+                  //   console.log("updated list");
+                  //   setProgressList(progressList);
+                  // }, 3000);
+                  progress = {
+                    course: progress.course,
+                    chapterTitle: "",
+                    lessonTitle: "",
+                    progress: 0,
+                    link: "",
+                  };
+                  studentProgress = 0;
                 }
-                // console.log("Lesson: >>>", lesson);
-              }
-            );
-            console.log(
-              studentProgress,
-              Object.keys(course.chapters[chapter].lessons).length
-            );
-            // (part/whole) * 100
-            const p = ((studentProgress / chapterTotal) * 100).toFixed(0);
-            progress.progress = p * 1; // convert string to integer
-
-            if (progress.progress) {
-              progressList.push(progress);
+              );
             }
-
+          } else {
+            progress.chapterTitle = "Not Started";
+            progress.lessonTitle = "";
+            progress.link = "";
+            progress.progress = 0;
+            console.log(progress);
+            progressList.push(progress);
             setProgressList([...progressList]);
-            // setTimeout(() => {
-            //   console.log("updated list");
-            //   setProgressList(progressList);
-            // }, 3000);
             progress = {
-              course: progress.course,
+              course: "",
               chapterTitle: "",
               lessonTitle: "",
               progress: 0,
               link: "",
             };
-            studentProgress = 0;
-          });
-        }
-        console.log("====================================");
-        console.log(courseProgress[course.key]);
-        console.log("====================================");
-      } else {
-        console.log(`${course.title} not started`);
-
-        // course not started
-      }
-      console.log(">> All Progress: ", progressList);
-    });
-  };
-  useEffect(() => {
-    CoursesService.courses().then((res) => {
-      setCourses(res);
-      RunProgressFunc();
+          }
+        });
+        console.log(">> All Progress: ", progressList);
+      });
     });
 
     const promises = tutorials.map((tutorial) => {
@@ -200,6 +198,28 @@ const StudentInfo = ({ student }: { student: Student }) => {
   return (
     <div>
       <h3>{student.firstname}'s Progress</h3>
+      <Stack direction={"row"} spacing={2}>
+        {progressList.map((progress) => {
+          return (
+            <Progress
+              type="circle"
+              size={60}
+              percent={progress.progress}
+              format={(percent) => (
+                <Stack spacing={-1}>
+                  <MUITypography fontWeight={"bold"} variant="overline">
+                    {progress.course}
+                  </MUITypography>
+                  <MUITypography variant="overline">
+                    {progress.chapterTitle}
+                  </MUITypography>
+                  <MUITypography variant="s1">{percent}%</MUITypography>
+                </Stack>
+              )}
+            />
+          );
+        })}
+      </Stack>
       {/* <div style={{
                 display: 'block',
                 marginLeft: 'auto',

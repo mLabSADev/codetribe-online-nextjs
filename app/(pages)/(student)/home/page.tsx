@@ -323,8 +323,6 @@ export default () => {
       <Stack p={1}>
         <div>
           <div style={{ flex: 1 }}>
-           
-
             {/* Courses */}
             <div
               style={{

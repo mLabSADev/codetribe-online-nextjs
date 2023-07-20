@@ -268,7 +268,7 @@ export const LessonService = {
     });
   },
   getProgressByUID: (uid: string) => {
-    return new Proomise((resolve, reject) => {
+    return new Promise((resolve, reject) => {
       firebase
         .database()
         .ref(`lessons/${uid}`)
