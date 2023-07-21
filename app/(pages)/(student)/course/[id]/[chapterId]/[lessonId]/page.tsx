@@ -1011,9 +1011,9 @@ description={post.frontmatter.description}
                   {currentLesson?.title}
                 </Typography>
               </Stack>
-              {currentLesson && !currentLesson.quiz && (
+              {currentLesson && !currentLesson.isQuiz && (
                 <Stack spacing={4} pt={8}>
-                  <QuizView quiz={currentLesson.quiz} />
+                  <QuizView quiz={currentLesson.isQuiz} />
                 </Stack>
               )}
               {currentLesson && !currentLesson.isQuiz && (
@@ -1250,7 +1250,7 @@ description={post.frontmatter.description}
                                   </Link>
                                 </Stack>
 
-                                {lesson.quiz && (
+                                {lesson.isQuiz && (
                                   <Chip
                                     variant="outlined"
                                     color="primary"
