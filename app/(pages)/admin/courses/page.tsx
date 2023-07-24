@@ -36,7 +36,7 @@ export default () => {
               alt={record.title}
               style={{
                 width: 150,
-                height: 75
+                height: 75,
               }}
             />
           );
