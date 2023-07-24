@@ -8,7 +8,7 @@ import Link from "next/link";
 import CreateEditCourse from "@/app/modals/create-edit-course";
 import { Styles } from "@/app/services/styles";
 import { Typography } from "@mui/material";
-
+import { LazyLoadImage } from "react-lazy-load-image-component";
 export default () => {
   const [courses, setCourses] = useState<Course[] | null>();
   const [columns, setColumns] = useState<any>();
@@ -31,11 +31,12 @@ export default () => {
         key: "imageUrl",
         render: (_: any, record: Course) => {
           return (
-            <img
+            <LazyLoadImage
               src={record.imageUrl}
               alt={record.title}
               style={{
                 width: 150,
+                height: 75
               }}
             />
           );
