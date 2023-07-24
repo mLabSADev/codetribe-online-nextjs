@@ -313,9 +313,10 @@ function Assessments() {
       chapter: courseInfo.chapter,
       location: data,
     })
-      .then((res) => {
+      .then((res: any) => {
         Object.keys(res).map((item) => {
-          submissions.push({ ...res[item], key: item });
+          const d:never = { ...res[item], key: item };
+          submissions.push(d);
           setSubmissions([...submissions]);
         });
       })
@@ -341,7 +342,7 @@ function Assessments() {
         // Loop over locations
         console.log(res);
 
-        res.groups.forEach((element, i) => {
+        res.groups.forEach((element: any, i: number) => {
           adminLocations.push({ key: i + 1, label: element });
           setAdminLocations(adminLocations);
           getStudentsByLocation(element);
@@ -349,7 +350,7 @@ function Assessments() {
           setTimeout(() => {
             console.log(courseInfo);
 
-            getSubmissions(res.groups[0], adminLocations);
+            getSubmissions(res.groups[0]);
           }, 1000);
         });
       })
@@ -583,7 +584,7 @@ function Assessments() {
             // footer={<div>Footer</div>}
             bordered
             dataSource={submissions}
-            renderItem={(item) => (
+            renderItem={(item: any) => (
               <List.Item>
                 <Stack flex={1} spacing={2}>
                   <Stack direction={"row"} alignItems={"center"} flex={1}>
@@ -632,7 +633,7 @@ function Assessments() {
         <Button
           style={Styles.Button.Outline}
           onClick={() => {
-            showModal(true);
+            showModal();
             setUpdating(false);
             form.resetFields();
           }}
@@ -652,7 +653,7 @@ function Assessments() {
             style={Styles.Button.Filled}
             type="primary"
             onClick={() => {
-              showModal(true);
+              showModal();
               setUpdating(false);
               form.resetFields();
             }}
@@ -669,11 +670,11 @@ function Assessments() {
           style={{ borderRadius: 15, overflow: "hidden" }}
           defaultActiveKey={["0"]}
         >
-          {assessments.map((course, i) => {
+          {assessments.map((course: any, i) => {
             console.log(course);
 
             let list = []; // Compensating for the "-NXQR23Owma8MCvBYNm0" keys...
-            let keys = []; // store keys for delete & update
+            let keys: any = []; // store keys for delete & update
             for (const [key, value] of Object.entries(course)) {
               keys.push(key);
               if (key !== "key") {
@@ -749,10 +750,12 @@ function Assessments() {
                           onDeleteConfirmClick={() => {
                             Assessment.delete(course.key, item.lesson)
                               .then(() => {
-                                setAlert({
+                                const a = {
                                   message: "Assessment Deleted",
                                   show: true,
-                                });
+                                  severity: "",
+                                };
+                                setAlert(a);
                                 getAssessments();
                               })
                               .catch((err) => {
@@ -781,8 +784,8 @@ function Assessments() {
                           onMoreClick={() => {
                             setAssessmentDetails({
                               data: {
-                                entityMap: item.content.entityMap || {},
                                 blocks: item.content.blocks,
+                                entityMap: item.content.entityMap || {},
                               },
                               show: true,
                               title: item.title,

@@ -1026,7 +1026,7 @@ description={post.frontmatter.description}
                   >
                     <YouTube
                       videoId={videoId}
-                      onStateChange={(e) =>
+                      onStateChange={(e: any) =>
                         checkTime(
                           e,
                           courseId,

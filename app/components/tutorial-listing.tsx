@@ -26,10 +26,6 @@ const CourseCard = ({ course }: { course: Course }) => {
         style={{ width: 400, borderRadius: 20, overflow: "hidden" }}
         cover={
           <LazyLoadImage
-            onLoad={() => {
-              setLoadFinished(true);
-              console.log("load finished");
-            }}
             alt={course.title}
             src={course.imageUrl}
             height={200}
