@@ -54,7 +54,7 @@ const { Column, ColumnGroup } = Table;
 const { Meta } = Card;
 // Dummy Data
 const COURSES = ["nodejs", "ionic", "angular", "react", "react-native"];
-const AssessmentCard = (props) => {
+const AssessmentCard = (props: any) => {
   const [totalSubmittedStudents, setTotalSubmittedStudents] = React.useState(0);
   const [totalStudents, setTotalStudents] = React.useState(0);
   const {

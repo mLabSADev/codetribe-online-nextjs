@@ -17,6 +17,7 @@ import Course from "@/app/dtos/course";
 import { CoursesService } from "@/app/services/courses-service";
 import { Swiper, SwiperSlide } from "swiper/react";
 import { Navigation, Pagination, Mousewheel, Keyboard } from "swiper/modules";
+
 export function stringToColor(string: string) {
   let hash = 0;
   let i;
