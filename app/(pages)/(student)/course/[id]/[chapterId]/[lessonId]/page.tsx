@@ -747,7 +747,7 @@ export default ({
         >
           <Editor
             editorState={updateEditorState}
-            readOnly={false}
+            readOnly={true}
             toolbarHidden
             toolbar={{
               inline: { inDropdown: true },
