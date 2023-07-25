@@ -1011,7 +1011,7 @@ description={post.frontmatter.description}
                   {currentLesson?.title}
                 </Typography>
               </Stack>
-              {currentLesson && !currentLesson.isQuiz && (
+              {currentLesson && currentLesson.isQuiz && (
                 <Stack spacing={4} pt={8}>
                   <QuizView quiz={currentLesson.isQuiz} />
                 </Stack>
