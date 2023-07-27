@@ -1025,6 +1025,7 @@ description={post.frontmatter.description}
                     overflow={"hidden"}
                   >
                     <YouTube
+                    key={videoId}
                       videoId={videoId}
                       onStateChange={(e: any) =>
                         checkTime(
