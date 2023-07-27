@@ -10,6 +10,7 @@ interface Lesson {
     chapter: number
     title: string
     quiz?: Quiz
+    isQuiz: boolean
 }
 
 export default Lesson
