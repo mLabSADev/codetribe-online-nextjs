@@ -65,6 +65,9 @@ const CourseOverview = ({ params }: { params: { id: string } }) => {
     currentChapter: number;
     currentLesson: number;
   }>();
+  const [course, setCourse] = useState<Course>();
+  const [currentChapter, setCurrentChapter] = useState<any>();
+  const [currentLesson, setCurrentLesson] = useState<any>();
 
   const router = useRouter();
 
@@ -102,6 +105,9 @@ const CourseOverview = ({ params }: { params: { id: string } }) => {
   useEffect(() => {
     const courseId = params["id"];
 
+    
+    
+
     console.log("Getting course", courseId.trim());
     CoursesService.course(courseId)
       .then((course) => {
@@ -116,9 +122,7 @@ const CourseOverview = ({ params }: { params: { id: string } }) => {
     });
   }, []);
 
-  const [course, setCourse] = useState<Course>();
-  const [currentChapter, setCurrentChapter] = useState<any>();
-  const [currentLesson, setCurrentLesson] = useState<any>();
+  
 
   useEffect(() => {
     LessonService.getCurrentChapter(params["id"])

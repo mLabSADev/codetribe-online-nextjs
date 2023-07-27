@@ -27,6 +27,7 @@ const ERROR = {
 export const LessonService = {
   currentLessonPosition: (lessonId: string) => {
     return AuthService.isLoggedIn().then((user: any) => {
+      console.log(`lessons/${lessonId}/${user.uid}`)
       if (user) {
         return firebase
           .database()

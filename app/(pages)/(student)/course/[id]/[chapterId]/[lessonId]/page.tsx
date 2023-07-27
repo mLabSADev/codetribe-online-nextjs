@@ -159,6 +159,11 @@ export default ({
   const [assessmentsLoading, setAssessmentsLoading] = React.useState(true);
   const [courseProgress, setCourseProgress] = React.useState(0);
   const [finishedLessons, setFinishedLessons] = React.useState<any[]>([]);
+  const [currentUserLesson, setCurrentUserLesson] = useState<{
+    chapter: number
+    lesson: number
+  }>()
+
   const { origin, hostname, pathname, ancestorOrigins, href } = window.location;
   const handleSlide = () => {
     setSlide((prev) => !prev);
@@ -191,6 +196,7 @@ export default ({
     // }
 
     LessonService.currentLessonPosition(courseId).then((position) => {
+      setCurrentUserLesson(position)
       CoursesService.course(courseId).then((course) => {
         const lessons: Lesson[] = [];
 
@@ -601,6 +607,25 @@ export default ({
     //   });
     // });
   };
+
+  const canGoToLesson = (lesson: { lesson: number, chapter: number}) => {
+    if (currentUserLesson) {
+      console.log(currentUserLesson);
+      console.log(lesson);
+      
+      
+      if (lesson.chapter > currentUserLesson.chapter) {
+        return false
+      } else if (currentUserLesson.chapter == lesson.chapter) {
+        if (lesson.lesson > currentUserLesson.lesson) {
+          return false
+        }
+      }
+    }
+
+    return true
+  }
+
   /**
    * Get's assessments & submissions per lesson
    * @param data  course: 'React', chapter: 'Lesson One'
@@ -1041,6 +1066,8 @@ description={post.frontmatter.description}
                 </Stack>
               )}
 
+              {/* {currentLesson && currentLesson.isQuiz && ()} */}
+
               <div style={{ marginTop: 0 }}>
                 <Row>
                   {/* {course?.outline?.map(overview => {
@@ -1202,14 +1229,14 @@ description={post.frontmatter.description}
                             >
                               {/* <Link style={{color: lesson.current ? '#97CA42' : '#606060', fontWeight: lesson.current ? 'bold' : 'normal'}}>{lesson.frontmatter.title} ({DurationHelper.timeFormatToText(lesson.frontmatter.duration)})</Link> */}
                               <Link
-                                href={
-                                  // isLegalPage(lesson)
-                                  lesson
-                                    ? `/course/${courseId}/${chapter.key}/${lesson.key}`
-                                    : "undefined"
-                                }
+                                onClick={(event) => {
+                                  if (!canGoToLesson(lesson)) {
+                                    event.preventDefault()
+                                  } 
+                                }}
+                                href={`/course/${courseId}/${chapter.key}/${lesson.key}`}
                                 style={{
-                                  color: "#606060",
+                                  color: canGoToLesson(lesson) ? "#606060" : '#afafaf',
                                   // ...(!isLessonDone(lesson, key, i)
                                   //   ? { pointerEvents: "none" }
                                   //   : undefined),
