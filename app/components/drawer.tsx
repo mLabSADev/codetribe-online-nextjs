@@ -65,19 +65,35 @@ const MenuButton = ({
 }: IMenuButton) => {
   return (
     <Link href={to ? to : ""}>
-      <Button
-        type="ghost"
-        icon={icon}
-        onClick={onClick}
-        size="large"
-        style={{
-          ...Styles.Button.Outline,
-          width: "100%",
-          textAlign: "start",
-        }}
-      >
-        {children}
-      </Button>
+      {active ? (
+        <Button
+          type={"default"}
+          icon={icon}
+          onClick={onClick}
+          size="large"
+          style={{
+            ...Styles.Button.Filled,
+            width: "100%",
+            textAlign: "start",
+          }}
+        >
+          {children}
+        </Button>
+      ) : (
+        <Button
+          type={"ghost"}
+          icon={icon}
+          onClick={onClick}
+          size="large"
+          style={{
+            ...Styles.Button.Outline,
+            width: "100%",
+            textAlign: "start",
+          }}
+        >
+          {children}
+        </Button>
+      )}
     </Link>
   );
 };
@@ -87,7 +103,7 @@ const Drawer = ({ active }: { active: string }) => {
   const [profile, setProfile] = useState<any>();
   const [showEditProfile, setShowEditProfile] = useState(false);
   const [savingPassword, setSavingPassword] = useState(false);
-
+  const [activeNav, setActiveNav] = useState("browse");
   const [onCancel, setOnCancel] = useState(false);
   const [confirmLogout, setConfirmLogout] = useState(false);
   const router = useRouter();
@@ -95,6 +111,15 @@ const Drawer = ({ active }: { active: string }) => {
   // Navigation Links
 
   useEffect(() => {
+    const { href } = location;
+    const splitter = href.split("/");
+
+    if (splitter.length == 4) {
+      setActiveNav(splitter[3]);
+    } else if (splitter.length == 5) {
+      setActiveNav(splitter[4]);
+    }
+
     ProfileService.observerProfile((profile: any) => {
       setProfile(profile);
     });
@@ -294,19 +319,35 @@ const Drawer = ({ active }: { active: string }) => {
 
       <Stack flex={1} spacing={1}>
         {/* default links */}
-        <MenuButton to={"/home"} icon={<UnorderedListOutlined />}>
+        <MenuButton
+          active={activeNav == "home"}
+          to={"/home"}
+          icon={<UnorderedListOutlined />}
+        >
           Browse
         </MenuButton>
         {/* Links for facilitator */}
         {profile?.role == "facilitator" && (
           <Stack flex={1} spacing={1}>
-            <MenuButton to={"/admin/students"} icon={<UserOutlined />}>
+            <MenuButton
+              active={activeNav == "students"}
+              to={"/admin/students"}
+              icon={<UserOutlined />}
+            >
               Students
             </MenuButton>
-            <MenuButton to={"/admin/courses"} icon={<VideoCameraOutlined />}>
+            <MenuButton
+              active={activeNav == "courses"}
+              to={"/admin/courses"}
+              icon={<VideoCameraOutlined />}
+            >
               Courses
             </MenuButton>
-            <MenuButton to={"/admin/assessments"} icon={<BookOutlined />}>
+            <MenuButton
+              active={activeNav == "assessments"}
+              to={"/admin/assessments"}
+              icon={<BookOutlined />}
+            >
               Assessments
             </MenuButton>
           </Stack>
