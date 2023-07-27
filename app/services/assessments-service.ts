@@ -26,7 +26,7 @@ export const Assessment = {
   /**
    * @param {*} id doc id
    */
-  getOne: (data) => {
+  getOne: (data: any) => {
     return new Promise((res, rej) => {
       firebase
         .database()
@@ -128,7 +128,7 @@ export const Assessment = {
         });
     });
   },
-  getAllSubmissionsByChapter: (data) => {
+  getAllSubmissionsByChapter: (data: any) => {
     return new Promise((res, rej) => {
       firebase
         .database()
@@ -140,7 +140,7 @@ export const Assessment = {
     });
   },
   // /assessments/submissions
-  getAllSubmissionsByLocation: (data) => {
+  getAllSubmissionsByLocation: (data: any) => {
     return new Promise((res, rej) => {
       firebase
         .database()

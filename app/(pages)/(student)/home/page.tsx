@@ -163,7 +163,7 @@ export default () => {
   useEffect(() => {
     setLoading(true);
     AuthService.currentUser().then((result) => {
-      console.log(result);
+      // console.log(result);
       setUser(result);
       setLoading(false);
     });
@@ -189,7 +189,7 @@ export default () => {
         return res.data;
       }
     );
-    console.log({ courses, courseProgress });
+    // console.log({ courses, courseProgress });
     // Check progress for each course
 
     // run through the courses
@@ -260,18 +260,17 @@ export default () => {
           });
         }
       } else {
-        console.log(`${course.title} not started`);
-
+        // console.log(`${course.title} not started`);
         // course not started
       }
-      console.log(">> All Progress: ", progressList);
+      // console.log(">> All Progress: ", progressList);
     });
   };
 
   useEffect(() => {
     CoursesService.courses().then((c) => {
       c.forEach((element: any) => {
-        // courses.push(element);
+        courses.push(element);
       });
       setCourses(courses);
       RunProgressFunc();
