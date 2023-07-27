@@ -206,11 +206,10 @@ export default () => {
       progress.course = course.title;
       var studentProgress = 0;
       var chapterTotal = 0;
-
-      // Check if course has been started
-      if (courseProgress[course.key]) {
+      if (courseProgress) {
+        // Check if course has been started
         // iterate progress chapters keys
-        if (courseProgress[course.key].progress != null) {
+        if (courseProgress[course.key]?.progress != null) {
           Object.keys(courseProgress[course.key].progress).map((chapter) => {
             chapterTotal = Object.keys(course.chapters[chapter].lessons).length;
             console.log(">> Set Chapter Total: ", chapterTotal);

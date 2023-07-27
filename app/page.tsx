@@ -243,7 +243,7 @@ export default () => {
       bottom={0}
       top={0}
       p={3}
-      overflow={{ xs: "auto", sm: "auto", md: "hidden" }}
+      overflow={{ xs: "auto", sm: "auto", md: "auto", lg: "hidden" }}
       sx={{
         background:
           "linear-gradient(227deg, #fffedb 0%, hsl(283, 100%, 88%) 100%)",
@@ -405,13 +405,7 @@ export default () => {
               >
                 <Input
                   placeholder="Input your email address"
-                  style={{
-                    borderRadius: 10,
-                    borderColor: "rgb(143, 230, 76)",
-                    borderStyle: "solid",
-                    padding: 10,
-                    borderWidth: 2,
-                  }}
+                  style={Styles.Input}
                 />
               </Form.Item>
               {signInMethod === "new-user" && (
@@ -427,7 +421,7 @@ export default () => {
                 >
                   <Input
                     placeholder="Input your first name"
-                    style={{ height: 50 }}
+                    style={Styles.Input}
                   />
                 </Form.Item>
               )}
@@ -444,7 +438,7 @@ export default () => {
                 >
                   <Input
                     placeholder="Input your last name"
-                    style={{ height: 50 }}
+                    style={Styles.Input}
                   />
                 </Form.Item>
               )}
@@ -463,13 +457,7 @@ export default () => {
                     <Input
                       type="password"
                       placeholder="Input your password"
-                      style={{
-                        borderRadius: 10,
-                        borderColor: "rgb(143, 230, 76)",
-                        borderStyle: "solid",
-                        padding: 10,
-                        borderWidth: 2,
-                      }}
+                      style={Styles.Input}
                     />
                   </Form.Item>
                   <Stack
@@ -503,7 +491,7 @@ export default () => {
                   <Input
                     type="password"
                     placeholder="Input your password"
-                    style={{ height: 50 }}
+                    style={Styles.Input}
                   />
                 </Form.Item>
               )}
@@ -521,7 +509,7 @@ export default () => {
                   <Input
                     type="password"
                     placeholder="Confirm Password"
-                    style={{ height: 50 }}
+                    style={Styles.Input}
                   />
                 </Form.Item>
               )}

@@ -93,17 +93,7 @@ const Drawer = ({ active }: { active: string }) => {
   const router = useRouter();
 
   // Navigation Links
-  const links = [
-    { link: "/home", title: "Browse", icon: <UnorderedListOutlined /> },
-    { link: "/admin/students", title: "Students", icon: <UserOutlined /> },
-    // { link: "/webinars", title: "Webinars", icon: <VideoCameraAddOutlined /> },
-    { link: "/admin/courses", title: "Courses", icon: <VideoCameraOutlined /> },
-    {
-      link: "/admin/assessments",
-      title: "Assessments",
-      icon: <BookOutlined />,
-    },
-  ];
+
   useEffect(() => {
     ProfileService.observerProfile((profile: any) => {
       setProfile(profile);
@@ -301,32 +291,28 @@ const Drawer = ({ active }: { active: string }) => {
       </Stack>
 
       {/* Navigation links */}
+
       <Stack flex={1} spacing={1}>
-        {links.map((link, i) => {
-          if (profile?.isAdmin) {
-            return (
-              <MenuButton
-                key={link.link}
-                to={link.link}
-                icon={link.icon}
-                active={active === link.title.toLowerCase()}
-              >
-                {link.title}
-              </MenuButton>
-            );
-          } else if (!profile?.bootcamp) {
-            return (
-              <MenuButton
-                key={link.link}
-                to={link.link}
-                icon={link.icon}
-                active={active === link.title.toLowerCase()}
-              >
-                {link.title}
-              </MenuButton>
-            );
-          }
-        })}
+        {/* default links */}
+        <MenuButton to={"/home"} icon={<UnorderedListOutlined />}>
+          Browse
+        </MenuButton>
+        {/* Links for facilitator */}
+        {profile?.role == "facilitator" && (
+          <Stack flex={1} spacing={1}>
+            <MenuButton to={"/admin/students"} icon={<UserOutlined />}>
+              Students
+            </MenuButton>
+            <MenuButton to={"/admin/courses"} icon={<VideoCameraOutlined />}>
+              Courses
+            </MenuButton>
+            <MenuButton to={"/admin/assessments"} icon={<BookOutlined />}>
+              Assessments
+            </MenuButton>
+          </Stack>
+        )}
+        {/* link for bootcamper */}
+        {!profile?.bootcamp && <></>}
       </Stack>
       <Box height={"100%"} flex={1}></Box>
       {/* Signout */}
