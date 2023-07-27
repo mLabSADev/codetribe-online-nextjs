@@ -1,11 +1,13 @@
 "use client";
-import { Button, Col, Row, Space, Spin, Table } from "antd";
+import { Button, Col, Row, Space, Spin, Table, Progress } from "antd";
 import React, { useEffect, useState } from "react";
 import { LessonService } from "@/app/services/lesson-service";
 import Student from "@/app/dtos/student";
 import { StudentsService } from "@/app/services/students-service";
 import CreateEditStudent from "@/app/modals/create-edit-student";
 import { Styles } from "@/app/services/styles";
+import { Stack, Typography as MUITypography } from "@mui/material";
+import { CoursesService } from "@/app/services/courses-service";
 
 const lessonNames = {
   react: "ReactJS",
@@ -73,10 +75,116 @@ const lessonNames = {
 // }
 
 const StudentInfo = ({ student }: { student: Student }) => {
-  const [progress, setProgress] = useState<any>(null);
+  const [courses, setCourses] = useState([]);
+  const [progressList, setProgressList] = useState<any>([]);
+
   const tutorials = ["react", "react-native", "ionic"];
 
+  // student.key
+
   useEffect(() => {
+    let progress = {
+      course: "",
+      chapterTitle: "",
+      lessonTitle: "",
+      progress: 0,
+      link: "", // course/angular/-NYIAo4sdBRnBCBYJtYk/-NYIAo9n-Ndd9iScBA1k
+    };
+    /**
+     * Access course name
+     * Access student progress
+     * Access course chapter
+     * Access chapter lesson
+     * Calculate Progress
+     */
+    console.log("====================================");
+    console.log(student);
+    console.log("====================================");
+    CoursesService.courses().then((allcourses) => {
+      // setCourses((prev) => [allcourses]);
+      // RunProgressFunc();
+      // /"AsQuLORppvdLG12RY9qaTrJekwM2"
+      LessonService.getProgressByUID(student.key).then((myProgress: any) => {
+        allcourses.forEach((course) => {
+          progress.course = course.title;
+          console.log("====================================");
+          console.log(progress.course);
+          console.log("====================================");
+          var studentProgress = 0;
+          var chapterTotal = 0;
+
+          if (myProgress.data) {
+            if (myProgress.data[course.key]?.progress != null) {
+              Object.keys(myProgress.data[course.key].progress).map(
+                (chapter: any) => {
+                  chapterTotal = Object.keys(
+                    course.chapters[chapter].lessons
+                  ).length;
+                  // console.log("Chapter: >>", chapter);
+                  progress.chapterTitle = course.chapters[chapter].title;
+                  // iterate progress lessons keys
+                  Object.keys(
+                    myProgress.data[course.key].progress[chapter]
+                  ).map((lesson: any) => {
+                    progress.lessonTitle =
+                      course.chapters[chapter].lessons[lesson].title;
+                    if (
+                      myProgress.data[course.key].progress[chapter][lesson]
+                        .isDone
+                    ) {
+                      studentProgress = studentProgress + 1;
+                      progress.link = `course/${course.key}/${chapter}/${lesson}`;
+                    }
+                    // console.log("Lesson: >>>", lesson);
+                  });
+                  // (part/whole) * 100
+                  const p: any = (
+                    (studentProgress / chapterTotal) *
+                    100
+                  ).toFixed(0);
+                  progress.progress = p * 1; // convert string to integer
+
+                  if (progress.progress) {
+                    progressList.push(progress);
+                  }
+
+                  setProgressList([...progressList]);
+                  // setTimeout(() => {
+                  //   console.log("updated list");
+                  //   setProgressList(progressList);
+                  // }, 3000);
+                  progress = {
+                    course: progress.course,
+                    chapterTitle: "",
+                    lessonTitle: "",
+                    progress: 0,
+                    link: "",
+                  };
+                  studentProgress = 0;
+                }
+              );
+            }
+          } else {
+            progress.chapterTitle = "Not Started";
+            progress.lessonTitle = "";
+            progress.link = "";
+            progress.progress = 0;
+            console.log(progress);
+            progressList.push(progress);
+            setProgressList([...progressList]);
+            progress = {
+              course: "",
+              chapterTitle: "",
+              lessonTitle: "",
+              progress: 0,
+              link: "",
+            };
+          }
+        });
+        console.log(">> All Progress: ", progressList);
+      });
+    });
+
     const promises = tutorials.map((tutorial) => {
       return LessonService.currentLessonPositionForStudent(
         student.key,
@@ -88,16 +196,33 @@ const StudentInfo = ({ student }: { student: Student }) => {
         };
       });
     });
-
-    Promise.all(promises).then((result) => {
-      console.log(result);
-      setProgress(result);
-    });
-  });
+  }, []);
 
   return (
     <div>
       <h3>{student.firstname}'s Progress</h3>
+      <Stack direction={"row"} spacing={2}>
+        {progressList.map((progress: any) => {
+          return (
+            <Progress
+              type="circle"
+              size={60}
+              percent={progress.progress}
+              format={(percent) => (
+                <Stack spacing={-1}>
+                  <MUITypography fontWeight={"bold"} variant="overline">
+                    {progress.course}
+                  </MUITypography>
+                  <MUITypography variant="overline">
+                    {progress.chapterTitle}
+                  </MUITypography>
+                  <MUITypography variant="subtitle1">{percent}%</MUITypography>
+                </Stack>
+              )}
+            />
+          );
+        })}
+      </Stack>
       {/* <div style={{
                 display: 'block',
                 marginLeft: 'auto',

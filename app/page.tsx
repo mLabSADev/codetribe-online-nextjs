@@ -7,7 +7,10 @@ import { AuthService } from "./services/auth-service";
 import { useRouter } from "next/navigation";
 import { Styles } from "./services/styles";
 import RefreshIcon from "@mui/icons-material/Refresh";
-// import "swiper/css"
+import "swiper/css";
+import "swiper/css/navigation";
+import "swiper/css/pagination";
+import "swiper/css/scrollbar";
 const ForgotPassword = ({ email, onCancel }: any) => {
   const [resettingPassword, setResettingPassword] = useState(false);
   const [errorMessage, setErrorMessage] = useState();
@@ -121,8 +124,8 @@ export default () => {
   const [errorMessage, setMessage] = useState(null);
   const [showForgotPassword, setShowForgotPassword] = useState(false);
   const [bgLink, setBGLink] = useState({
-    link: "https://my.spline.design/abstractgradientbackground-ae8ec1cf1d3539574dc82e8925f79a95/",
-    color: "white",
+    link: "https://my.spline.design/abstractgradientbackground-ae8ec1cf1d3539574dc82e8925f79a95",
+    color: "black",
   });
   const [signInMethod, setSignInMethod] = useState<
     "new-user" | "existing-user"
@@ -229,7 +232,7 @@ export default () => {
     console.log(index);
   };
   useEffect(() => {
-    RunBGFunc();
+    // RunBGFunc();
   }, []);
   return (
     <Stack
@@ -246,7 +249,7 @@ export default () => {
           "linear-gradient(227deg, #fffedb 0%, hsl(283, 100%, 88%) 100%)",
       }}
     >
-      <Box position={"absolute"} bottom={10} left={10} zIndex={5}>
+      {/* <Box position={"absolute"} bottom={10} left={10} zIndex={5}>
         <Fab
           onClick={() => {
             RunBGFunc();
@@ -256,7 +259,7 @@ export default () => {
         >
           <RefreshIcon />
         </Fab>
-      </Box>
+      </Box> */}
       <Box position={"absolute"} top={0} left={0} right={0} bottom={0}>
         <iframe
           style={{ border: 0 }}

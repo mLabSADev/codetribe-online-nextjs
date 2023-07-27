@@ -1,4 +1,5 @@
 import React, { useEffect, useState } from "react";
+import "react-lazy-load-image-component/src/effects/blur.css";
 import { Card, Col, Row, Space, Button } from "antd";
 import { CodeOutlined } from "@ant-design/icons";
 import Course from "../dtos/course";
@@ -6,6 +7,7 @@ import { useRouter } from "next/navigation";
 import Image from "next/image";
 import { CoursesService } from "../services/courses-service";
 import { Chip, Stack } from "@mui/material";
+import { LazyLoadImage } from "react-lazy-load-image-component";
 const { Meta } = Card;
 
 const CourseCard = ({ course }: { course: Course }) => {
@@ -23,14 +25,10 @@ const CourseCard = ({ course }: { course: Course }) => {
         hoverable
         style={{ width: 400, borderRadius: 20, overflow: "hidden" }}
         cover={
-          <img
-            onLoad={() => {
-              setLoadFinished(true);
-              console.log("load finished");
-            }}
+          <LazyLoadImage
             alt={course.title}
             src={course.imageUrl}
-            // width={600}
+            height={200}
           />
         }
         actions={[

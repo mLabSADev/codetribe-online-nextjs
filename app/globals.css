@@ -1,10 +1,39 @@
 @import "~antd/dist/antd.css";
-font-family: 'Inter Variable', sans-serif;
+font-family: "Inter Variable", sans-serif;
 /* width */
 ::-webkit-scrollbar {
   width: 10px;
 }
+.progressScroll {
+  width: 100%;
+  height: 200px;
+}
+.swiper {
+  width: 100%;
+  height: 100%;
+}
 
+.swiper-slide {
+  text-align: center;
+  font-size: 18px;
+
+  /* Center slide text vertically */
+  display: flex;
+  justify-content: center;
+  align-items: center;
+}
+
+.swiper-slide img {
+  display: block;
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+}
+
+.progressSlide {
+  width: 100%;
+  height: 100%;
+}
 /* Track */
 ::-webkit-scrollbar-track {
   background: #f1f1f1;
@@ -19,6 +48,9 @@ font-family: 'Inter Variable', sans-serif;
 /* Handle on hover */
 ::-webkit-scrollbar-thumb:hover {
   background: #82c803;
+}
+.spline-watermark {
+  opacity: 0 !important;
 }
 /* @font-face {
   font-family: 'K2D';
@@ -35,6 +67,14 @@ font-family: 'Inter Variable', sans-serif;
   font-display: swap;
   src: url(/fonts/k2d/K2D-BoldItalic.ttf) format('ttf');
 } */
+.rdw-editor-toolbar {
+  /* background: white;
+  top: 154px;
+  left: 210px;
+  z-index: 640;
+  width: 870px;
+  position: fixed; */
+}
 
 @font-face {
   font-family: "K2D";

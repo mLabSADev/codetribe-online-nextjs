@@ -49,42 +49,105 @@ import { AuthService } from "@/app/services/auth-service";
 import { CoursesService } from "@/app/services/courses-service";
 import Course from "@/app/dtos/course";
 import { Styles } from "@/app/services/styles";
+import { StudentsService } from "@/app/services/students-service";
 const { Column, ColumnGroup } = Table;
 const { Meta } = Card;
 // Dummy Data
 const COURSES = ["nodejs", "ionic", "angular", "react", "react-native"];
-const SUBMISSION = [
-  {
-    course: "react",
-    group: "soweto",
-    period: "June - Nov, 2023",
-    submissions: [
-      {
-        student: "Jane Doe",
-        projectLink: "https://www.gihutb.com/janedoe/todoapp",
-      },
-    ],
-  },
-];
+const AssessmentCard = (props: any) => {
+  const [totalSubmittedStudents, setTotalSubmittedStudents] = React.useState(0);
+  const [totalStudents, setTotalStudents] = React.useState(0);
+  const {
+    title,
+    subtitle,
+    submitted,
+    course,
+    chapter,
+    onMoreClick,
+    onSubmissionsClick,
+    onEditClick,
+    onDeleteConfirmClick,
+  } = props;
+  Assessment.getAllSubmissionsByChapter({
+    course: course.key,
+    chapter: chapter,
+  })
+    .then((res) => {
+      if (res) {
+        setTotalSubmittedStudents(Object.keys(res).length);
+      }
+      StudentsService.students().then((res) => {
+        setTotalStudents(res.students.length);
+      });
+    })
+    .catch((err) => {
+      console.log(err);
+    });
+  return (
+    <Card
+      hoverable
+      style={{ width: 400 }}
+      actions={[
+        // Edit
+        <Button
+          onClick={onEditClick}
+          style={{ width: "100%" }}
+          type="text"
+          htmlType="button"
+        >
+          <EditOutlined key="edit" />
+        </Button>,
+        // Delete
+        <Popconfirm
+          title="Delete Assessment"
+          okText="Continue"
+          cancelText="Cancel"
+          onConfirm={onDeleteConfirmClick}
+        >
+          <Button type="text" danger>
+            <DeleteOutlined />
+          </Button>
+        </Popconfirm>,
+      ]}
+    >
+      {/* Card content */}
+      <Meta title={subtitle} />
+      <Stack pt={1} spacing={2}>
+        <Typography color={"GrayText"} variant="subtitle2">
+          {title}
+        </Typography>
+        <Button
+          size="small"
+          type="link"
+          style={{ alignSelf: "flex-start" }}
+          onClick={onMoreClick}
+        >
+          more
+        </Button>
+        <Divider />
+        <Stack direction={"row"} alignItems={"center"} spacing={1}>
+          <Stack flex={1}>
+            <Statistic
+              title="Students Submitted"
+              value={totalSubmittedStudents}
+              suffix={`/ ${totalStudents}`}
+            />
+          </Stack>
+          {/* Submissions */}
+          <Button
+            style={Styles.Button.Filled}
+            type="primary"
+            onClick={onSubmissionsClick}
+          >
+            Submissions
+          </Button>
+        </Stack>
 
-const items = [
-  {
-    key: "1",
-    label: `Thembisa`,
-  },
-  {
-    key: "2",
-    label: `Soweto`,
-  },
-];
-const submissions = [
-  {
-    course: "",
-    lesson: "",
-    location: "Thembisa",
-    subs: [],
-  },
-];
+        {/* View Details */}
+      </Stack>
+    </Card>
+  );
+};
 // End Dummy data
 function Assessments() {
   const [openModal, setOpenModal] = React.useState(false);
@@ -94,7 +157,7 @@ function Assessments() {
   const [assessmentUpdateId, setAssessmentUpdateId] = React.useState("");
   const [assessments, setAssessments] = React.useState([]);
   const [courseLessons, setCourseLessons] = React.useState([]); // Options for Cascader
-  const [adminLocations, setAdminLocations] = React.useState([]);
+  const [adminLocations, setAdminLocations] = React.useState<any>([]);
   const [showSubs, setShowSubs] = React.useState({
     show: false,
     course: {},
@@ -106,6 +169,7 @@ function Assessments() {
     chapter: "",
   });
   const [totalStudents, setTotalStudents] = React.useState(0);
+  const [totalArray, setTotalArray] = React.useState([]);
   const [updateEditorState, setUpdateEditorState] = React.useState(
     EditorState.createEmpty()
   );
@@ -118,6 +182,7 @@ function Assessments() {
     title: "",
     course: {},
   });
+  const [studentsSubmitted, setStudentsSubmitted] = React.useState([]);
   const [form] = Form.useForm();
   const [alert, setAlert] = React.useState({
     show: false,
@@ -128,13 +193,13 @@ function Assessments() {
     setOpenModal(true);
   };
   // Generates options for Cascader
-  const onCourseChange = (course) => {
+  const onCourseChange = (course: string) => {
     let structure = {
       value: "",
       label: "",
       children: [],
     };
-    const lessons = [];
+    let lessons: Array<{}> = [];
     console.log({ course });
 
     // Course
@@ -179,13 +244,13 @@ function Assessments() {
   // End Form modal
 
   const getAssessments = () => {
-    Assessment.getAll().then((res) => {
+    Assessment.getAll().then((res: any) => {
       if (res) {
         setAssessments(res);
       }
     });
   };
-  const getStudentsByLocation = (location) => {
+  const getStudentsByLocation = (location: any) => {
     let number = 0;
     AuthService.getUserByLocation(location).then((res) => {
       for (const [key, value] of Object.entries(res)) {
@@ -194,8 +259,9 @@ function Assessments() {
       setTotalStudents(number);
     });
   };
+
   // Handles form submit
-  const onFinish = async (values) => {
+  const onFinish = async (values: any) => {
     console.log("Success:", values);
     let name = await AuthService.currentUser().then((res) => res.firstname);
     if (updating) {
@@ -213,7 +279,7 @@ function Assessments() {
     } else {
       Assessment.add({ ...values, createdby: name })
         .then(async (res) => {
-          setAlert({ message: "Assessment Added", show: true });
+          setAlert({ message: "Assessment Added", show: true, severity: "" });
           setOpenModal(false);
           setUpdating(false);
           form.resetFields();
@@ -226,37 +292,39 @@ function Assessments() {
   };
 
   // Handles form submit error
-  const onFinishFailed = (errorInfo) => {
+  const onFinishFailed = (errorInfo: any) => {
     // TODO: give a more detailed error
-    setAlert({ message: "An error occured", show: true });
+    setAlert({ message: "An error occured", show: true, severity: "" });
   };
 
-  const onCascaderChange = (value) => {
+  const onCascaderChange = (value: any) => {
     form.setFieldValue("lesson", value);
   };
-  const onTabsChange = (data) => {
+  const onTabsChange = (data: any) => {
     let location = adminLocations[data - 1].label;
     setTotalStudents(0);
     getStudentsByLocation(location);
     getSubmissions(location);
   };
-  const getSubmissions = (data) => {
+  const getSubmissions = (data: any) => {
     setSubmissions([]);
     Assessment.getAllSubmissionsByLocation({
       course: courseInfo.course,
       chapter: courseInfo.chapter,
       location: data,
     })
-      .then((res) => {
+      .then((res: any) => {
         Object.keys(res).map((item) => {
-          submissions.push({ ...res[item], key: item });
-          setSubmissions(submissions);
+          const d:never = { ...res[item], key: item };
+          submissions.push(d);
+          setSubmissions([...submissions]);
         });
       })
       .catch((err) => {
         console.log(err);
       });
   };
+
   useEffect(() => {
     getAssessments();
     const students = [];
@@ -265,6 +333,8 @@ function Assessments() {
       students: [],
       total: 0,
     };
+    // get Total sudents
+
     // Get current Admin
     AuthService.currentUser()
       .then((res) => {
@@ -272,7 +342,7 @@ function Assessments() {
         // Loop over locations
         console.log(res);
 
-        res.groups.forEach((element, i) => {
+        res.groups.forEach((element: any, i: number) => {
           adminLocations.push({ key: i + 1, label: element });
           setAdminLocations(adminLocations);
           getStudentsByLocation(element);
@@ -280,7 +350,7 @@ function Assessments() {
           setTimeout(() => {
             console.log(courseInfo);
 
-            getSubmissions(res.groups[0], adminLocations);
+            getSubmissions(res.groups[0]);
           }, 1000);
         });
       })
@@ -295,6 +365,7 @@ function Assessments() {
         title={updating ? "Update Assessment" : "New Assessment"}
         // style={{ width: "80%" }}
         open={openModal}
+        bodyStyle={{ maxHeight: "calc(100vh - 200px)", overflowY: "auto" }}
         footer={false}
         okButtonProps={{ disabled: true }}
         onOk={handleOk}
@@ -361,6 +432,7 @@ function Assessments() {
               <Editor
                 name="content"
                 editorState={updateEditorState}
+                onEditorStateChange={setUpdateEditorState}
                 readOnly={false}
                 style={{ ...Styles.Input, overflow: "hidden" }}
                 toolbar={{
@@ -441,7 +513,7 @@ function Assessments() {
       {/* Details Modal */}
       <Modal
         title={"Assessment Content"}
-        style={{ width: "80%" }}
+        bodyStyle={{ maxHeight: "calc(100vh - 200px)", overflowY: "auto" }}
         open={assessmentDetails.show}
         footer={false}
         // okButtonProps={{ disabled: true }}
@@ -512,7 +584,7 @@ function Assessments() {
             // footer={<div>Footer</div>}
             bordered
             dataSource={submissions}
-            renderItem={(item) => (
+            renderItem={(item: any) => (
               <List.Item>
                 <Stack flex={1} spacing={2}>
                   <Stack direction={"row"} alignItems={"center"} flex={1}>
@@ -561,7 +633,7 @@ function Assessments() {
         <Button
           style={Styles.Button.Outline}
           onClick={() => {
-            showModal(true);
+            showModal();
             setUpdating(false);
             form.resetFields();
           }}
@@ -581,7 +653,7 @@ function Assessments() {
             style={Styles.Button.Filled}
             type="primary"
             onClick={() => {
-              showModal(true);
+              showModal();
               setUpdating(false);
               form.resetFields();
             }}
@@ -598,11 +670,11 @@ function Assessments() {
           style={{ borderRadius: 15, overflow: "hidden" }}
           defaultActiveKey={["0"]}
         >
-          {assessments.map((course, i) => {
+          {assessments.map((course: any, i) => {
             console.log(course);
 
             let list = []; // Compensating for the "-NXQR23Owma8MCvBYNm0" keys...
-            let keys = []; // store keys for delete & update
+            let keys: any = []; // store keys for delete & update
             for (const [key, value] of Object.entries(course)) {
               keys.push(key);
               if (key !== "key") {
@@ -651,135 +723,77 @@ function Assessments() {
 
                   {/* Assessment Cards */}
                   <Stack gap={1} direction={"row"} flexWrap={"wrap"}>
-                    {list.map((item, i) => {
+                    {list.map((item: any, i) => {
+                      // const [subtotals, setSubtotals] = React.useState(0);
+
                       return (
-                        <Card
-                          hoverable
+                        <AssessmentCard
                           key={i}
-                          style={{ width: 400 }}
-                          actions={[
-                            // Edit
-                            <Button
-                              onClick={() => {
-                                setUpdating(true); //set form state
-                                form.setFieldValue("course", course.key);
-                                form.setFieldValue("title", item.title);
-                                form.setFieldValue("lesson", item.lesson);
-                                console.log(course);
+                          course={course}
+                          chapter={item.lesson[0]}
+                          title={item.title}
+                          submitted={totalArray.length}
+                          subtitle={item.content.blocks[0].text}
+                          onSubmissionsClick={() => {
+                            console.log({
+                              course: course.key,
+                              chapter: item?.lesson[0],
+                            });
+                            setSubmissions([]);
+                            setCourseInfo({
+                              course: course.key,
+                              chapter: item?.lesson[0],
+                            });
 
-                                onCourseChange(course.key); // get options for cascader
-                                setUpdateEditorState(
-                                  EditorState.createWithContent(
-                                    convertFromRaw({
-                                      entityMap: item.content.entityMap || {},
-                                      blocks: item.content.blocks,
-                                    })
-                                  )
-                                );
-                                setAssessmentUpdateId(keys[i]);
-                                setOpenModal(true);
-                              }}
-                              style={{ width: "100%" }}
-                              type="text"
-                              htmlType="button"
-                            >
-                              <EditOutlined key="edit" />
-                            </Button>,
-                            // Delete
-                            <Popconfirm
-                              title="Delete Assessment"
-                              description="This is a permanent action that will remove this assessment from the database, continue?"
-                              okText="Continue"
-                              cancelText="Cancel"
-                              onConfirm={() => {
-                                Assessment.delete(course.key, item.lesson)
-                                  .then(() => {
-                                    setAlert({
-                                      message: "Assessment Deleted",
-                                      show: true,
-                                    });
-                                    getAssessments();
-                                  })
-                                  .catch((err) => {
-                                    console.log(err);
-                                  });
-                              }}
-                            >
-                              <Button type="text" danger>
-                                <DeleteOutlined />
-                              </Button>
-                            </Popconfirm>,
-                          ]}
-                        >
-                          {/* Card content */}
-                          <Meta title={`${item.title}`} />
-                          <Stack pt={1} spacing={2}>
-                            <Typography
-                              variant="overline"
-                              // color={item.lesson ? "black" : "red"}
-                            >
-                              {/* {item.lesson || "Please Update"} */}
-                            </Typography>
-                            <Typography color={"GrayText"} variant="subtitle2">
-                              {/* {item.content.blocks[0].text} */}
-                            </Typography>
-                            <Button
-                              size="small"
-                              type="link"
-                              style={{ alignSelf: "flex-start" }}
-                              onClick={() => {
-                                setAssessmentDetails({
-                                  data: {
-                                    entityMap: item.content.entityMap || {},
-                                    blocks: item.content.blocks,
-                                  },
+                            setShowSubs({ ...showSubs, show: true });
+                          }}
+                          onDeleteConfirmClick={() => {
+                            Assessment.delete(course.key, item.lesson)
+                              .then(() => {
+                                const a = {
+                                  message: "Assessment Deleted",
                                   show: true,
-                                  title: item.title,
-                                  course: course.key,
-                                });
-                                console.log(item.content);
-                              }}
-                            >
-                              more
-                            </Button>
-                            <Divider />
-                            <Stack
-                              direction={"row"}
-                              alignItems={"center"}
-                              spacing={1}
-                            >
-                              <Stack flex={1}>
-                                <Statistic
-                                  title="Students Submitted"
-                                  value={5}
-                                  suffix="/ 10"
-                                />
-                              </Stack>
-                              {/* Submissions */}
-                              <Button
-                                style={Styles.Button.Filled}
-                                type="primary"
-                                onClick={() => {
-                                  console.log({
-                                    course: course.key,
-                                    chapter: item?.lesson[0],
-                                  });
-                                  setSubmissions([]);
-                                  setCourseInfo({
-                                    course: course.key,
-                                    chapter: item?.lesson[0],
-                                  });
+                                  severity: "",
+                                };
+                                setAlert(a);
+                                getAssessments();
+                              })
+                              .catch((err) => {
+                                console.log(err);
+                              });
+                          }}
+                          onEditClick={() => {
+                            setUpdating(true); //set form state
+                            form.setFieldValue("course", course.key);
+                            form.setFieldValue("title", item.title);
+                            form.setFieldValue("lesson", item.lesson);
+                            console.log(course);
 
-                                  setShowSubs({ ...showSubs, show: true });
-                                }}
-                              >
-                                Submissions
-                              </Button>
-                            </Stack>
-
-                            {/* View Details */}
-                          </Stack>
-                        </Card>
+                            onCourseChange(course.key); // get options for cascader
+                            setUpdateEditorState(
+                              EditorState.createWithContent(
+                                convertFromRaw({
+                                  entityMap: item.content.entityMap || {},
+                                  blocks: item.content.blocks,
+                                })
+                              )
+                            );
+                            setAssessmentUpdateId(keys[i]);
+                            setOpenModal(true);
+                          }}
+                          onMoreClick={() => {
+                            setAssessmentDetails({
+                              data: {
+                                blocks: item.content.blocks,
+                                entityMap: item.content.entityMap || {},
+                              },
+                              show: true,
+                              title: item.title,
+                              course: course.key,
+                            });
+                            console.log(item.content);
+                          }}
+                        />
                       );
                     })}
                   </Stack>
