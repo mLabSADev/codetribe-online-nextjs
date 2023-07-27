@@ -118,7 +118,7 @@ export const DurationHelper = {
   },
 };
 
-export default ({
+const CoursePage = ({
   params,
 }: {
   params: { id: string; lessonId: string; chapterId: string };
@@ -1038,7 +1038,7 @@ description={post.frontmatter.description}
               </Stack>
               {currentLesson && currentLesson.isQuiz && (
                 <Stack spacing={4} pt={8}>
-                  <QuizView quiz={currentLesson.isQuiz} courseId={courseId} chapterId={chapterId} quizId={lessonId} />
+                  <QuizView quiz={currentLesson.quiz} courseId={courseId} chapterId={chapterId} quizId={lessonId} />
                 </Stack>
               )}
               {currentLesson && !currentLesson.isQuiz && (
@@ -1327,3 +1327,5 @@ description={post.frontmatter.description}
     )
   );
 };
+
+export default CoursePage

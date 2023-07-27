@@ -245,7 +245,7 @@ const CourseOverview = ({ params }: { params: { id: string } }) => {
                 </Button>
               </Stack>
               <Stack spacing={2} py={2} pt={5}>
-                <Typography variant="h5">What you'll learn</Typography>
+                <Typography variant="h5">What you&apos;ll learn</Typography>
                 <div
                   style={{
                     overflow: "hidden",

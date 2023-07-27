@@ -18,10 +18,10 @@ const CourseCard = ({ course }: { course: Course }) => {
     router.push(`/overview/${course.key}`);
   };
 
-  const share = () => {};
   if (course.title) {
     return (
       <Card
+        
         hoverable
         style={{ width: 400, borderRadius: 20, overflow: "hidden" }}
         cover={
@@ -33,6 +33,7 @@ const CourseCard = ({ course }: { course: Course }) => {
         }
         actions={[
           <Button
+            key={`view-course ${course.title}`}
             style={{ borderRadius: 20 }}
             type="primary"
             size="large"

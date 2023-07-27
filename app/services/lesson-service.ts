@@ -89,12 +89,12 @@ export const LessonService = {
       }
     });
   },
-  getQuizResults: (lessonId: string, chapter: number) => {
+  getQuizResults: (courseId: string, chapterId: string, quizId: string) => {
     return AuthService.isLoggedIn().then((user: any) => {
       if (user) {
         return firebase
           .database()
-          .ref(`quizes/${user.uid}/${lessonId}/${chapter}`)
+          .ref(`quizResponses/${user.uid}/${courseId}/${chapterId}/${quizId}`)
           .once("value")
           .then((snapshot) => {
             return snapshot.val();

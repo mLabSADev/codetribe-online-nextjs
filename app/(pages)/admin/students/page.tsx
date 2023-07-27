@@ -200,13 +200,13 @@ const StudentInfo = ({ student }: { student: Student }) => {
 
   return (
     <div>
-      <h3>{student.firstname}'s Progress</h3>
+      <h3>{student.firstname}&apos;s Progress</h3> <Button style={{marginBottom: 10}}>View Submitted Quizes</Button>
       <Stack direction={"row"} spacing={2}>
         {progressList.map((progress: any) => {
           return (
             <Progress
               type="circle"
-              size={60}
+              size={'default'}
               percent={progress.progress}
               format={(percent) => (
                 <Stack spacing={-1}>

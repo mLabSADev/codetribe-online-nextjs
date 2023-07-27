@@ -90,6 +90,7 @@ const AssessmentCard = (props: any) => {
       actions={[
         // Edit
         <Button
+          key='edit-click'
           onClick={onEditClick}
           style={{ width: "100%" }}
           type="text"
@@ -99,6 +100,7 @@ const AssessmentCard = (props: any) => {
         </Button>,
         // Delete
         <Popconfirm
+          key='delete-assessment'
           title="Delete Assessment"
           okText="Continue"
           cancelText="Cancel"
@@ -393,7 +395,7 @@ function Assessments() {
               allowClear
             >
               {COURSES.map((item) => (
-                <Select.Option value={item}>{item.toUpperCase()}</Select.Option>
+                <Select.Option key={`item ${item}`} value={item}>{item.toUpperCase()}</Select.Option>
               ))}
             </Select>
           </Form.Item>

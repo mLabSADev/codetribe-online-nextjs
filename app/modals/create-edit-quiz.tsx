@@ -135,6 +135,7 @@ const CreateEditQuiz = ({
                       {question.answers.map((answer, answerIndex) => {
                         return (
                           <Stack
+                            key={`answer-${answerIndex}`}
                             style={{
                               padding: 10,
                               display: "flex",

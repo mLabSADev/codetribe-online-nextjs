@@ -1,6 +1,7 @@
 import Quiz from "react-quiz-component";
 import { Box } from "@mui/material";
 import { LessonService } from "../services/lesson-service";
+import { useEffect, useState } from "react";
 
 const QuizView = ({
   quiz,
@@ -13,7 +14,7 @@ const QuizView = ({
   chapterId: string;
   quizId: string;
 }) => {
-  console.log(quiz);
+  const [quizResults, setQuizResults] = useState()
 
   const onComplete = (data: any) => {
     LessonService.saveQuiz(courseId, chapterId, quizId, data).then(() => {
@@ -21,7 +22,19 @@ const QuizView = ({
     });
   };
 
-  return (
+  useEffect(() => {
+    LessonService.getQuizResults(courseId, chapterId, quizId).then(data => {
+      console.log(data);
+      
+      setQuizResults(data)
+    })
+  }, [])
+
+  return quizResults ? (
+    <Box>
+      You have already completed the quiz
+    </Box>
+  ) : (
     <Box px={4}>
       <Quiz
         shuffle={true}

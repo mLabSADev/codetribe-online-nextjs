@@ -166,6 +166,7 @@ const Lessons = ({ course, chapter }: { course: Course; chapter: Chapter }) => {
         onCancel={() => setLessonToRemove(undefined)}
         footer={[
           <Button
+            key='no'
             size="large"
             style={Styles.Button.Outline}
             onClick={() => {
@@ -175,6 +176,7 @@ const Lessons = ({ course, chapter }: { course: Course; chapter: Chapter }) => {
             No
           </Button>,
           <Button
+            key='yes'
             onClick={handleLessonRemove}
             size="large"
             style={Styles.Button.Outline}

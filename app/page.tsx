@@ -119,7 +119,7 @@ const ForgotPassword = ({ email, onCancel }: any) => {
   );
 };
 
-export default () => {
+const IndexPage = () => {
   const [loggingIn, setIsLoggingIn] = useState(false);
   const [errorMessage, setMessage] = useState(null);
   const [showForgotPassword, setShowForgotPassword] = useState(false);
@@ -556,3 +556,5 @@ export default () => {
     </Stack>
   );
 };
+
+export default IndexPage

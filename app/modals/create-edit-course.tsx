@@ -275,6 +275,7 @@ const CreateEditCourse = ({
                   {currentOutlines.map((outline, index) => {
                     return (
                       <Input
+                      key={`Outline ${index}`}
                         value={outline}
                         onChange={(text) => {
                           onUpdateOutline(index, text.target.value);

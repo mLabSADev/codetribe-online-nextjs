@@ -152,7 +152,7 @@ const BackendResourceData = [
   },
 ];
 // End dummy data ====
-export default () => {
+const HomePage = () => {
   const [loading, setLoading] = useState(false);
   const [isLoggedIn, setIsLoggedIn] = useState(false);
   const [courses, setCourses] = useState([]);
@@ -374,7 +374,7 @@ export default () => {
                       console.log("Progress Item >>> ", item);
 
                       return (
-                        <SwiperSlide>
+                        <SwiperSlide key={`slide-${item.chapterTitle}`}>
                           <StudentProgress
                             link={item.link}
                             locked={false}
@@ -450,3 +450,5 @@ export default () => {
     <div></div>
   );
 };
+
+export default HomePage
