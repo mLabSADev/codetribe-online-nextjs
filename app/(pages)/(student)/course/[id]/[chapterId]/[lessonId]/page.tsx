@@ -1038,7 +1038,7 @@ description={post.frontmatter.description}
               </Stack>
               {currentLesson && currentLesson.isQuiz && (
                 <Stack spacing={4} pt={8}>
-                  <QuizView quiz={currentLesson.isQuiz} />
+                  <QuizView quiz={currentLesson.isQuiz} courseId={courseId} chapterId={chapterId} quizId={lessonId} />
                 </Stack>
               )}
               {currentLesson && !currentLesson.isQuiz && (
