@@ -70,30 +70,7 @@ const AssessmentLoadingSkelleton = () => {
     </Stack>
   );
 };
-const checkSubmitted = () => {
-  let security = false;
-  if (!security) {
-    security = true;
-    return new Promise((resolve, reject) => {
-      const { origin, hostname, pathname, ancestorOrigins, href } =
-        window.location;
-      let splitter = href.split("/");
-      AuthService.isLoggedIn().then((res: any) => {
-        AuthService.currentUser().then((profile) => {
-          const item = {
-            uid: res.uid,
-            chapter: splitter[5],
-            course: splitter[4],
-            location: profile.location || profile.groups[0],
-          };
-          Assessment.getOneSubmission(item).then((res) => {
-            resolve(res);
-          });
-        });
-      });
-    });
-  }
-};
+
 export const DurationHelper = {
   secondsToText: (seconds: number) => {
     let hours = Math.floor(seconds / (60 * 60));
@@ -163,11 +140,10 @@ export default ({
   const [courseProgress, setCourseProgress] = React.useState(0);
   const [finishedLessons, setFinishedLessons] = React.useState<any[]>([]);
   const [isVideoFinished, setisVideoFinished] = React.useState(false);
-  const { origin, hostname, pathname, ancestorOrigins, href } = window.location;
+
   const handleSlide = () => {
     setSlide((prev) => !prev);
   };
-  let splitter = href.split("/");
   const isLegalPage = (lesson: Lesson) => {
     if (position) {
       let hasToMove = false;
@@ -217,6 +193,7 @@ export default ({
             lessonToMoveTo = lesson;
           }
         }
+        console.log(router);
         course!.chapters.map((chapter, i) => {
           // Keketso
           const { pathname } = window.location;
@@ -543,6 +520,9 @@ export default ({
   const onFinish = (values: any) => {
     const currentURL = window.location.href;
     let splitter = currentURL.split("/");
+    console.log(currentURL, '==', router);
+    
+    return;
     const submission = {
       location: "",
       chapter: values.chapter,
@@ -579,44 +559,7 @@ export default ({
   const onFinishFailed = (errorInfo: any) => {
     console.log("Failed:", errorInfo);
   };
-  const getSubmission = (data: any) => {
-    const { origin, hostname, pathname, ancestorOrigins, href } =
-      window.location;
-    let splitter = href.split("/");
-    const items = pathname.split("/");
-    const submission = {
-      location: data.location,
-      chapter: data.location,
-      course: splitter[4],
-      fullName: "",
-      ...data,
-    };
-    console.log(submission);
 
-    // AuthService.isLoggedIn().then((res) => {
-    //   AuthService.getUser(res.uid).then((user) => {
-    //     // assessmens/submissions/${items[2]}/${splitter[5]}/${user.location || user.groups[0]}/${res.uid}
-    //     const values: AssessmentSubmission = {
-    //       course: "",
-    //       chapter: "",
-    //       fullName: "",
-    //       github: "",
-    //       location: "",
-    //       submitted: "",
-    //       uid: "",
-    //     };
-
-    //     console.log(
-    //       `Get submissions from "assessmens/submissions/${items[2]}/${
-    //         splitter[5]
-    //       }/${user.location || user.groups[0]}/${res.uid}"`,
-    //       {
-    //         user,
-    //       }
-    //     );
-    //   });
-    // });
-  };
   /**
    * Get's assessments & submissions per lesson
    * @param data  course: 'React', chapter: 'Lesson One'
@@ -1243,11 +1186,6 @@ description={post.frontmatter.description}
                                     }}
                                   >
                                     {lesson.title}
-                                    {/* (
-                  {DurationHelper.timeFormatToText(
-                    lesson.frontmatter.duration
-                  )}
-                  ) */}
                                   </Link>
                                 </Stack>
 
@@ -1263,34 +1201,7 @@ description={post.frontmatter.description}
                             </Timeline.Item>
                           );
                         })}
-                      {/* <Stack
-                        borderRadius={4}
-                        p={2}
-                        bgcolor={Colors.Primary}
-                        color={"white"}
-                        spacing={2}
-                      >
-                        <Typography color={"white"} variant="h5">
-                          Quiz Test
-                        </Typography>
-                        <Typography>Pass test to open next section</Typography>
-                        <Button
-                          style={Styles.Button.Filled}
-                          type="ghost"
-                          icon={<RightOutlined />}
-                          size={"large"}
-                          onClick={() => {
-                            setQuizModal(true);
-                          }}
-                        >
-                          Begin Quiz
-                        </Button>
-                      </Stack> */}
                     </Timeline>
-                    {/* Student assessment submission */}
-                    {/* {checkSubmitted().then((res) => {
-          return <Typography>Graeae</Typography>;
-        })} */}
                   </Collapse.Panel>
                 );
               })}

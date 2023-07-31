@@ -11,7 +11,8 @@ import { Styles } from "@/app/services/styles";
 import { ArrowDownOutlined, ArrowUpOutlined } from "@ant-design/icons";
 import { Button, Col, Modal, Row, Space, Spin, Table } from "antd";
 import React, { useEffect, useState } from "react";
-
+import { useRouter } from "next/router";
+const router = useRouter();
 const Lessons = ({ course, chapter }: { course: Course; chapter: Chapter }) => {
   const [showCreateEditLesson, setShowCreateEditLesson] = useState<{
     show: boolean;
@@ -51,8 +52,7 @@ const Lessons = ({ course, chapter }: { course: Course; chapter: Chapter }) => {
   const handleLessonRemove = () => {
     setRemoving(true);
 
-    CoursesService.removeLesson(course.key, chapter, lessonToRemove!)
-      .then(() => {
+    CoursesService.removeLesson(course.key, chapter, lessonToRemove!).then(() => {
         const lessonsToKeep = [];
 
         for (let i = 0; i < lessons.length; i++) {
@@ -71,13 +71,15 @@ const Lessons = ({ course, chapter }: { course: Course; chapter: Chapter }) => {
 
   const onMoveUp = (lesson: Lesson) => {
     CoursesService.moveLessonUp(course.key, chapter, lesson).then(() => {
-      window.location.reload();
+      // window.location.reload();
+      router.reload();
     });
   };
 
   const onMoveDown = (lesson: Lesson) => {
     CoursesService.moveLessonDown(course.key, chapter, lesson).then(() => {
-      window.location.reload();
+      // window.location.reload();
+      router.reload();
     });
   };
 

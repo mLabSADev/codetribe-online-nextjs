@@ -1,4 +1,4 @@
-import { Stack, Typography, Button } from "@mui/material";
+import { Stack, Typography, Button, Box } from "@mui/material";
 import { Col, Progress } from "antd";
 import React from "react";
 
@@ -49,19 +49,24 @@ function StudentProgress({
         alignItems={"center"}
       >
         {/* Needs refresh to apply TODO: will try to use mui Box */}
-        {window.screen.width < 500 ? (
-          <Progress
-            strokeColor={{ "0%": "#87d068", "100%": "#87d068" }}
-            percent={progress}
-            // width={"100%"}
-          />
-        ) : (
+        <Box
+          sx={{ display: { xs: "none", sm: "none", md: "block", lg: "block" } }}
+        >
           <Progress
             type="dashboard"
             strokeColor={{ "0%": "#87d068", "100%": "#87d068" }}
             percent={progress}
           />
-        )}
+        </Box>
+        <Box
+          sx={{ display: { xs: "block", sm: "block", md: "none", lg: "none" } }}
+        >
+          <Progress
+            strokeColor={{ "0%": "#87d068", "100%": "#87d068" }}
+            percent={progress}
+            // width={"100%"}
+          />
+        </Box>
       </Stack>
       <Stack spacing={2}>
         <Stack>

@@ -10,6 +10,7 @@ import Link from "next/link";
 // }
 
 const getWindowDimensions = () => {
+  // not sure how to replace these vars without losing window
   const { innerWidth: width, innerHeight: height } = window;
 
   return {
@@ -41,6 +42,7 @@ const Header = ({ active }: { active: string }) => {
   };
 
   useEffect(() => {
+    // not sure how to replace this without losing window
     window.addEventListener("resize", resizeListener);
     setDimensions(getWindowDimensions());
 
