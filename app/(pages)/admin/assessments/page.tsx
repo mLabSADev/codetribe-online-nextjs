@@ -199,7 +199,7 @@ function Assessments() {
       label: "",
       children: [],
     };
-    let lessons: Array<{}> = [];
+    var lessons: Array<{}> = [];
     console.log({ course });
 
     // Course

@@ -18,7 +18,7 @@ import Link from "next/link";
 import { useRouter } from "next/navigation";
 import { Styles } from "../services/styles";
 import { Stack, Avatar, Typography, Box } from "@mui/material";
-
+import { usePathname } from "next/navigation";
 interface IMenuButton {
   children?: any;
   to?: string;
@@ -101,25 +101,25 @@ const MenuButton = ({
 const Drawer = ({ active }: { active: string }) => {
   const image = "/images/icon.png";
   const [profile, setProfile] = useState<any>();
+
   const [showEditProfile, setShowEditProfile] = useState(false);
   const [savingPassword, setSavingPassword] = useState(false);
   const [activeNav, setActiveNav] = useState("browse");
   const [onCancel, setOnCancel] = useState(false);
   const [confirmLogout, setConfirmLogout] = useState(false);
   const router = useRouter();
-
+  const pathname = usePathname();
   // Navigation Links
 
   useEffect(() => {
-    const { href } = location;
-    const splitter = href.split("/");
-
-    if (splitter.length == 4) {
-      setActiveNav(splitter[3]);
-    } else if (splitter.length == 5) {
-      setActiveNav(splitter[4]);
+    const nextSplit = pathname.split("/");
+    if (nextSplit.length == 2) {
+      setActiveNav(nextSplit[1]);
+    } else if (nextSplit.length == 3) {
+      setActiveNav(nextSplit[2]);
+    } else if (nextSplit.length >= 5) {
+      setActiveNav(nextSplit[2]);
     }
-
     ProfileService.observerProfile((profile: any) => {
       setProfile(profile);
     });
