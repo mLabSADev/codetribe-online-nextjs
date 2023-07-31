@@ -49,7 +49,7 @@ import { LessonService } from "@/app/services/lesson-service";
 import { CoursesService } from "@/app/services/courses-service";
 import Link from "next/link";
 import Quiz from "@/app/components/quiz";
-import { useRouter } from "next/navigation";
+import { useRouter, usePathname } from "next/navigation";
 import { Position } from "@/app/(pages)/(student)/overview/[id]/page";
 import { Editor } from "react-draft-wysiwyg";
 import { EditorState, convertFromRaw } from "draft-js";
@@ -140,7 +140,7 @@ export default ({
   const [courseProgress, setCourseProgress] = React.useState(0);
   const [finishedLessons, setFinishedLessons] = React.useState<any[]>([]);
   const [isVideoFinished, setisVideoFinished] = React.useState(false);
-
+  const nextPathname = usePathname();
   const handleSlide = () => {
     setSlide((prev) => !prev);
   };
@@ -193,13 +193,15 @@ export default ({
             lessonToMoveTo = lesson;
           }
         }
-        console.log(router);
+
         course!.chapters.map((chapter, i) => {
           // Keketso
-          const { pathname } = window.location;
-          const c = pathname.split("/")[2];
+          const np = nextPathname.split("/")[2];
 
-          RunAssessmentFunc({ course: c, chapter: chapter.title });
+          RunAssessmentFunc({
+            course: course.key || np,
+            chapter: chapter.title,
+          });
 
           // check if chapter has an assessment
         });
@@ -518,15 +520,11 @@ export default ({
 
   const progress = Math.round((totalDurationUntilCurrentLesson / total) * 100);
   const onFinish = (values: any) => {
-    const currentURL = window.location.href;
-    let splitter = currentURL.split("/");
-    console.log(currentURL, '==', router);
-    
-    return;
+    const splitter = nextPathname.split("/");
     const submission = {
       location: "",
       chapter: values.chapter,
-      course: splitter[4],
+      course: splitter[2],
       fullName: "",
       submitted: new Date().toISOString(),
       ...values,
@@ -968,7 +966,6 @@ description={post.frontmatter.description}
                     overflow={"hidden"}
                   >
                     <YouTube
-                    key={videoId}
                       videoId={videoId}
                       onStateChange={(e: any) =>
                         checkTime(
