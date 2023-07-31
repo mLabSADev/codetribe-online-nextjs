@@ -315,7 +315,7 @@ function Assessments() {
     })
       .then((res: any) => {
         Object.keys(res).map((item) => {
-          const d:never = { ...res[item], key: item };
+          const d: never = { ...res[item], key: item };
           submissions.push(d);
           setSubmissions([...submissions]);
         });

@@ -5,10 +5,6 @@ import { MenuOutlined } from "@ant-design/icons";
 import { useRouter } from "next/navigation";
 import Link from "next/link";
 
-// if (typeof window === 'undefined') {
-//     global.window = {}
-// }
-
 const getWindowDimensions = () => {
   // not sure how to replace these vars without losing window
   const { innerWidth: width, innerHeight: height } = window;
@@ -43,11 +39,11 @@ const Header = ({ active }: { active: string }) => {
 
   useEffect(() => {
     // not sure how to replace this without losing window
-    window.addEventListener("resize", resizeListener);
+    // window.addEventListener("resize", resizeListener);
     setDimensions(getWindowDimensions());
 
     return () => {
-      window.removeEventListener("resize", resizeListener);
+      // window.removeEventListener("resize", resizeListener);
     };
   }, []);
 
