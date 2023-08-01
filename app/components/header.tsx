@@ -8,8 +8,9 @@ import Image from "next/image";
 
 const getWindowDimensions = () => {
   // not sure how to replace these vars without losing window
-  const { innerWidth: width, innerHeight: height } = window;
-
+  // const { innerWidth: width, innerHeight: height } = window;
+  const width = 50;
+  const height = 50;
   return {
     width,
     height,

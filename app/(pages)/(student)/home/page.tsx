@@ -18,7 +18,7 @@ import { CoursesService } from "@/app/services/courses-service";
 import { Swiper, SwiperSlide } from "swiper/react";
 import { Navigation, Pagination, Mousewheel, Keyboard } from "swiper/modules";
 
-export function stringToColor(string: string) {
+function stringToColor(string: string) {
   let hash = 0;
   let i;
 
@@ -38,7 +38,7 @@ export function stringToColor(string: string) {
   return color;
 }
 
-export function stringAvatar(name: string) {
+function stringAvatar(name: string) {
   return {
     sx: {
       bgcolor: stringToColor(name),
@@ -155,7 +155,7 @@ const BackendResourceData = [
 const Home = () => {
   const [loading, setLoading] = useState(false);
   const [isLoggedIn, setIsLoggedIn] = useState(false);
-  const [courses, setCourses] = useState([]);
+  const [courses, setCourses] = useState<any>([]);
   const [progressList, setProgressList] = useState<any>([]);
   const router = useRouter();
 

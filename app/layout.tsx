@@ -7,7 +7,7 @@ import firebase from "firebase";
 import { ConfigProvider } from "antd";
 import { Colors, Styles } from "./services/styles";
 import { ThemeProvider, createTheme } from "@mui/material";
-import '@fontsource-variable/inter';
+import "@fontsource-variable/inter";
 const inter = Inter({ subsets: ["latin"] });
 
 // export const metadata = {
@@ -118,12 +118,12 @@ export default function RootLayout({
       })}
       <ThemeProvider theme={MUItheme}>
         <ConfigProvider
-          theme={{
-            token: {
-              colorPrimary: Colors.Primary,
-              borderRadius: 30,
-            },
-          }}
+        // theme={{ //a problem during building
+        //   token: {
+        //     colorPrimary: Colors.Primary,
+        //     borderRadius: 30,
+        //   },
+        // }}
         >
           <body className={inter.className}>{children}</body>
         </ConfigProvider>

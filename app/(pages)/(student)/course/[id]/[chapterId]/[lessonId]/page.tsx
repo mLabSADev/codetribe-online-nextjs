@@ -6,7 +6,6 @@ import React from "react";
 // import SEO from "../components/seo"
 import CheckBoxOutlineBlankIcon from "@mui/icons-material/CheckBoxOutlineBlank";
 import CheckBoxIcon from "@mui/icons-material/CheckBox";
-import ArrowBackRoundedIcon from "@mui/icons-material/ArrowBackRounded";
 import {
   Button,
   Col,
@@ -48,7 +47,6 @@ import Lesson from "@/app/dtos/lesson";
 import { LessonService } from "@/app/services/lesson-service";
 import { CoursesService } from "@/app/services/courses-service";
 import Link from "next/link";
-import Quiz from "@/app/components/quiz";
 import { useRouter, usePathname } from "next/navigation";
 import { Position } from "@/app/(pages)/(student)/overview/[id]/page";
 import { Editor } from "react-draft-wysiwyg";
@@ -56,11 +54,9 @@ import { EditorState, convertFromRaw } from "draft-js";
 import { AuthService } from "@/app/services/auth-service";
 import { Assessment } from "@/app/services/assessments-service";
 import CloseIcon from "@mui/icons-material/Close";
-import AssessmentSubmission from "@/app/dtos/assessment-submission";
 import AssessmentIcon from "@mui/icons-material/Assessment";
 import { Colors, Styles } from "@/app/services/styles";
 import YouTube from "react-youtube";
-import LessonProgress from "@/app/dtos/lesson-progress";
 import QuizView from "@/app/components/quiz";
 const AssessmentLoadingSkelleton = () => {
   return (
@@ -119,7 +115,7 @@ const LessonId = ({
   const [course, setCourse] = useState<Course>();
   const [submitChapter, setSubmitChapter] = useState("");
   const [currentLesson, setLesson] = useState<Lesson>();
-  const [assessmentDetails, setAssessmentDetails] = useState({
+  const [assessmentDetails, setAssessmentDetails] = useState<any>({
     show: false,
     details: null,
     header: null,
@@ -144,32 +140,8 @@ const LessonId = ({
   const handleSlide = () => {
     setSlide((prev) => !prev);
   };
-  const isLegalPage = (lesson: Lesson) => {
-    if (position) {
-      let hasToMove = false;
-      if (
-        lesson.chapter == position.chapter &&
-        lesson.lesson > position.lesson
-      ) {
-        hasToMove = true;
-      } else if (lesson.chapter > position.chapter) {
-        hasToMove = true;
-      }
-      return !hasToMove;
-    }
-
-    return false;
-  };
 
   useEffect(() => {
-    // const parts = mainSlug.split('/')
-    // const finalParts = []
-    // for (let part of parts) {
-    //     if (part.trim().length !== 0) {
-    //         finalParts.push(part)
-    //     }
-    // }
-
     LessonService.currentLessonPosition(courseId).then((position) => {
       CoursesService.course(courseId).then((course: Course) => {
         const lessons: Lesson[] = [];
@@ -193,88 +165,16 @@ const LessonId = ({
             lessonToMoveTo = lesson;
           }
         }
-
         course!.chapters.map((chapter, i) => {
-          // Keketso
           const np = nextPathname.split("/")[2];
-
           RunAssessmentFunc({
             course: course.key || np,
             chapter: chapter.title,
           });
-
-          // check if chapter has an assessment
         });
       });
       setPosition(position);
     });
-    //   if (
-    //     currentChapter == position.chapter &&
-    //     currentLesson > position.lesson
-    //   ) {
-    //     hasToMove = true
-    //   } else if (currentChapter > position.chapter) {
-    //     hasToMove = true
-    //   }
-
-    //   let durationCount = 0
-    //   let totalCount = 0
-    //   for (let lesson of lessons) {
-    //     const [min, sec] = lesson.frontmatter.duration.split(":")
-
-    //     totalCount += parseInt(min) * 60 + parseInt(sec)
-
-    //     if (lesson.frontmatter.chapter < position.chapter) {
-    //       // setTotalDurationUntilCurrentLesson(totalDurationUntilCurrentLesson + (parseInt(min) * 60) + parseInt(sec))
-    //       durationCount += parseInt(min) * 60 + parseInt(sec)
-    //     } else if (
-    //       lesson.frontmatter.chapter == position.chapter &&
-    //       lesson.frontmatter.lesson < position.lesson
-    //     ) {
-    //       // setTotalDurationUntilCurrentLesson(totalDurationUntilCurrentLesson + (parseInt(min) * 60) + parseInt(sec))
-    //       durationCount += parseInt(min) * 60 + parseInt(sec)
-    //     }
-    //   }
-    //   setTotalDurationUntilCurrentLesson(durationCount)
-    //   setTotal(totalCount)
-
-    //   if (hasToMove || (currentChapter == 0 && currentLesson == 0)) {
-    //     navigate(lessonToMoveTo.fields.slug)
-    //   }
-    // })
-    // }, [])
-
-    //   const lessons = data.allMarkdownRemark.edges
-    //     .map(edge => {
-    //       return edge.node
-    //     })
-    //     .filter(lesson => lesson.fields.tutorial === post.fields.tutorial)
-
-    // for (let lesson of lessons) {
-    //     const [min, sec] = lesson.frontmatter.duration.split(':')
-
-    //     total += (parseInt(min) * 60) + parseInt(sec)
-
-    //     // if (lesson.frontmatter.chapter < currentChapter) {
-    //     //     totalDurationUntilCurrentLesson += (parseInt(min) * 60) + parseInt(sec)
-    //     // } else if (lesson.frontmatter.chapter == currentChapter && lesson.frontmatter.lesson < currentLesson) {
-    //     //     totalDurationUntilCurrentLesson += (parseInt(min) * 60) + parseInt(sec)
-    //     // }
-    // }
-
-    // let total = 0
-
-    // for (let lesson of lessons) {
-    //     const [min, sec] = lesson.frontmatter.duration.split(':')
-
-    //     total += (parseInt(min) * 60) + parseInt(sec)
-
-    //     if (lesson.frontmatter.chapter < currentChapter) {
-    //         totalDurationUntilCurrentLesson += (parseInt(min) * 60) + parseInt(sec)
-    //     } else if (lesson.frontmatter.chapter == currentChapter && lesson.frontmatter.lesson < currentLesson) {
-    //         totalDurationUntilCurrentLesson += (parseInt(min) * 60) + parseInt(sec)
-    //     }
-    // }
   }, []);
 
   useEffect(() => {
@@ -332,9 +232,7 @@ const LessonId = ({
           }
           setFinishedLessons(array);
         })
-        .catch((err) => {
-          console.log(err);
-        });
+        .catch((err) => {});
       setCourseProgress(
         Math.round((finishedLessons.length / allLessons.length) * 100)
       );
@@ -343,73 +241,8 @@ const LessonId = ({
 
   totalDuration = DurationHelper.secondsToText(total);
   const chapters = {};
-  //   lessons.forEach(lesson => {
-  //     if (lesson.frontmatter.lesson === 0 && lesson.frontmatter.chapter === 0) {
-  //     //   title = lesson.frontmatter.title
-  //     //   mainSlug = lesson.fields.slug
-  //     } else {
-  //       if (chapters[lesson.frontmatter.chapter] === undefined) {
-  //         chapters[lesson.frontmatter.chapter] = {
-  //           lessons: [],
-  //           timeToRead: 0,
-  //         }
-  //       }
-
-  //       if (lesson.frontmatter.lesson === 0) {
-  //         chapters[lesson.frontmatter.chapter].title = lesson.frontmatter.title
-
-  //         if (lesson.frontmatter.chapter === currentChapter) {
-  //           chapters[lesson.frontmatter.chapter].current = true
-  //         } else {
-  //           chapters[lesson.frontmatter.chapter].current = false
-  //         }
-  //       } else {
-  //         if (lesson.frontmatter.chapter < currentChapter) {
-  //           lesson.completed = true
-  //         } else if (
-  //           lesson.frontmatter.chapter === currentChapter &&
-  //           lesson.frontmatter.lesson < currentLesson
-  //         ) {
-  //           lesson.completed = true
-  //         } else {
-  //           lesson.completed = false
-  //         }
-
-  //         if (
-  //           lesson.frontmatter.chapter === currentChapter &&
-  //           lesson.frontmatter.lesson === currentLesson
-  //         ) {
-  //           lesson.current = true
-  //         } else {
-  //           lesson.current = false
-  //         }
-
-  //         chapters[lesson.frontmatter.chapter].lessons[
-  //           lesson.frontmatter.lesson
-  //         ] = lesson
-  //         chapters[lesson.frontmatter.chapter].timeToRead += lesson.timeToRead
-  //       }
-  //     }
-  //   })
-
-  // const lastChapter = Object.keys(chapters).length
-  // const lastLesson = chapters[lastChapter].lessons.length - 1
-  // canGoForward =
-  //   post.frontmatter.chapter < lastChapter ||
-  //   post.frontmatter.lesson < lastLesson
 
   const goToPrev = () => {
-    // let prevLesson
-    // if (post.frontmatter.lesson === 1 && post.frontmatter.chapter === 1) {
-    //   navigate(mainSlug)
-    //   return
-    // } else if (post.frontmatter.lesson === 0) {
-    //   prevLesson = chapters[post.frontmatter.chapter - 1].lessons[1]
-    // } else {
-    //   prevLesson =
-    //     chapters[post.frontmatter.chapter].lessons[post.frontmatter.lesson - 1]
-    // }
-    // navigate(prevLesson.fields.slug)
     setCurrentIndex((prevCurrentIndex) => prevCurrentIndex - 1);
   };
   const goToNext = () => {
@@ -427,43 +260,6 @@ const LessonId = ({
     }
     setCurrentIndex((prevCurrentIndex) => prevCurrentIndex + 1);
     setisVideoFinished(false);
-    // let nextLesson
-    // if (post.frontmatter.chapter === 0) {
-    //   nextLesson = chapters[1].lessons[1]
-    // } else if (
-    //   post.frontmatter.lesson ===
-    //   chapters[post.frontmatter.chapter].lessons.length - 1
-    // ) {
-    //   nextLesson = chapters[post.frontmatter.chapter + 1].lessons[1]
-    // } else {
-    //   nextLesson =
-    //     chapters[post.frontmatter.chapter].lessons[post.frontmatter.lesson + 1]
-    // }
-    // setNextIsLoading(true)
-    // LessonService.currentLessonPosition(data.markdownRemark.fields.tutorial)
-    //   .then(position => {
-    //     let proceed = false
-    //     if (nextLesson.frontmatter.chapter > position.chapter) {
-    //       proceed = true
-    //     }
-    //     if (nextLesson.frontmatter.lesson > position.lesson) {
-    //       proceed = true
-    //     }
-    //     if (proceed) {
-    //       LessonService.setCurrentPosition(
-    //         data.markdownRemark.fields.tutorial,
-    //         nextLesson.frontmatter.chapter,
-    //         nextLesson.frontmatter.lesson
-    //       ).then(() => {
-    //         navigate(nextLesson.fields.slug)
-    //       })
-    //     } else {
-    //       navigate(nextLesson.fields.slug)
-    //     }
-    //   })
-    //   .finally(() => {
-    //     setNextIsLoading(false)
-    //   })
   };
 
   const isLessonDone = (lesson: Lesson) => {
@@ -554,9 +350,7 @@ const LessonId = ({
       .then((err) => {});
   };
 
-  const onFinishFailed = (errorInfo: any) => {
-    console.log("Failed:", errorInfo);
-  };
+  const onFinishFailed = (errorInfo: any) => {};
 
   /**
    * Get's assessments & submissions per lesson
@@ -686,7 +480,10 @@ const LessonId = ({
             </Button>,
           ]}
         >
-          <Editor
+          <Typography variant="body1">
+            {assessmentDetails?.details?.content || "N/A"}
+          </Typography>
+          {/* <Editor
             editorState={updateEditorState}
             readOnly={true}
             toolbarHidden
@@ -701,7 +498,7 @@ const LessonId = ({
             toolbarClassName="toolbarClassName"
             wrapperClassName="wrapperClassName"
             editorClassName="editorClassName"
-          />
+          /> */}
         </Modal>
         <Drawer
           title="Submit Assessments"
@@ -747,18 +544,20 @@ const LessonId = ({
                         <Button
                           style={Styles.Button.Outline}
                           onClick={() => {
-                            setUpdateEditorState(
-                              EditorState.createWithContent(
-                                convertFromRaw({
-                                  entityMap:
-                                    sub.details.content.entityMap || {},
-                                  blocks: sub.details.content.blocks,
-                                })
-                              )
-                            );
+                            // setUpdateEditorState(
+                            //   EditorState.createWithContent(
+                            //     convertFromRaw({
+                            //       entityMap:
+                            //         sub.details.content.entityMap || {},
+                            //       blocks: sub.details.content.blocks,
+                            //     })
+                            //   )
+                            // );
+                            console.log(sub);
+
                             setAssessmentDetails({
                               show: true,
-                              details: sub.details.content,
+                              details: sub.details,
                               header: sub.title,
                             });
                           }}
@@ -904,10 +703,6 @@ const LessonId = ({
           </Fab>
         </Box>
 
-        {/* <SEO
-title={post.frontmatter.title}
-description={post.frontmatter.description}
-/> */}
         <Stack
           flex={1}
           p={2}
@@ -954,7 +749,14 @@ description={post.frontmatter.description}
               </Stack>
               {currentLesson && currentLesson.isQuiz && (
                 <Stack spacing={4} pt={8}>
-                  <QuizView quiz={currentLesson.isQuiz} />
+                  {/* :TODO these props need to be supplied */}
+                  <QuizView
+                    quiz={currentLesson.isQuiz}
+                    quizId=""
+                    chapterId=""
+                    courseId=""
+                    key={0}
+                  />
                 </Stack>
               )}
               {currentLesson && !currentLesson.isQuiz && (
@@ -1035,12 +837,6 @@ description={post.frontmatter.description}
         )
       })} */}
                 </Row>
-              </div>
-
-              <Divider />
-
-              <div style={{ padding: 40, paddingTop: 20 }}>
-                {/* <Disqus /> */}
               </div>
             </Stack>
           </Stack>

@@ -17,6 +17,7 @@ import Link from "next/link";
 import { Colors, Styles } from "@/app/services/styles";
 import { Stack, Typography, Box } from "@mui/material";
 import Image from "next/image";
+import { LazyLoadImage } from "react-lazy-load-image-component";
 const DurationHelper = {
   secondsToText: (seconds: number) => {
     let hours = Math.floor(seconds / (60 * 60));
@@ -217,7 +218,7 @@ const CourseOverview = ({ params }: { params: { id: string } }) => {
                 borderRadius={3}
                 overflow={"hidden"}
               >
-                <Image
+                <LazyLoadImage
                   src={course.imageUrl}
                   alt={course.title}
                   style={{

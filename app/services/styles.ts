@@ -19,7 +19,12 @@ export const Styles = {
     borderStyle: "solid",
     borderColor: Colors.Primary,
   },
-  TextArea: {},
+  TextArea: {
+    borderRadius: 20,
+    borderWidth: 1,
+    borderStyle: "solid",
+    borderColor: Colors.Primary,
+  },
   Radio: {},
   Check: {},
   Button: {

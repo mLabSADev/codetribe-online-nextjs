@@ -121,7 +121,7 @@ export const Assessment = {
     return new Promise((res, rej) => {
       firebase
         .database()
-        .ref(`assessments/submissions/${data.course}`)
+        .ref(`assessments/submissions/${course}`)
         .get()
         .then((data) => {
           res(data.val());

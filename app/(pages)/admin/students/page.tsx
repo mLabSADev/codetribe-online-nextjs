@@ -207,7 +207,7 @@ const StudentInfo = ({ student }: { student: Student }) => {
             <Progress
               key={i}
               type="circle"
-              size={60}
+              // size={60}
               percent={progress.progress}
               format={(percent) => (
                 <Stack spacing={-1}>
