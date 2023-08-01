@@ -71,7 +71,7 @@ const AssessmentLoadingSkelleton = () => {
   );
 };
 
-export const DurationHelper = {
+const DurationHelper = {
   secondsToText: (seconds: number) => {
     let hours = Math.floor(seconds / (60 * 60));
     seconds = seconds - hours * 60 * 60;
@@ -85,17 +85,17 @@ export const DurationHelper = {
       return `${min} min`;
     }
   },
-  timeFormatToText: (time: string) => {
+  timeFormatToText: function (time: string) {
     const [min, sec] = time.split(":");
 
     let total = 0;
     total += parseInt(min) * 60 + parseInt(sec);
 
-    return DurationHelper.secondsToText(total);
+    return this.secondsToText(total);
   },
 };
 
-export default ({
+const LessonId = ({
   params,
 }: {
   params: { id: string; lessonId: string; chapterId: string };
@@ -106,7 +106,7 @@ export default ({
   const [showAssessmentSubmission, setShowAssessmentSubmission] =
     useState(false);
   const [user, setUser] = useState({});
-  let totalDuration;
+  let totalDuration: string = "";
   // let totalDurationUntilCurrentLesson = 0;
   const [canGoBack, setCanGoBack] = useState(true);
   const [canGoForward, setCanGoForward] = useState(true);
@@ -1209,3 +1209,4 @@ description={post.frontmatter.description}
     )
   );
 };
+export default LessonId;

@@ -9,7 +9,7 @@ import CreateEditCourse from "@/app/modals/create-edit-course";
 import { Styles } from "@/app/services/styles";
 import { Typography } from "@mui/material";
 import { LazyLoadImage } from "react-lazy-load-image-component";
-export default () => {
+const CourseId = () => {
   const [courses, setCourses] = useState<Course[] | null>();
   const [columns, setColumns] = useState<any>();
   const [showCreateEditCourse, setShowCreateEditCourse] = useState<{
@@ -137,3 +137,4 @@ export default () => {
     </div>
   );
 };
+export default CourseId;

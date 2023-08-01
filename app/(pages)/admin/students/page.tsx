@@ -200,11 +200,12 @@ const StudentInfo = ({ student }: { student: Student }) => {
 
   return (
     <div>
-      <h3>{student.firstname}'s Progress</h3>
+      <h3>{student.firstname}&apos;s Progress</h3>
       <Stack direction={"row"} spacing={2}>
-        {progressList.map((progress: any) => {
+        {progressList.map((progress: any, i: number) => {
           return (
             <Progress
+              key={i}
               type="circle"
               size={60}
               percent={progress.progress}
@@ -240,7 +241,7 @@ const StudentInfo = ({ student }: { student: Student }) => {
   );
 };
 
-export default () => {
+const Students = () => {
   const [students, setStudents] = useState<Student[]>();
   const [columns, setColumns] = useState<any[]>();
   const [showCreateEditStudent, setShowCreateEditStudent] = useState<{
@@ -357,3 +358,4 @@ export default () => {
     </div>
   );
 };
+export default Students;

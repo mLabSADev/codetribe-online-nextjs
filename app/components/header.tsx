@@ -4,6 +4,7 @@ import { Menu, Button, Drawer } from "antd";
 import { MenuOutlined } from "@ant-design/icons";
 import { useRouter } from "next/navigation";
 import Link from "next/link";
+import Image from "next/image";
 
 const getWindowDimensions = () => {
   // not sure how to replace these vars without losing window
@@ -120,7 +121,7 @@ const Header = ({ active }: { active: string }) => {
       {dimensions.width > PHONE_BREAKPOINT && (
         <div style={{ marginRight: 20, marginLeft: 20 }}>
           <Link href="/">
-            <img
+            <Image
               alt="Codetribe logo"
               src="/images/mlab.png"
               style={{ maxHeight: 40, marginRight: 40 }}
@@ -157,7 +158,7 @@ const Header = ({ active }: { active: string }) => {
             }}
           >
             <Link href="/">
-              <img
+              <Image
                 alt="ReactFire logo"
                 src="/images/mlab.png"
                 style={{ height: 40, marginRight: 40, maxHeight: 40 }}

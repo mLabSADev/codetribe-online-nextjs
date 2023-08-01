@@ -65,13 +65,11 @@ const CreateEditQuiz = ({
       videoUrl: "",
       quiz: currentQuiz,
       title: "Quiz",
-      isQuiz: true
+      isQuiz: true,
     };
 
-    console.log('Checking');
+    console.log("Checking");
     console.log(lessonToSave);
-    
-    
 
     return CoursesService.saveLesson(course!.key, chapter!, lessonToSave)
       .then(() => {
@@ -81,7 +79,7 @@ const CreateEditQuiz = ({
       })
       .catch((err) => {
         console.log(err);
-        
+
         setErrorMessage(err.message);
       });
   };
@@ -135,6 +133,7 @@ const CreateEditQuiz = ({
                       {question.answers.map((answer, answerIndex) => {
                         return (
                           <Stack
+                            key={answerIndex}
                             style={{
                               padding: 10,
                               display: "flex",

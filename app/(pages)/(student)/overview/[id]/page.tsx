@@ -16,7 +16,8 @@ import { LessonService } from "@/app/services/lesson-service";
 import Link from "next/link";
 import { Colors, Styles } from "@/app/services/styles";
 import { Stack, Typography, Box } from "@mui/material";
-export const DurationHelper = {
+import Image from "next/image";
+const DurationHelper = {
   secondsToText: (seconds: number) => {
     let hours = Math.floor(seconds / (60 * 60));
     seconds = seconds - hours * 60 * 60;
@@ -46,14 +47,6 @@ export interface Position {
 }
 
 const CourseOverview = ({ params }: { params: { id: string } }) => {
-  //   let currentChapter = post.frontmatter.chapter
-  //   let currentLesson = post.frontmatter.lesson
-  // const canGoBack = currentChapter > 0
-  let totalDuration;
-  // let totalDurationUntilCurrentLesson = 0;
-  // let canGoForward
-  // let title
-  // let mainSlug
   const [position, setPosition] = useState<Position>();
   const [totalDurationUntilCurrentLesson, setTotalDurationUntilCurrentLesson] =
     useState(0);
@@ -65,6 +58,14 @@ const CourseOverview = ({ params }: { params: { id: string } }) => {
     currentChapter: number;
     currentLesson: number;
   }>();
+  //   let currentChapter = post.frontmatter.chapter
+  //   let currentLesson = post.frontmatter.lesson
+  // const canGoBack = currentChapter > 0
+  // let totalDurationUntilCurrentLesson = 0;
+  // let canGoForward
+  // let title
+  // let mainSlug
+  let totalDuration: string = "";
 
   const router = useRouter();
 
@@ -103,13 +104,12 @@ const CourseOverview = ({ params }: { params: { id: string } }) => {
     const courseId = params["id"];
 
     console.log("Getting course", courseId.trim());
-    CoursesService.course(courseId)
-      .then((course) => {
-        console.log(`Course: ${course}`);
-        let c = { ...course, key: courseId };
-        console.log(c);
-        setCourse(c);
-      })
+    CoursesService.course(courseId).then((course) => {
+      console.log(`Course: ${course}`);
+      let c = { ...course, key: courseId };
+      console.log(c);
+      setCourse(c);
+    });
 
     LessonService.currentLessonPosition(params.id).then((position) => {
       setPosition(position);
@@ -123,19 +123,17 @@ const CourseOverview = ({ params }: { params: { id: string } }) => {
   useEffect(() => {
     LessonService.getCurrentChapter(params["id"])
       .then((res) => {
-        if (res)
-          setCurrentChapter(res);
+        if (res) setCurrentChapter(res);
       })
       .catch((err) => {
         console.log(err);
       });
 
-      console.log(params["id"])
+    console.log(params["id"]);
     LessonService.getCurrentLesson(params["id"]).then((res) => {
       // console.log(res);
-      
-      if (res)
-        setCurrentLesson(res);
+
+      if (res) setCurrentLesson(res);
     });
   }, []);
 
@@ -219,7 +217,7 @@ const CourseOverview = ({ params }: { params: { id: string } }) => {
                 borderRadius={3}
                 overflow={"hidden"}
               >
-                <img
+                <Image
                   src={course.imageUrl}
                   alt={course.title}
                   style={{
@@ -241,7 +239,7 @@ const CourseOverview = ({ params }: { params: { id: string } }) => {
                 </Button>
               </Stack>
               <Stack spacing={2} py={2} pt={5}>
-                <Typography variant="h5">What you'll learn</Typography>
+                <Typography variant="h5">What you will learn</Typography>
                 <div
                   style={{
                     overflow: "hidden",

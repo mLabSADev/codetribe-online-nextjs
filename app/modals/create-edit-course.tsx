@@ -5,7 +5,7 @@ import { CoursesService } from "../services/courses-service";
 import Course from "../dtos/course";
 import { Stack } from "@mui/material";
 import { Styles } from "../services/styles";
-
+import Image from "next/image";
 const CreateEditCourse = ({
   course,
   onCancel,
@@ -194,7 +194,7 @@ const CreateEditCourse = ({
                 footer={null}
                 onCancel={handleCancel}
               >
-                <img
+                <Image
                   alt="example"
                   style={{ width: "100%" }}
                   src={previewImage}
@@ -275,6 +275,7 @@ const CreateEditCourse = ({
                   {currentOutlines.map((outline, index) => {
                     return (
                       <Input
+                        key={index}
                         value={outline}
                         onChange={(text) => {
                           onUpdateOutline(index, text.target.value);
@@ -293,7 +294,15 @@ const CreateEditCourse = ({
                 </Stack>
 
                 {currentCourse && (
-                  <Stack alignItems={"center"} direction={{xs: 'column', sm: 'column', md: 'row', lg: 'row'}}>
+                  <Stack
+                    alignItems={"center"}
+                    direction={{
+                      xs: "column",
+                      sm: "column",
+                      md: "row",
+                      lg: "row",
+                    }}
+                  >
                     <Input
                       value={currentOutline}
                       onChange={(event) =>

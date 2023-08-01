@@ -12,8 +12,9 @@ import { ArrowDownOutlined, ArrowUpOutlined } from "@ant-design/icons";
 import { Button, Col, Modal, Row, Space, Spin, Table } from "antd";
 import React, { useEffect, useState } from "react";
 import { useRouter } from "next/router";
-const router = useRouter();
+
 const Lessons = ({ course, chapter }: { course: Course; chapter: Chapter }) => {
+  const router = useRouter();
   const [showCreateEditLesson, setShowCreateEditLesson] = useState<{
     show: boolean;
     selectedLesson?: Lesson | null | undefined;
@@ -72,14 +73,12 @@ const Lessons = ({ course, chapter }: { course: Course; chapter: Chapter }) => {
 
   const onMoveUp = (lesson: Lesson) => {
     CoursesService.moveLessonUp(course.key, chapter, lesson).then(() => {
-
       router.reload();
     });
   };
 
   const onMoveDown = (lesson: Lesson) => {
     CoursesService.moveLessonDown(course.key, chapter, lesson).then(() => {
-
       router.reload();
     });
   };
@@ -169,6 +168,7 @@ const Lessons = ({ course, chapter }: { course: Course; chapter: Chapter }) => {
         onCancel={() => setLessonToRemove(undefined)}
         footer={[
           <Button
+            key={1}
             size="large"
             style={Styles.Button.Outline}
             onClick={() => {
@@ -178,6 +178,7 @@ const Lessons = ({ course, chapter }: { course: Course; chapter: Chapter }) => {
             No
           </Button>,
           <Button
+            key={2}
             onClick={handleLessonRemove}
             size="large"
             style={Styles.Button.Outline}
@@ -194,10 +195,10 @@ const Lessons = ({ course, chapter }: { course: Course; chapter: Chapter }) => {
   );
 };
 
-export default ({ params }: { params: { id: string } }) => {
+const CoursesId = ({ params }: { params: { id: string } }) => {
   const [course, setCourse] = useState<Course>();
   const [columns, setColumns] = useState<any[]>();
-
+  const router = useRouter();
   const { id } = params;
 
   const [showCreateLesson, setShowCreateLesson] = useState<
@@ -323,3 +324,4 @@ export default ({ params }: { params: { id: string } }) => {
     </div>
   );
 };
+export default CoursesId;

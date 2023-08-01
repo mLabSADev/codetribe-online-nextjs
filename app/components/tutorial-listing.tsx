@@ -33,6 +33,7 @@ const CourseCard = ({ course }: { course: Course }) => {
         }
         actions={[
           <Button
+            key={1}
             style={{ borderRadius: 20 }}
             type="primary"
             size="large"

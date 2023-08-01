@@ -11,6 +11,7 @@ import "swiper/css";
 import "swiper/css/navigation";
 import "swiper/css/pagination";
 import "swiper/css/scrollbar";
+import Image from "next/image";
 const ForgotPassword = ({ email, onCancel }: any) => {
   const [resettingPassword, setResettingPassword] = useState(false);
   const [errorMessage, setErrorMessage] = useState();
@@ -119,7 +120,7 @@ const ForgotPassword = ({ email, onCancel }: any) => {
   );
 };
 
-export default () => {
+const Signin = () => {
   const [loggingIn, setIsLoggingIn] = useState(false);
   const [errorMessage, setMessage] = useState(null);
   const [showForgotPassword, setShowForgotPassword] = useState(false);
@@ -342,7 +343,8 @@ export default () => {
               width={{ sm: 300, md: 400, lg: "100%" }}
               sx={{ transform: "translate(0px, 0px)", zIndex: 0 }}
             >
-              <img
+              <Image
+                alt=""
                 style={{ width: "100%", height: "100%", objectFit: "contain" }}
                 src="/images/login-illustration.png"
               />
@@ -367,7 +369,8 @@ export default () => {
             p={5}
           >
             {/* logo */}
-            <img
+            <Image
+              alt=""
               src="/images/mlab.png"
               style={{ height: 40, objectFit: "contain" }}
             />
@@ -544,3 +547,4 @@ export default () => {
     </Stack>
   );
 };
+export default Signin;
