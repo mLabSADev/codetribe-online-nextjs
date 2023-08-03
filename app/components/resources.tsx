@@ -35,7 +35,7 @@ export const BackendCard = ({
       sx={{ borderRadius: 5, background: color, color: "#fff" }}
     >
       <Box borderRadius={5} overflow={"hidden"}>
-        <Image width={90} src={icon} />
+        <img width={90} src={icon} />
       </Box>
       <Typography variant="h5" color={"white"}>
         {title}
@@ -140,7 +140,7 @@ const ResourceCards = ({
             </Stack>
           </Stack>
           <Stack>
-            <Image width={200} src={image} />
+            <img width={200} src={image} />
           </Stack>
         </Stack>
       </CardContent>

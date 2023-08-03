@@ -343,7 +343,7 @@ const Signin = () => {
               width={{ sm: 300, md: 400, lg: "100%" }}
               sx={{ transform: "translate(0px, 0px)", zIndex: 0 }}
             >
-              <Image
+              <img
                 alt=""
                 style={{ width: "100%", height: "100%", objectFit: "contain" }}
                 src="/images/login-illustration.png"
@@ -369,7 +369,7 @@ const Signin = () => {
             p={5}
           >
             {/* logo */}
-            <Image
+            <img
               alt=""
               src="/images/mlab.png"
               style={{ height: 40, objectFit: "contain" }}
