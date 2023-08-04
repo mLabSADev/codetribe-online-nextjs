@@ -146,7 +146,7 @@ const CreateEditLesson = ({
                   Save
                 </Button>
                 <Button
-                  type="ghost"
+                  type="dashed"
                   size="large"
                   disabled={saving}
                   onClick={onCancel}

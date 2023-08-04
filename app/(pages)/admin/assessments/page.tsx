@@ -474,7 +474,7 @@ const Assessments = () => {
                 )}
                 <Button
                   size="large"
-                  type="ghost"
+                  type="dashed"
                   style={{
                     ...Styles.Button.Outline,
                     width: "100%",
