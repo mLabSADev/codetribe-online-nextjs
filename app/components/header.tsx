@@ -27,7 +27,6 @@ const Header = ({ active }: { active: string }) => {
     if (key === "home") {
       key = "home";
     }
-
     router.push(`/${key}`);
   };
 

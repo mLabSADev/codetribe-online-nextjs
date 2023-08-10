@@ -3,35 +3,29 @@ import React, { useEffect } from "react";
 import { Stack, Typography, Divider, Box } from "@mui/material";
 import {
   Button,
-  Space,
-  Table,
-  Tag,
   Modal,
   List,
   Card,
   Cascader,
   Tabs,
-  Avatar,
   Collapse,
   Statistic,
   Input,
   Select,
   Form,
-  Checkbox,
-  Alert,
   Popconfirm,
 } from "antd";
 import { EditOutlined, DeleteOutlined } from "@ant-design/icons";
 import CrisisAlertIcon from "@mui/icons-material/CrisisAlert";
 import "react-draft-wysiwyg/dist/react-draft-wysiwyg.css";
-import { Editor } from "react-draft-wysiwyg";
+// import { Editor } from "react-draft-wysiwyg";
 import { EditorState, convertFromRaw } from "draft-js";
 import { Assessment } from "@/app/services/assessments-service";
 import { AuthService } from "@/app/services/auth-service";
 import { CoursesService } from "@/app/services/courses-service";
 import { Styles } from "@/app/services/styles";
 import { StudentsService } from "@/app/services/students-service";
-const { Column, ColumnGroup } = Table;
+// const { Column, ColumnGroup } = Table;
 const { Meta } = Card;
 const { TextArea } = Input;
 // Dummy Data
@@ -187,10 +181,10 @@ const Assessments = () => {
     // Course
     CoursesService.course(course).then((res) => {
       // Chapter
-      console.log("Chapter >> ", res.chapters);
+      // console.log("Chapter >> ", res.chapters);
       res.chapters.forEach((chapter) => {
         // Lesson
-        console.log("Lesson >> ", chapter.lessons);
+        // console.log("Lesson >> ", chapter.lessons);
         structure.value = chapter.title;
         structure.label = chapter.title;
 
@@ -240,7 +234,6 @@ const Assessments = () => {
   // no error until here
   // Handles form submit
   const onFinish = async (values: any) => {
-    console.log("Success:", values);
     let name = await AuthService.currentUser().then((res) => res.firstname);
     if (updating) {
       Assessment.update(values.course, assessmentUpdateId, values)
@@ -291,11 +284,13 @@ const Assessments = () => {
       location: data,
     })
       .then((res: any) => {
-        Object.keys(res).map((item) => {
-          const d: any = { ...res[item], key: item };
-          submissions.push(d);
-          setSubmissions([...submissions]);
-        });
+        if (res) {
+          Object.keys(res).map((item) => {
+            const d: any = { ...res[item], key: item };
+            submissions.push(d);
+            setSubmissions([...submissions]);
+          });
+        }
       })
       .catch((err) => {
         console.log(err);
@@ -317,16 +312,12 @@ const Assessments = () => {
       .then((res) => {
         setUser(res);
         // Loop over locations
-        console.log(res);
-
         res.groups.forEach((element: any, i: number) => {
           adminLocations.push({ key: i + 1, label: element });
           setAdminLocations(adminLocations);
           getStudentsByLocation(element);
           getSubmissions(adminLocations[0]);
           setTimeout(() => {
-            console.log(courseInfo);
-
             getSubmissions(res.groups[0]);
           }, 1000);
         });
@@ -336,7 +327,6 @@ const Assessments = () => {
   return (
     <>
       <>
-        {" "}
         <Stack>
           {/*Assessment Form Modal */}
           <Modal
@@ -713,10 +703,6 @@ const Assessments = () => {
                               submitted={totalArray.length}
                               // subtitle={item.content}
                               onSubmissionsClick={() => {
-                                console.log({
-                                  course: course.key,
-                                  chapter: item?.lesson[0],
-                                });
                                 setSubmissions([]);
                                 setCourseInfo({
                                   course: course.key,
@@ -746,7 +732,6 @@ const Assessments = () => {
                                 form.setFieldValue("title", item.title);
                                 form.setFieldValue("lesson", item.lesson);
                                 form.setFieldValue("content", item.content);
-                                console.log(course);
 
                                 onCourseChange(course.key); // get options for cascader
                                 // setUpdateEditorState(
