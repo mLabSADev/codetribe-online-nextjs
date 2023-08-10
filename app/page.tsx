@@ -343,7 +343,7 @@ const Signin = () => {
               width={{ sm: 300, md: 400, lg: "100%" }}
               sx={{ transform: "translate(0px, 0px)", zIndex: 0 }}
             >
-              <Image
+              <img
                 alt=""
                 width={400}
                 height={400}
@@ -370,7 +370,7 @@ const Signin = () => {
             bgcolor={"white"}
             p={5}
           >
-            {/* logo */}
+            {/* logo */
             <Image
               width={200}
               height={200}

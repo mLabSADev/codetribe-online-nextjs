@@ -121,7 +121,7 @@ const Header = ({ active }: { active: string }) => {
       {dimensions.width > PHONE_BREAKPOINT && (
         <div style={{ marginRight: 20, marginLeft: 20 }}>
           <Link href="/">
-            <Image
+            <img
               alt="Codetribe logo"
               src="/images/mlab.png"
               style={{ maxHeight: 40, marginRight: 40 }}
@@ -158,7 +158,7 @@ const Header = ({ active }: { active: string }) => {
             }}
           >
             <Link href="/">
-              <Image
+              <img
                 alt="ReactFire logo"
                 src="/images/mlab.png"
                 style={{ height: 40, marginRight: 40, maxHeight: 40 }}

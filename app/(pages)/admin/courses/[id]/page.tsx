@@ -198,7 +198,6 @@ const Lessons = ({ course, chapter }: { course: Course; chapter: Chapter }) => {
 const CoursesId = ({ params }: { params: { id: string } }) => {
   const [course, setCourse] = useState<Course>();
   const [columns, setColumns] = useState<any[]>();
-  const router = useRouter();
   const { id } = params;
 
   const [showCreateLesson, setShowCreateLesson] = useState<

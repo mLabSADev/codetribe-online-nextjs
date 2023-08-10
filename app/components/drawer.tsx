@@ -81,7 +81,7 @@ const MenuButton = ({
         </Button>
       ) : (
         <Button
-          type={"ghost"}
+          type={"dashed"}
           icon={icon}
           onClick={onClick}
           size="large"
