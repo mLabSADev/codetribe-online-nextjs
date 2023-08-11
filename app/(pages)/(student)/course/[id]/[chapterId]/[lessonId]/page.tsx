@@ -165,7 +165,7 @@ const LessonId = ({
             lessonToMoveTo = lesson;
           }
         }
-        course!.chapters.map((chapter, i) => {
+        course?.chapters.map((chapter, i) => {
           const np = nextPathname.split("/")[2];
           RunAssessmentFunc({
             course: course.key || np,
@@ -895,7 +895,7 @@ const LessonId = ({
               bordered={false}
               expandIconPosition="end"
             >
-              {course!.chapters.map((chapter, i) => {
+              {course?.chapters.map((chapter, i) => {
                 let submitted = false;
                 let chapterTotalDuration = 0;
                 for (let chapterLesson of chapter.lessons) {
