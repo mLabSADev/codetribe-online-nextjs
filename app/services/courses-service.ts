@@ -29,9 +29,9 @@ export const CoursesService = {
       }
     }
 
-    console.log(lessons);
+    // console.log(lessons);
     delete lessons[lesson.key];
-    console.log(lessons);
+    // console.log(lessons);
 
     return firebase
       .database()
@@ -123,7 +123,7 @@ export const CoursesService = {
 
       const result = await axios.get(url)
 
-      console.log(result.data);
+      // console.log(result.data);
       
       duration = result.data.items[0].contentDetails.duration
         .split("PT")
@@ -156,8 +156,8 @@ export const CoursesService = {
       }
   },
   saveCourse: (course: Course, file: string) => {
-    console.log(course);
-    console.log(file);
+    // console.log(course);
+    // console.log(file);
 
     const profile = new Promise((resolve, reject) => {});
 
@@ -268,7 +268,7 @@ export const CoursesService = {
               return 1;
             }
           });
-        console.log(value);
+        // console.log(value);
         return value;
       });
   },

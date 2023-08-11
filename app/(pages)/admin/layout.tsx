@@ -55,19 +55,19 @@ import EditProfile from "@/app/modals/edit-profile"
       setCollapsed(!collapsed)
     }
   
-    const handleChangePassword = (values: any) => {
-      setSavingChangePassword(true)
-      AuthService.changePassword(values.currentPassword, values.password)
-        .then(() => {
-          setChangePassword(false)
-        })
-        .catch(err => {
-          setError(err.message)
-        })
-        .finally(() => {
-          setSavingChangePassword(false)
-        })
-    }
+    // const handleChangePassword = (values: any) => {
+    //   setSavingChangePassword(true)
+    //   AuthService.changePassword(values.currentPassword, values.password)
+    //     .then(() => {
+    //       setChangePassword(false)
+    //     })
+    //     .catch(err => {
+    //       setError(err.message)
+    //     })
+    //     .finally(() => {
+    //       setSavingChangePassword(false)
+    //     })
+    // }
   
     const ignoreClick = () => {
       setSavingChangePassword(true)

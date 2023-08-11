@@ -148,16 +148,16 @@ const Drawer = ({ active }: { active: string }) => {
     setSavingPassword(true);
     ProfileService.updateProfile(profile?.uid, values)
       .then(() => {
-        console.log(`Saved successfully`);
+        // console.log(`Saved successfully`);
       })
       .catch((err) => {
-        console.log(err);
+        // console.log(err);
       })
       .finally(() => {
         setSavingPassword(false);
         setShowEditProfile(false);
       });
-    // console.log(values);
+    // // console.log(values);
   };
 
   return (

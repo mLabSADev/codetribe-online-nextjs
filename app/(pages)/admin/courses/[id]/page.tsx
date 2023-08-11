@@ -224,7 +224,7 @@ const CoursesId = ({ params }: { params: { id: string } }) => {
     CoursesService.course(id).then((course) => {
       setCourse(course);
 
-      console.log(course);
+      // console.log(course);
     });
 
     setColumns([

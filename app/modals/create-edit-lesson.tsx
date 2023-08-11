@@ -47,19 +47,22 @@ const CreateEditLesson = ({
 
     if (lesson) {
     } else {
-      console.log(chapter);
-      console.log(lessonToSave);
+      // console.log(chapter);
+      // console.log(lessonToSave);
 
       setSaving(true);
       setErrorMessage(null);
 
-      return CoursesService.saveLesson(course!.key, chapter!, lessonToSave)
+      if (course) {
+        return CoursesService.saveLesson(course?.key, chapter!, lessonToSave)
         .then(() => {
           setSaving(false);
         })
         .catch((err) => {
           setErrorMessage(err.message);
         });
+      }
+      
     }
   };
 

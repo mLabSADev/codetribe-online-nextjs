@@ -149,7 +149,7 @@ export const Assessment = {
         .equalTo(data.location)
         .get()
         .then((data) => {
-          console.log(" >>>>> ", data.val());
+          // console.log(" >>>>> ", data.val());
           res(data.val());
         })
         .catch((err) => {

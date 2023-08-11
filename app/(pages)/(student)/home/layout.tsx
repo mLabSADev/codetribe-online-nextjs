@@ -38,10 +38,8 @@ const PageLayout = (props:any) => {
 
   useEffect(() => {
     AuthService.currentUser().then((profile) => {
-      console.log(profile);
       if (!profile.changedPassword) {
         setError(null);
-        console.log("Change password");
         setChangePassword(true);
       }
     });
@@ -55,19 +53,19 @@ const PageLayout = (props:any) => {
     setCollapsed(!collapsed);
   };
 
-  const handleChangePassword = (values: any) => {
-    setSavingChangePassword(true);
-    AuthService.changePassword(values.currentPassword, values.password)
-      .then(() => {
-        setChangePassword(false);
-      })
-      .catch((err) => {
-        setError(err.message);
-      })
-      .finally(() => {
-        setSavingChangePassword(false);
-      });
-  };
+  // const handleChangePassword = (values: any) => {
+  //   setSavingChangePassword(true);
+  //   AuthService.changePassword(values.currentPassword, values.password)
+  //     .then(() => {
+  //       setChangePassword(false);
+  //     })
+  //     .catch((err) => {
+  //       setError(err.message);
+  //     })
+  //     .finally(() => {
+  //       setSavingChangePassword(false);
+  //     });
+  // };
 
   const ignoreClick = () => {
     setSavingChangePassword(true);

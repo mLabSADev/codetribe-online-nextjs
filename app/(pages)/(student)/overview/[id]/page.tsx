@@ -104,11 +104,11 @@ const CourseOverview = ({ params }: { params: { id: string } }) => {
   useEffect(() => {
     const courseId = params["id"];
 
-    console.log("Getting course", courseId.trim());
+    // console.log("Getting course", courseId.trim());
     CoursesService.course(courseId).then((course) => {
-      console.log(`Course: ${course}`);
+      // console.log(`Course: ${course}`);
       let c = { ...course, key: courseId };
-      console.log(c);
+      // console.log(c);
       setCourse(c);
     });
 
@@ -127,12 +127,12 @@ const CourseOverview = ({ params }: { params: { id: string } }) => {
         if (res) setCurrentChapter(res);
       })
       .catch((err) => {
-        console.log(err);
+        // console.log(err);
       });
 
-    console.log(params["id"]);
+    // console.log(params["id"]);
     LessonService.getCurrentLesson(params["id"]).then((res) => {
-      // console.log(res);
+      // // console.log(res);
 
       if (res) setCurrentLesson(res);
     });
@@ -332,7 +332,7 @@ const CourseOverview = ({ params }: { params: { id: string } }) => {
                 {course.chapters.map((chapter) => {
                   // const chapter = chapters[key]
 
-                  console.log(chapter);
+                  // console.log(chapter);
                   let chapterTotalDuration = 0;
                   for (let chapterLesson of chapter.lessons) {
                     if (!chapterLesson) continue;

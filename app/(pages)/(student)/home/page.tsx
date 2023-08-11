@@ -194,7 +194,6 @@ const Home = () => {
 
     // run through the courses
     courses.forEach((course: any) => {
-      console.log("Course: >", course.key);
       progress = {
         course: "",
         chapterTitle: "",
@@ -212,10 +211,10 @@ const Home = () => {
         if (courseProgress[course.key]?.progress != null) {
           Object.keys(courseProgress[course.key].progress).map((chapter) => {
             chapterTotal = Object.keys(course.chapters[chapter].lessons).length;
-            console.log(">> Set Chapter Total: ", chapterTotal);
+            // console.log(">> Set Chapter Total: ", chapterTotal);
             // console.log("Chapter: >>", chapter);
             progress.chapterTitle = course.chapters[chapter].title;
-            console.log(">> Set Title: ", progress.chapterTitle);
+            // console.log(">> Set Title: ", progress.chapterTitle);
 
             // iterate progress lessons keys
             Object.keys(courseProgress[course.key].progress[chapter]).map(
@@ -231,10 +230,10 @@ const Home = () => {
                 // console.log("Lesson: >>>", lesson);
               }
             );
-            console.log(
-              studentProgress,
-              Object.keys(course.chapters[chapter].lessons).length
-            );
+            // console.log(
+            //   studentProgress,
+            //   Object.keys(course.chapters[chapter].lessons).length
+            // );
             // (part/whole) * 100
             const p: any = ((studentProgress / chapterTotal) * 100).toFixed(0);
             progress.progress = p * 1;

@@ -713,10 +713,10 @@ const Assessments = () => {
                               submitted={totalArray.length}
                               // subtitle={item.content}
                               onSubmissionsClick={() => {
-                                console.log({
-                                  course: course.key,
-                                  chapter: item?.lesson[0],
-                                });
+                                // console.log({
+                                //   course: course.key,
+                                //   chapter: item?.lesson[0],
+                                // });
                                 setSubmissions([]);
                                 setCourseInfo({
                                   course: course.key,

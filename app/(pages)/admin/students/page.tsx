@@ -97,9 +97,9 @@ const StudentInfo = ({ student }: { student: Student }) => {
      * Access chapter lesson
      * Calculate Progress
      */
-    console.log("====================================");
-    console.log(student);
-    console.log("====================================");
+    // console.log("====================================");
+    // console.log(student);
+    // console.log("====================================");
     CoursesService.courses().then((allcourses) => {
       // setCourses((prev) => [allcourses]);
       // RunProgressFunc();
@@ -107,9 +107,9 @@ const StudentInfo = ({ student }: { student: Student }) => {
       LessonService.getProgressByUID(student.key).then((myProgress: any) => {
         allcourses.forEach((course) => {
           progress.course = course.title;
-          console.log("====================================");
-          console.log(progress.course);
-          console.log("====================================");
+          // console.log("====================================");
+          // console.log(progress.course);
+          // console.log("====================================");
           var studentProgress = 0;
           var chapterTotal = 0;
 
@@ -120,7 +120,7 @@ const StudentInfo = ({ student }: { student: Student }) => {
                   chapterTotal = Object.keys(
                     course.chapters[chapter].lessons
                   ).length;
-                  // console.log("Chapter: >>", chapter);
+                  // // console.log("Chapter: >>", chapter);
                   progress.chapterTitle = course.chapters[chapter].title;
                   // iterate progress lessons keys
                   Object.keys(
@@ -135,7 +135,7 @@ const StudentInfo = ({ student }: { student: Student }) => {
                       studentProgress = studentProgress + 1;
                       progress.link = `course/${course.key}/${chapter}/${lesson}`;
                     }
-                    // console.log("Lesson: >>>", lesson);
+                    // // console.log("Lesson: >>>", lesson);
                   });
                   // (part/whole) * 100
                   const p: any = (
@@ -150,7 +150,7 @@ const StudentInfo = ({ student }: { student: Student }) => {
 
                   setProgressList([...progressList]);
                   // setTimeout(() => {
-                  //   console.log("updated list");
+                  //   // console.log("updated list");
                   //   setProgressList(progressList);
                   // }, 3000);
                   progress = {
@@ -169,7 +169,7 @@ const StudentInfo = ({ student }: { student: Student }) => {
             progress.lessonTitle = "";
             progress.link = "";
             progress.progress = 0;
-            console.log(progress);
+            // console.log(progress);
             progressList.push(progress);
             setProgressList([...progressList]);
             progress = {
@@ -181,7 +181,7 @@ const StudentInfo = ({ student }: { student: Student }) => {
             };
           }
         });
-        console.log(">> All Progress: ", progressList);
+        // console.log(">> All Progress: ", progressList);
       });
     });
 

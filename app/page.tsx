@@ -141,7 +141,6 @@ const Signin = () => {
     if (!signInMethod) {
       AuthService.checkUser(values.email)
         .then((user) => {
-          console.log(user);
           if (user.registered === false) {
             setSignInMethod("new-user");
           } else {
@@ -230,7 +229,6 @@ const Signin = () => {
     ];
     const index = Math.floor(Math.random() * links.length);
     setBGLink(links[index]);
-    console.log(index);
   };
   useEffect(() => {
     // RunBGFunc();
