@@ -66,7 +66,7 @@ const MenuButton = ({
   const router = useRouter()
 
   return (
-    <Link href={to ? to : ''} onClick={() => router.push(to ? to : '')}>
+    <a href={to ? to : ''}>
       {active ? (
         <Button
           type={"default"}
