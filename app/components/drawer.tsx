@@ -96,7 +96,7 @@ const MenuButton = ({
           {children}
         </Button>
       )}
-    </Link>
+    </a>
   );
 };
 
