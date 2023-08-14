@@ -345,8 +345,6 @@ const Signin = () => {
             >
               <img
                 alt=""
-                width={400}
-                height={400}
                 style={{ width: "100%", height: "100%", objectFit: "contain" }}
                 src="/images/login-illustration.png"
               />
@@ -370,10 +368,8 @@ const Signin = () => {
             bgcolor={"white"}
             p={5}
           >
-            {/* logo */
-            <Image
-              width={200}
-              height={200}
+            {/* logo */}
+            <img
               alt=""
               src="/images/mlab.png"
               style={{ height: 40, objectFit: "contain" }}

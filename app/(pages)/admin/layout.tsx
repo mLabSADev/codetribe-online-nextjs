@@ -120,7 +120,12 @@ const PageLayout = ({ children, active }: IPageLayout) => {
             width: "100%",
           }}
         >
-          <Drawer active={active} />
+          <Drawer
+            toggleDrawer={() => {
+              toggleMenu();
+            }}
+            active={active}
+          />
         </div>
       </ADrawer>
 

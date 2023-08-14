@@ -9,7 +9,7 @@
     "lint": "next lint"
   },
   "dependencies": {
-    "@ant-design/cssinjs": "^1.16.1",
+    "@ant-design/cssinjs": "^1.16.2",
     "@ant-design/icons": "^4.0.6",
     "@emotion/react": "^11.11.0",
     "@emotion/styled": "^11.11.0",
@@ -21,7 +21,7 @@
     "@types/react-dom": "18.2.4",
     "@types/react-draft-wysiwyg": "^1.13.4",
     "@types/react-lazy-load-image-component": "^1.5.3",
-    "antd": "^5.8.1",
+    "antd": "^5.8.2",
     "autoprefixer": "10.4.14",
     "axios": "^1.4.0",
     "draft-js": "^0.11.7",

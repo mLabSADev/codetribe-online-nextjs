@@ -337,7 +337,10 @@ const Home = () => {
                 flex={1}
                 spacing={1}
                 gap={1}
-                sx={{ overflowX: "auto" }}
+                sx={{
+                  overflowX: "auto",
+                  display: { xs: "none", sm: "none", md: "block", lg: "block" },
+                }}
                 direction={{ xs: "column", sm: "row", md: "row" }}
               >
                 {progressList.length == 0 ? (
@@ -360,6 +363,64 @@ const Home = () => {
                   <Swiper
                     direction={"horizontal"}
                     slidesPerView={3}
+                    spaceBetween={30}
+                    mousewheel={true}
+                    pagination={{
+                      clickable: true,
+                    }}
+                    modules={[Mousewheel, Pagination]}
+                    className="mySwiper"
+                  >
+                    {progressList.map((item: any, i: number) => {
+                      console.log("Progress Item >>> ", item);
+
+                      return (
+                        <SwiperSlide key={i}>
+                          <StudentProgress
+                            link={item.link}
+                            locked={false}
+                            lesson={item.chapterTitle || "N/A"}
+                            course={item.course || "N/A"}
+                            title={item.lessonTitle || "N/A"}
+                            progress={item.progress || "N/A"}
+                          />
+                        </SwiperSlide>
+                      );
+                    })}
+                  </Swiper>
+                ) : null}
+              </Stack>
+              <Stack
+                width={"100%"}
+                flex={1}
+                spacing={1}
+                gap={1}
+                sx={{
+                  overflowX: "auto",
+                  display: { xs: "block", sm: "block", md: "none", lg: "none" },
+                }}
+                direction={{ xs: "column", sm: "row", md: "row" }}
+              >
+                {progressList.length == 0 ? (
+                  <Stack
+                    width={"100%"}
+                    flex={1}
+                    padding={5}
+                    textAlign={"center"}
+                    alignItems={"center"}
+                    justifyItems={"center"}
+                  >
+                    <MUITypography variant="h6">Progress Tracker</MUITypography>
+                    <MUITypography variant="body2">
+                      Upon starting your course you will be able to see your
+                      progress here. View any course and start learning.
+                    </MUITypography>
+                  </Stack>
+                ) : null}
+                {progressList.length > 0 ? (
+                  <Swiper
+                    direction={"horizontal"}
+                    slidesPerView={1}
                     spaceBetween={30}
                     mousewheel={true}
                     pagination={{

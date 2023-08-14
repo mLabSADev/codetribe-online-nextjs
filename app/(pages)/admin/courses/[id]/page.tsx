@@ -11,7 +11,7 @@ import { Styles } from "@/app/services/styles";
 import { ArrowDownOutlined, ArrowUpOutlined } from "@ant-design/icons";
 import { Button, Col, Modal, Row, Space, Spin, Table } from "antd";
 import React, { useEffect, useState } from "react";
-import { useRouter } from "next/router";
+import { useRouter } from "next/navigation";
 
 const Lessons = ({ course, chapter }: { course: Course; chapter: Chapter }) => {
   const router = useRouter();
@@ -73,13 +73,13 @@ const Lessons = ({ course, chapter }: { course: Course; chapter: Chapter }) => {
 
   const onMoveUp = (lesson: Lesson) => {
     CoursesService.moveLessonUp(course.key, chapter, lesson).then(() => {
-      router.reload();
+      router.refresh();
     });
   };
 
   const onMoveDown = (lesson: Lesson) => {
     CoursesService.moveLessonDown(course.key, chapter, lesson).then(() => {
-      router.reload();
+      router.refresh();
     });
   };
 
@@ -199,7 +199,7 @@ const CoursesId = ({ params }: { params: { id: string } }) => {
   const [course, setCourse] = useState<Course>();
   const [columns, setColumns] = useState<any[]>();
   const { id } = params;
-
+  const router = useRouter();
   const [showCreateLesson, setShowCreateLesson] = useState<
     Chapter | undefined
   >();
@@ -284,7 +284,7 @@ const CoursesId = ({ params }: { params: { id: string } }) => {
           dataSource={course.chapters}
           columns={columns}
           expandable={{
-            expandedRowRender: (record) => (
+            expandedRowRender: (record: any) => (
               <Lessons course={course} chapter={record} />
             ),
             rowExpandable: () => true,
