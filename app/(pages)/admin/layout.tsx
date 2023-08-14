@@ -53,20 +53,23 @@ const PageLayout = ({ children, active }: IPageLayout) => {
   const toggleMenu = () => {
     setCollapsed(!collapsed);
   };
-
-  const handleChangePassword = (values: any) => {
-    setSavingChangePassword(true);
-    AuthService.changePassword(values.currentPassword, values.password)
-      .then(() => {
-        setChangePassword(false);
-      })
-      .catch((err) => {
-        setError(err.message);
-      })
-      .finally(() => {
-        setSavingChangePassword(false);
-      });
-  };
+  // creates "Possibly undefined build error"
+  // const handleChangePassword = (values: {
+  //   currentPassword: string;
+  //   password: string;
+  // }) => {
+  //   setSavingChangePassword(true);
+  //   AuthService.changePassword(values.currentPassword, values.password)
+  //     .then(() => {
+  //       setChangePassword(false);
+  //     })
+  //     .catch((err) => {
+  //       setError(err.message);
+  //     })
+  //     .finally(() => {
+  //       setSavingChangePassword(false);
+  //     });
+  // };
 
   const ignoreClick = () => {
     setSavingChangePassword(true);

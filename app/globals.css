@@ -261,3 +261,7 @@ h2 {
   position: relative;
   top: 30px;
 }
+.bodyClass {
+  margin: 0px;
+  padding: 0px;
+}
