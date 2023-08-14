@@ -146,10 +146,9 @@ export const Assessment = {
         .database()
         .ref(`assessments/submissions/${data.course}/${data.chapter}`)
         .orderByChild("location")
-        .equalTo(data.location)
+        .equalTo(data.location?.label || data.location)
         .get()
         .then((data) => {
-          // console.log(" >>>>> ", data.val());
           res(data.val());
         })
         .catch((err) => {

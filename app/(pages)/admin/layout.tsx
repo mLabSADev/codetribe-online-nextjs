@@ -1,96 +1,96 @@
-
-'use client'
+"use client";
 
 import {
-    EyeInvisibleOutlined,
-    EyeTwoTone,
-    MenuOutlined,
-  } from "@ant-design/icons"
-  import Icon from "@ant-design/icons/lib/components/AntdIcon"
-  import {
-    Layout,
-    Menu,
-    Modal,
-    Drawer as ADrawer,
-    Form,
-    Input,
-    Alert,
-  } from "antd"
-  import React, { useEffect, useState } from "react"
-  import MenuIcon from "@mui/icons-material/Menu"
-  import { Button, IconButton } from "@mui/material"
-import { AuthService } from "@/app/services/auth-service"
-import Drawer from "@/app/components/drawer"
-import EditProfile from "@/app/modals/edit-profile"
-  
-  interface IPageLayout {
-    children: any
-    active: string
-  }
+  EyeInvisibleOutlined,
+  EyeTwoTone,
+  MenuOutlined,
+} from "@ant-design/icons";
+import Icon from "@ant-design/icons/lib/components/AntdIcon";
+import {
+  Layout,
+  Menu,
+  Modal,
+  Drawer as ADrawer,
+  Form,
+  Input,
+  Alert,
+} from "antd";
+import React, { useEffect, useState } from "react";
+import MenuIcon from "@mui/icons-material/Menu";
+import { Button, IconButton } from "@mui/material";
+import { AuthService } from "@/app/services/auth-service";
+import Drawer from "@/app/components/drawer";
+import EditProfile from "@/app/modals/edit-profile";
 
-  const PageLayout = ({ children, active }: IPageLayout) => {
-    const [collapsed, setCollapsed] = useState(true)
-    const [loggedIn, setLoggedIn] = useState(true)
-    const [showEditProfile, setShowEditProfile] = useState(false)
-    const [changePassword, setChangePassword] = useState(false)
-    const [savingChangePassword, setSavingChangePassword] = useState(false)
-    const [error, setError] = useState<any | null>()
-  
-    useEffect(() => {
-      AuthService.currentUser().then(profile => {
-        console.log(profile)
-        if (!profile.changedPassword) {
-          setError(null)
-          console.log("Change password")
-          setChangePassword(true)
-        }
+interface IPageLayout {
+  children: any;
+  active: string;
+}
+
+const PageLayout = ({ children, active }: IPageLayout) => {
+  const [collapsed, setCollapsed] = useState(true);
+  const [loggedIn, setLoggedIn] = useState(true);
+  const [showEditProfile, setShowEditProfile] = useState(false);
+  const [changePassword, setChangePassword] = useState(false);
+  const [savingChangePassword, setSavingChangePassword] = useState(false);
+  const [error, setError] = useState<any | null>();
+
+  useEffect(() => {
+    AuthService.currentUser().then((profile) => {
+      // console.log(profile)
+      if (!profile.changedPassword) {
+        setError(null);
+        console.log("Change password");
+        setChangePassword(true);
+      }
+    });
+  }, []);
+
+  const onCloseEditProfile = () => {
+    setShowEditProfile(false);
+  };
+
+  const toggleMenu = () => {
+    setCollapsed(!collapsed);
+  };
+
+  const handleChangePassword = (values: any) => {
+    setSavingChangePassword(true);
+    AuthService.changePassword(values.currentPassword, values.password)
+      .then(() => {
+        setChangePassword(false);
       })
-    }, [])
-  
-    const onCloseEditProfile = () => {
-      setShowEditProfile(false)
-    }
-  
-    const toggleMenu = () => {
-      setCollapsed(!collapsed)
-    }
-  
-    // const handleChangePassword = (values: any) => {
-    //   setSavingChangePassword(true)
-    //   AuthService.changePassword(values.currentPassword, values.password)
-    //     .then(() => {
-    //       setChangePassword(false)
-    //     })
-    //     .catch(err => {
-    //       setError(err.message)
-    //     })
-    //     .finally(() => {
-    //       setSavingChangePassword(false)
-    //     })
-    // }
-  
-    const ignoreClick = () => {
-      setSavingChangePassword(true)
-      AuthService.keepPassword()
-        .then(() => {
-          setChangePassword(false)
-        })
-        .catch(err => {
-          setError(err.message)
-        })
-        .finally(() => {
-          setSavingChangePassword(false)
-        })
-    }
-  
-    return (
-      <Layout
-        style={{
-          minHeight: "100vh",
-        }}
-        hasSider
-      >
-        {/* <Layout.Sider collapsedWidth='0' collapsible trigger={null} collapsed={collapsed} open={true}>
+      .catch((err) => {
+        setError(err.message);
+      })
+      .finally(() => {
+        setSavingChangePassword(false);
+      });
+  };
+
+  const ignoreClick = () => {
+    setSavingChangePassword(true);
+    AuthService.keepPassword()
+      .then(() => {
+        setChangePassword(false);
+      })
+      .catch((err) => {
+        setError(err.message);
+      })
+      .finally(() => {
+        setSavingChangePassword(false);
+      });
+  };
+
+  return (
+    <Layout
+      style={{
+        minHeight: "100vh",
+      }}
+      hasSider
+    >
+      {/* <Layout.Sider collapsedWidth='0' collapsible trigger={null} collapsed={collapsed} open={true}>
+
                   <div style={{
                       background: 'white',
                       minHeight: '100vh',
@@ -107,82 +107,87 @@ import EditProfile from "@/app/modals/edit-profile"
                       
                   </div>
               </Layout.Sider> */}
-  
-        <ADrawer
-          width={300}
-          closable={false}
-          open={!collapsed}
-          placement="left"
-          onClose={() => setCollapsed(true)}
-        >
-          <div
-            style={{
-              position: "relative",
-              width: "100%",
-            }}
-          >
-            <Drawer active={active} />
-          </div>
-        </ADrawer>
-  
-        <Layout>
-          <Layout.Header
-            style={{
-              background: "white",
-              padding: 0,
-              position: "relative",
-              height: 0, // was  40
-            }}
-          >
-            {/* <div style={{ */}
-            {/*     display: 'flex', */}
-            {/*     alignItems: 'center', */}
-            {/*     flexDirection: 'row', */}
-            {/*     height: '100%', */}
-            {/*     marginRight: 20 */}
-            {/* }}> */}
-            {/*     <div style={{flex: 1}} /> */}
-            {/*     <span style={{marginRight: 10}}>Course Progress</span> */}
-            {/*     <CourseProgress image={'/images/react.png'} progress={50} course='reactjs' /> */}
-            {/*     <CourseProgress image={'/images/react-native.png'} progress={78} course='react-native' /> */}
-            {/*     <CourseProgress image={'/images/ionic.png'} progress={20} course='ionic' /> */}
-            {/* </div> */}
-          </Layout.Header>
-          <Layout.Content
-            style={{
-              minHeight: "100vh",
-              background:
-                'linear-gradient(0deg, rgba(255,255,255,1) 70%, rgba(255,255,255,0.7) 100%), url("https://plus.unsplash.com/premium_photo-1673890230816-7184bee134db?ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D&auto=format&fit=crop&w=627&q=80")',
-              backgroundSize: "cover",
-              backgroundAttachment: "fixed",
-              // backgroundRepeat: "no-repeat",
-            }}
-          >
-            <div style={{ paddingRight: 20, paddingLeft: 20 }}>{children}</div>
-          </Layout.Content>
-        </Layout>
-        {showEditProfile && <EditProfile onCancel={onCloseEditProfile} />}
-  
-        <IconButton
-        //   size="90"
-          sx={{
-            position: "fixed",
-            top: 10,
-            left: 10,
-            background: "green",
-            zIndex: 15,
-            width: 40,
-            height: 40,
-            borderRadius: "50%",
-            border: "none",
-            color: "white",
-            backgroundColor: "rgb(130, 200, 3)",
+
+      <ADrawer
+        width={300}
+        closable={false}
+        open={!collapsed}
+        placement="left"
+        onClose={() => setCollapsed(true)}
+      >
+        <div
+          style={{
+            position: "relative",
+            width: "100%",
           }}
-          onClick={toggleMenu}
         >
-          <MenuIcon />
-        </IconButton>
-        {/* <button
+          <Drawer
+            toggleDrawer={() => {
+              toggleMenu();
+            }}
+            active={active}
+          />
+        </div>
+      </ADrawer>
+
+      <Layout>
+        <Layout.Header
+          style={{
+            background: "white",
+            padding: 0,
+            position: "relative",
+            height: 0, // was  40
+          }}
+        >
+          {/* <div style={{ */}
+          {/*     display: 'flex', */}
+          {/*     alignItems: 'center', */}
+          {/*     flexDirection: 'row', */}
+          {/*     height: '100%', */}
+          {/*     marginRight: 20 */}
+          {/* }}> */}
+          {/*     <div style={{flex: 1}} /> */}
+          {/*     <span style={{marginRight: 10}}>Course Progress</span> */}
+          {/*     <CourseProgress image={'/images/react.png'} progress={50} course='reactjs' /> */}
+          {/*     <CourseProgress image={'/images/react-native.png'} progress={78} course='react-native' /> */}
+          {/*     <CourseProgress image={'/images/ionic.png'} progress={20} course='ionic' /> */}
+          {/* </div> */}
+        </Layout.Header>
+        <Layout.Content
+          style={{
+            minHeight: "100vh",
+            background:
+              'linear-gradient(0deg, rgba(255,255,255,1) 70%, rgba(255,255,255,0.7) 100%), url("https://plus.unsplash.com/premium_photo-1673890230816-7184bee134db?ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D&auto=format&fit=crop&w=627&q=80")',
+            backgroundSize: "cover",
+            backgroundAttachment: "fixed",
+            // backgroundRepeat: "no-repeat",
+          }}
+        >
+          <div style={{ paddingRight: 20, paddingLeft: 20 }}>{children}</div>
+        </Layout.Content>
+      </Layout>
+      {showEditProfile && <EditProfile onCancel={onCloseEditProfile} />}
+
+      <IconButton
+        //   size="90"
+        sx={{
+          position: "fixed",
+          top: 10,
+          left: 10,
+          background: "green",
+          zIndex: 15,
+          width: 40,
+          height: 40,
+          borderRadius: "50%",
+          border: "none",
+          color: "white",
+          backgroundColor: "rgb(130, 200, 3)",
+        }}
+        onClick={toggleMenu}
+      >
+        <MenuIcon />
+      </IconButton>
+      {/* <button
           style={{
             position: "fixed",
             top: 10,
@@ -199,8 +204,8 @@ import EditProfile from "@/app/modals/edit-profile"
         >
           <MenuOutlined color="white" />
         </button> */}
-  
-        {/* <Modal
+
+      {/* <Modal
           title="Change Password"
           open={changePassword}
           onCancel={() => setChangePassword(false)}
@@ -309,9 +314,8 @@ import EditProfile from "@/app/modals/edit-profile"
             </Button>
           </Form>
         </Modal> */}
-      </Layout>
-    )
-  }
-  
-  export default PageLayout
-  
+    </Layout>
+  );
+};
+
+export default PageLayout;

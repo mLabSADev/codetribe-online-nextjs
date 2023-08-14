@@ -100,7 +100,13 @@ const MenuButton = ({
   );
 };
 
-const Drawer = ({ active }: { active: string }) => {
+const Drawer = ({
+  active,
+  toggleDrawer,
+}: {
+  active: string;
+  toggleDrawer: any;
+}) => {
   const image = "/images/icon.png";
   const [profile, setProfile] = useState<any>();
 
@@ -325,6 +331,7 @@ const Drawer = ({ active }: { active: string }) => {
           active={activeNav == "home"}
           to={"/home"}
           icon={<UnorderedListOutlined />}
+          onClick={toggleDrawer}
         >
           Browse
         </MenuButton>
@@ -335,6 +342,7 @@ const Drawer = ({ active }: { active: string }) => {
               active={activeNav == "students"}
               to={"/admin/students"}
               icon={<UserOutlined />}
+              onClick={toggleDrawer}
             >
               Students
             </MenuButton>
@@ -342,6 +350,7 @@ const Drawer = ({ active }: { active: string }) => {
               active={activeNav == "courses"}
               to={"/admin/courses"}
               icon={<VideoCameraOutlined />}
+              onClick={toggleDrawer}
             >
               Courses
             </MenuButton>
@@ -349,6 +358,7 @@ const Drawer = ({ active }: { active: string }) => {
               active={activeNav == "assessments"}
               to={"/admin/assessments"}
               icon={<BookOutlined />}
+              onClick={toggleDrawer}
             >
               Assessments
             </MenuButton>
