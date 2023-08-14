@@ -133,7 +133,8 @@ export const AuthService = {
   changePassword: (currentPassword: string, password: string) => {
     const { email, uid } = firebase.auth().currentUser!;
 
-    return firebase
+    if (firebase.auth().currentUser) {
+      return firebase
       .auth()
       .signInWithEmailAndPassword(email!, currentPassword)
       .then(() => {
@@ -146,6 +147,8 @@ export const AuthService = {
             });
           });
       });
+    }
+    
   },
   keepPassword: () => {
     const { uid } = firebase.auth().currentUser!;

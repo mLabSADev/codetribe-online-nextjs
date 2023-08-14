@@ -165,7 +165,7 @@ const LessonId = ({
             lessonToMoveTo = lesson;
           }
         }
-        course!.chapters.map((chapter, i) => {
+        course?.chapters.map((chapter, i) => {
           const np = nextPathname.split("/")[2];
           RunAssessmentFunc({
             course: course.key || np,
@@ -186,14 +186,12 @@ const LessonId = ({
       if (course) {
         LessonService.updateCurrentLesson(courseId, currentLesson.key).then(
           (res) => {
-            console.log(res);
           }
         );
         LessonService.updateCurrentChapter(
           courseId,
           currentLesson.chapterKey
         ).then((res) => {
-          console.log(res);
         });
       }
       if (lessonIndex) {
@@ -303,10 +301,9 @@ const LessonId = ({
           currentLesson
         )
           .then((res) => {
-            console.log(res, "res");
+
           })
           .catch((err) => {
-            console.log(err, "error");
           });
       } else if (isLessonFinished) {
         setisVideoFinished(true);
@@ -342,7 +339,6 @@ const LessonId = ({
             setOpenNotification({ error: false, success: true });
           })
           .catch((err) => {
-            console.log(err);
 
             setOpenNotification({ error: true, success: false });
           });
@@ -553,7 +549,6 @@ const LessonId = ({
                             //     })
                             //   )
                             // );
-                            console.log(sub);
 
                             setAssessmentDetails({
                               show: true,
@@ -895,7 +890,7 @@ const LessonId = ({
               bordered={false}
               expandIconPosition="end"
             >
-              {course!.chapters.map((chapter, i) => {
+              {course?.chapters.map((chapter, i) => {
                 let submitted = false;
                 let chapterTotalDuration = 0;
                 for (let chapterLesson of chapter.lessons) {

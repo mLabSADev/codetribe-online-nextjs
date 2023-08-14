@@ -20,7 +20,7 @@ import { Styles } from "../services/styles";
 import { Stack, Avatar, Typography, Box } from "@mui/material";
 import { usePathname } from "next/navigation";
 interface IMenuButton {
-  children?: any;
+  children: any;
   to?: string;
   active?: boolean;
   icon: any;
@@ -63,8 +63,10 @@ const MenuButton = ({
   icon,
   onClick,
 }: IMenuButton) => {
+  const router = useRouter()
+
   return (
-    <Link href={to ? to : ""}>
+    <a href={to ? to : ''}>
       {active ? (
         <Button
           type={"default"}
@@ -94,7 +96,7 @@ const MenuButton = ({
           {children}
         </Button>
       )}
-    </Link>
+    </a>
   );
 };
 

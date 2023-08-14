@@ -68,20 +68,23 @@ const CreateEditQuiz = ({
       isQuiz: true,
     };
 
-    console.log("Checking");
-    console.log(lessonToSave);
+    // console.log("Checking");
+    // console.log(lessonToSave);
 
-    return CoursesService.saveLesson(course!.key, chapter!, lessonToSave)
+    if (course) {
+      return CoursesService.saveLesson(course?.key, chapter!, lessonToSave)
       .then(() => {
         // setSaving(false)
 
         onCancel();
       })
       .catch((err) => {
-        console.log(err);
+        // console.log(err);
 
         setErrorMessage(err.message);
       });
+    }
+    
   };
 
   const onAddAnswer = (index: number) => {
@@ -95,11 +98,15 @@ const CreateEditQuiz = ({
   };
 
   const markAsCorrect = (questionIndex: number, answerIndex: number) => {
-    currentQuiz!.questions[questionIndex].correctAnswer = answerIndex + 1;
 
-    setQuiz({
-      ...currentQuiz,
-    });
+    if (currentQuiz) {
+      currentQuiz.questions[questionIndex].correctAnswer = answerIndex + 1;
+
+      setQuiz({
+        ...currentQuiz,
+      });
+    }
+    
   };
 
   return (

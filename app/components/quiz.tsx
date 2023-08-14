@@ -13,11 +13,11 @@ const QuizView = ({
   chapterId: string;
   quizId: string;
 }) => {
-  console.log(quiz);
+  // console.log(quiz);
 
   const onComplete = (data: any) => {
     LessonService.saveQuiz(courseId, chapterId, quizId, data).then(() => {
-      console.log(`Lesson Saved`);
+      // console.log(`Lesson Saved`);
     });
   };
 

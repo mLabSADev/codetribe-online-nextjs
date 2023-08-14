@@ -90,6 +90,7 @@ const PageLayout = ({ children, active }: IPageLayout) => {
       hasSider
     >
       {/* <Layout.Sider collapsedWidth='0' collapsible trigger={null} collapsed={collapsed} open={true}>
+
                   <div style={{
                       background: 'white',
                       minHeight: '100vh',
