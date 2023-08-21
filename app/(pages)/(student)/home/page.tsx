@@ -5,7 +5,7 @@ import "swiper/css/pagination";
 import "swiper/css/scrollbar";
 import React, { useEffect, useState } from "react";
 import { useRouter } from "next/navigation";
-import { Avatar, Stack, Typography as MUITypography, Box } from "@mui/material";
+import { Avatar, Stack, Typography as MUITypography, Box, IconButton } from "@mui/material";
 import { Button, Divider, Input, Typography } from "antd";
 import { AuthService } from "@/app/services/auth-service";
 import StudentProgress from "@/app/components/student-progress";
@@ -18,6 +18,7 @@ import { CoursesService } from "@/app/services/courses-service";
 import { Swiper, SwiperSlide } from "swiper/react";
 import { Navigation, Pagination, Mousewheel, Keyboard } from "swiper/modules";
 
+
 function stringToColor(string: string) {
   let hash = 0;
   let i;
@@ -26,7 +27,6 @@ function stringToColor(string: string) {
   for (i = 0; i < string.length; i += 1) {
     hash = string.charCodeAt(i) + ((hash << 5) - hash);
   }
-
   let color = "#";
 
   for (i = 0; i < 3; i += 1) {
@@ -157,6 +157,7 @@ const Home = () => {
   const [isLoggedIn, setIsLoggedIn] = useState(false);
   const [courses, setCourses] = useState<any>([]);
   const [progressList, setProgressList] = useState<any>([]);
+  const [openProfile, setOpenProfile] = useState<boolean>(false);
   const router = useRouter();
 
   const [user, setUser] = useState<any>(null);
@@ -305,12 +306,18 @@ const Home = () => {
       {/* <HomeContent /> */}
 
       <Stack py={5} spacing={2} alignItems={"center"}>
-        <Avatar
-          //   sx={{ width: 56, height: 56 }}
-          {...stringAvatar(
-            `${user?.firstname || "C"} ${user?.lastname || "T"}`
-          )}
-        />
+        <IconButton onClick={() => {
+          router.push("/profile")
+        }}>
+          <Avatar
+
+            //   sx={{ width: 56, height: 56 }}
+            {...stringAvatar(
+              `${user?.firstname || "C"} ${user?.lastname || "T"}`
+            )}
+          />
+        </IconButton>
+
         <Typography.Title style={{ fontSize: 28, margin: 0 }}>
           {user?.firstname} {user?.lastname}
         </Typography.Title>

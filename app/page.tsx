@@ -260,20 +260,20 @@ const Signin = () => {
         </Fab>
       </Box> */}
       <Box position={"absolute"} top={0} left={0} right={0} bottom={0}>
-        <iframe
+        {/* <iframe
           style={{ border: 0 }}
           src={bgLink.link}
           // frameborder="0"
           width="100%"
           height="100%"
-        ></iframe>
+        ></iframe> */}
       </Box>
       <Stack
         direction={{ xs: "column", sm: "column", md: "column", lg: "row" }}
         flex={1}
         // height={"100%"}
         spacing={2}
-        // overflow={"hidden"}
+      // overflow={"hidden"}
       >
         {/* Text & illustration */}
         <Stack

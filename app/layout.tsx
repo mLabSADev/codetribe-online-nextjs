@@ -65,10 +65,14 @@ export default function RootLayout({
       MuiButton: {
         styleOverrides: {
           contained: {
-            borderRadius: 30,
             color: "white",
           },
         },
+        defaultProps: {
+          sx: {
+            borderRadius: 30,
+          }
+        }
       },
       MuiFab: {},
       MuiTypography: {
