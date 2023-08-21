@@ -742,11 +742,11 @@ const LessonId = ({
                   {currentLesson?.title}
                 </Typography>
               </Stack>
-              {currentLesson && currentLesson.isQuiz && (
+              {currentLesson && currentLesson.quiz && (
                 <Stack spacing={4} pt={8}>
                   {/* :TODO these props need to be supplied */}
                   <QuizView
-                    quiz={currentLesson.isQuiz}
+                    quiz={currentLesson.quiz}
                     quizId=""
                     chapterId=""
                     courseId=""
