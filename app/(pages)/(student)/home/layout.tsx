@@ -28,7 +28,7 @@ interface IPageLayout {
   active: string;
 }
 
-const PageLayout = (props:any) => {
+const PageLayout = (props: any) => {
   const [collapsed, setCollapsed] = useState(true);
   const [loggedIn, setLoggedIn] = useState(true);
   const [showEditProfile, setShowEditProfile] = useState(false);
@@ -116,7 +116,12 @@ const PageLayout = (props:any) => {
         onClose={() => setCollapsed(true)}
       >
         <Stack height={"100%"} flex={1}>
-          <Drawer active={props.active} />
+          <Drawer
+            active={props.active}
+            toggleDrawer={() => {
+              toggleMenu();
+            }}
+          />
         </Stack>
       </ADrawer>
 
@@ -153,7 +158,9 @@ const PageLayout = (props:any) => {
             // backgroundRepeat: "no-repeat",
           }}
         >
-          <div style={{ paddingRight: 20, paddingLeft: 20 }}>{props.children}</div>
+          <div style={{ paddingRight: 20, paddingLeft: 20 }}>
+            {props.children}
+          </div>
         </Layout.Content>
       </Layout>
       {showEditProfile && <EditProfile onCancel={onCloseEditProfile} />}
