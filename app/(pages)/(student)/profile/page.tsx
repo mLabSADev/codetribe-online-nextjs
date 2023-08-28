@@ -1,15 +1,35 @@
 "use client";
-import { Stack, Typography, Slide, IconButton, Button, Container, Avatar, Chip, Card, CardContent, Backdrop, AppBar, Toolbar, Drawer } from "@mui/material";
-import { Form, Image, Input, Modal, Button as ANTButton } from "antd";
+import { Stack, Typography, Slide, IconButton, Button, Container, Avatar, Chip, Card, CardContent, Backdrop, AppBar, Toolbar, Drawer, Box } from "@mui/material";
+import { Form, Image, Input, Modal, Button as ANTButton, Select, Upload, Divider, Tooltip, Spin, message, Space } from "antd";
 import { Remove, Facebook, LinkedIn, WhatsApp, GitHub, LinkRounded, OpenInBrowser, ArrowBack, Close, Add, RemoveCircle } from "@mui/icons-material";
 import React, { useEffect, useState } from "react";
 import { AuthService } from "@/app/services/auth-service";
 import { useRouter } from "next/navigation";
+import type { RcFile, UploadProps } from 'antd/es/upload';
+import { PlusOutlined, QuestionCircleFilled, FileImageOutlined, UploadOutlined, MinusCircleOutlined } from '@ant-design/icons';
 import { ProfileService } from "@/app/services/profile-service";
 import { Formik } from "formik";
 import FormItem from "antd/es/form/FormItem";
+import type { UploadFile } from 'antd/es/upload/interface';
+import type { UploadChangeParam } from 'antd/es/upload';
+import { FileService } from "@/app/services/file-service";
+import firebase from "firebase";
+import { object } from "yup";
+import { CoursesService } from "@/app/services/courses-service";
+import Course from "@/app/dtos/course";
+
+const storageRef = firebase.storage().ref()
+const socialOptions = ['linkedin', 'facebook', 'github', 'whatsapp']
+
+const { Option } = Select;
+const { Dragger } = Upload;
+const getBase64 = (img: RcFile, callback: (url: string) => void) => {
+  const reader = new FileReader();
+  reader.addEventListener('load', () => callback(reader.result as string));
+  reader.readAsDataURL(img);
+};
 const GetSocialsIcon = ({ social }: { social: string }) => {
-  ['linkedin', 'facebook', 'github', 'whatsapp']
+
   switch (social) {
     case 'linkedin':
       return <LinkedIn />
@@ -28,8 +48,11 @@ const GetSocialsIcon = ({ social }: { social: string }) => {
 const ProjectCard = ({ openDetails }: { openDetails: Function }) => {
   return (
     <Stack sx={{ width: { xs: '100%', sm: '100%', md: 100, lg: 300 } }} borderRadius={3} overflow={'hidden'}>
-      <Stack sx={{ width: "100%", height: 200 }}>
+      <Stack sx={{ width: "100%", height: 200 }} position={'relative'}>
         <img width={'100%'} height={"100%"} style={{ objectFit: 'cover' }} src="https://plus.unsplash.com/premium_photo-1692196626076-08b7c0d2ca09?ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D&auto=format&fit=crop&w=627&q=80" alt="bg" />
+        <Box position={"absolute"} bottom={10} right={10}>
+          <Avatar sx={{ width: 50, height: 50 }}>KM</Avatar>
+        </Box>
       </Stack>
       <Stack p={2} spacing={2}>
         <Button variant="text" sx={{ textAlign: 'start', textDecoration: 'none' }} onClick={() => { openDetails() }}>
@@ -41,7 +64,6 @@ const ProjectCard = ({ openDetails }: { openDetails: Function }) => {
         </Stack>
       </Stack>
       <Stack alignItems={'center'} direction={'row'} justifyContent={'center'} spacing={1}>
-        <IconButton><LinkedIn /></IconButton>
         <IconButton><GitHub /></IconButton>
       </Stack>
     </Stack>
@@ -53,7 +75,7 @@ const ProjectDetails = ({ openState, toggleDetails }: { openState: boolean, togg
     <Backdrop sx={{ color: '#fff', zIndex: (theme) => theme.zIndex.drawer + 1 }}
       open={openState}
       onClick={() => toggleDetails()}>
-      <Stack direction={{ sm: 'column', md: 'row' }} sx={{ color: 'black', overflowX: 'hidden', overflowY: 'auto' }} maxWidth={'90%'} minWidth={'90%'} minHeight={'96%'} maxHeight={'96%'} bgcolor={'white'} borderRadius={3} >
+      <Stack direction={{ sm: 'column', md: 'row' }} sx={{ color: 'black', overflowX: 'hidden', overflowY: 'auto' }} maxWidth={'90%'} minWidth={'90%'} bgcolor={'white'} borderRadius={3} >
 
         <Stack p={2}>
           <Stack direction={{ xs: 'row', sm: 'column', md: 'column' }}>
@@ -91,32 +113,141 @@ const ProjectDetails = ({ openState, toggleDetails }: { openState: boolean, togg
     </Backdrop>
   )
 }
+const uploadButton = (
+  <div>
+    <PlusOutlined />
+    <div style={{ marginTop: 8 }}>Upload</div>
+  </div>
+);
 const Profile = () => {
-  const [courseStats, setCourseStats] = useState<{ angular: number, reactjs: number, nodejs: number, }>({ angular: 0, nodejs: 0, reactjs: 0 })
   const [openDetails, setOpenDetails] = React.useState(false);
   const [profile, setProfile] = React.useState<any>({})
   const [editProfile, setEditProfile] = React.useState(false)
+  const [projectModal, setProjectModal] = React.useState(false)
+  const [previewOpen, setPreviewOpen] = useState(false);
+  const [previewImage, setPreviewImage] = useState('');
+  const [previewTitle, setPreviewTitle] = useState('');
+  const [loading, setLoading] = useState(false);
+  const [imageUrl, setImageUrl] = useState<string>();
+  const [courses, setCourses] = useState<[string]>(['']);
+  const [projectScreenshot, setProjectScreenshot] = useState('');
+  const [projectIcon, setProjectIcon] = useState('');
   const router = useRouter()
+
   const [form] = Form.useForm();
+  const [projectsForm] = Form.useForm();
+  const handleCancel = () => setPreviewOpen(false);
+
+  const handlePreview = async (file: UploadFile) => {
+    if (!file.url && !file.preview) {
+      file.preview = imageUrl
+    }
+
+    setPreviewImage(file.url || (file.preview as string));
+    setPreviewOpen(true);
+    setPreviewTitle(file.name || file.url!.substring(file.url!.lastIndexOf('/') + 1));
+  };
+  const handleChange: UploadProps['onChange'] = (info: UploadChangeParam<UploadFile>) => {
+    console.log(info);
+    const uploadTask = storageRef.child(`profilepictures/${info.file.name}`).put(info.file.thumbUrl);
+    uploadTask.on('state_changed',
+      (snapshot) => {
+        // Observe state change events such as progress, pause, and resume
+        // Get task progress, including the number of bytes uploaded and the total number of bytes to be uploaded
+        var progress = (snapshot.bytesTransferred / snapshot.totalBytes) * 100;
+        console.log('Upload is ' + progress + '% done');
+        switch (snapshot.state) {
+          case firebase.storage.TaskState.PAUSED: // or 'paused'
+            console.log('Upload is paused');
+            break;
+          case firebase.storage.TaskState.RUNNING: // or 'running'
+            console.log('Upload is running');
+            break;
+        }
+      },
+      (error) => {
+        // Handle unsuccessful uploads
+      },
+      () => {
+        // Handle successful uploads on complete
+        // For instance, get the download URL: https://firebasestorage.googleapis.com/...
+        uploadTask.snapshot.ref.getDownloadURL().then((downloadURL) => {
+          setImageUrl(downloadURL)
+          console.log('File available at', downloadURL);
+        });
+      }
+    );
+  };
+  const projectProps: UploadProps = {
+    name: 'projectScreenshot',
+    multiple: false,
+    onChange(info) {
+      const { status } = info.file;
+      if (status !== 'uploading') {
+        console.log(info.file, info.fileList);
+      }
+      if (status === 'done') {
+        message.success(`${info.file.name} file uploaded successfully.`);
+      } else if (status === 'error') {
+        message.error(`${info.file.name} file upload failed.`);
+      }
+    },
+    onDrop(e) {
+      console.log('Dropped files', e.dataTransfer.files);
+    },
+  };
+  const projectIconProps: UploadProps = {
+    name: 'projectIcon',
+    multiple: false,
+    onChange({ file, fileList }) {
+      if (file.status !== 'uploading') {
+        console.log(file, fileList);
+      }
+    },
+    defaultFileList: [
+
+    ],
+  };
   const handleClose = () => {
     setOpenDetails(false);
   };
   const handleOpen = () => {
     setOpenDetails(true);
   };
-  const user = AuthService.currentUser().then(res => { return res }).catch(err => { return err })
-  const socials = ['linkedin', 'facebook', 'github', 'whatsapp']
-  useEffect(() => {
-    ProfileService.profile().then(profile => {
-      setProfile(profile)
-      console.log(profile);
 
+  useEffect(() => {
+    CoursesService.courses().then((res) => {
+      setCourses([''])
+      let c: any = []
+      res.forEach((course: Course) => {
+        c.push(course.key)
+      })
+      setCourses(c)
+      console.log(courses, c);
+
+    })
+    AuthService.isLoggedIn().then((res) => {
+      console.log(res);
+      form.setFieldValue('email', res.email)
+    })
+    ProfileService.profile().then(profile => {
+      console.log(profile);
+      setImageUrl(profile.profilePicture)
+      Object.keys(profile).map(item => {
+        form.setFieldValue(item, profile[item])
+      })
+      setProfile(profile)
     }).catch(err => { })
   }, [])
   return (
     <>
       <>
-        <Stack sx={{
+        {!profile.firstname && (
+          <Stack flex={1} height={'100vh'} justifyItems={'center'} alignItems={'center'}>
+            <Spin tip="Loading..." />
+          </Stack>
+        )}
+        {profile.firstname && (<Stack sx={{
           background:
             'linear-gradient(0deg, rgba(255,255,255,1) 70%, rgba(255,255,255,0.7) 100%), url("https://plus.unsplash.com/premium_photo-1673890230816-7184bee134db?ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D&auto=format&fit=crop&w=627&q=80")',
           backgroundRepeat: 'no-repeat',
@@ -128,59 +259,134 @@ const Profile = () => {
               <Typography variant="h6">Edit Profile</Typography>
             </Toolbar>
             <Stack p={5} width={{ xs: '100%', sm: 500 }}>
+              <Modal zIndex={200000} open={previewOpen} title={previewTitle} footer={null} onCancel={handleCancel}>
+                <img alt="example" style={{ width: '100%' }} src={imageUrl} />
+              </Modal>
+              <Divider orientation="left" >Personal Details</Divider>
+              <Form form={form} name="validateOnly" layout="vertical" onFinish={(values) => {
+                var cleanProfile: any = {}
+                Object.keys(values).map(item => {
+                  if (values[item]) {
+                    cleanProfile[item] = values[item]
+                  }
+                })
+                ProfileService.updateProfile(profile.uid, { ...cleanProfile, ...profile, profilePicture: imageUrl, }).then(res => {
+                  setEditProfile(false)
+                }).catch(err => {
+                  console.log(err);
 
-              <Form form={form} name="validateOnly" layout="vertical" autoComplete="off">
-                <FormItem name={'firstname'} label="First Name">
+                })
+
+              }} autoComplete="off">
+
+                <FormItem name={'firstname'} label="First Name" rules={[{ required: true, message: 'First Name is required.' }]}>
                   <Input />
                 </FormItem>
-                <FormItem name={'lastname'} label="Last Name">
+                <FormItem name={'lastname'} label="Last Name" rules={[{ required: true, message: 'Last Name is required.' }]}>
                   <Input />
                 </FormItem>
-                <FormItem name={'bio'} label="Bio">
+                <Tooltip zIndex={2000} title="Soweto, Thembisa, etc"  >
+                  <QuestionCircleFilled />
+                </Tooltip>
+                <FormItem name="location" label="Location" rules={[{ required: true, message: 'Location is required.', }]} >
+                  <Input />
+                </FormItem>
+
+                <FormItem name={'email'} label="Email" rules={[{ required: true, message: 'Email is required.', type: 'email' }]}>
+                  <Input />
+                </FormItem>
+                <FormItem name={'cellphone'} label="Cell Phone" rules={[{ required: true, message: 'Cell Phone is required.' }]}>
+                  <Input />
+                </FormItem>
+                <FormItem name={'bio'} label="Bio" rules={[{ required: true, message: 'Bio is required.' }]}>
                   <Input.TextArea />
                 </FormItem>
-                <Form.List name="socials">
-                  {(fields, { add, remove }) => (
-                    <>
-                      {fields.map(({ key, name, ...restField }) => {
-                        return (
-                          <Stack direction={'row'} gap={1} alignItems={'center'}>
-                            <FormItem {...restField} name={[name, 'label']}>
-                              <Input></Input>
-                            </FormItem>
-                            <FormItem {...restField} name={[name, 'url']}>
-                              <Input />
-                            </FormItem>
-                            <IconButton onClick={() => {
-                              remove(name)
+                <Divider orientation="left" >Online Profiles</Divider>
+                {socialOptions.map((item) => {
+                  return (
+                    <FormItem key={item} name={item} label={item}>
+                      <Input prefix="URL" />
+                    </FormItem>
+                  )
+                })}
 
-                            }}>
-                              <RemoveCircle></RemoveCircle>
-                            </IconButton>
-                          </Stack>
-                        )
-                      })}
-                      <Stack>
-                        <Form.Item>
-                          <ANTButton onClick={() => add()} type="dashed">Add Field</ANTButton>
-                        </Form.Item>
-                      </Stack>
-                    </>
-                  )}
-                </Form.List>
-                <FormItem name={'firstname'} label="FirstName">
-                  <Input />
-                </FormItem>
-                <FormItem name={'firstname'} label="FirstName">
-                  <Input />
-                </FormItem>
-                <FormItem name={'firstname'} label="FirstName">
-                  <Input />
-                </FormItem>
-                <ANTButton>Submit</ANTButton>
+                <ANTButton type="primary" htmlType="submit" >Submit</ANTButton>
               </Form>
             </Stack>
           </Drawer>
+          <Modal zIndex={2000} open={projectModal} footer={false} onCancel={() => { setProjectModal(false) }}>
+
+            <Stack spacing={2}>
+              <Typography>New Project</Typography>
+
+              <Form form={projectsForm} layout="vertical" onFinish={(values) => {
+                console.log(values);
+              }}>
+
+                <FormItem name={'projectIcon'} rules={[{ required: true, type: 'object' }]}>
+                  <Upload {...projectIconProps}>
+                    <ANTButton icon={<UploadOutlined />}>Upload Application Icon</ANTButton>
+                  </Upload>
+                </FormItem>
+                <FormItem name={'projectScreenshot'} rules={[{ required: true, type: 'object' }]}>
+                  <Dragger {...projectProps}>
+                    <FileImageOutlined />
+                    <Typography variant="subtitle1">Click or drag file to this area to upload your project screenshot</Typography>
+                  </Dragger>
+                </FormItem>
+                <FormItem name="course" label="Course" rules={[{ required: true }]}>
+                  {courses.length > 0 && (<Select
+
+                    // onChange={onGenderChange}
+                    allowClear
+                  >{courses.map((course) => {
+                    return (
+                      <Option value={course}>{course}</Option>
+                    )
+                  })}
+                  </Select>
+                  )}
+                </FormItem>
+                <FormItem label="Title" name={'title'} rules={[{ required: true }]}>
+                  <Input />
+                </FormItem>
+                <FormItem label="Description" name={'description'} rules={[{ required: true, min: 250 }]}>
+                  <Input.TextArea />
+                </FormItem>
+                <Form.List name="tags">
+                  {(fields, { add, remove }) => (
+                    <>
+                      {fields.map(({ key, name, ...restField }) => (
+                        <Space key={key} style={{ display: 'flex', marginBottom: 8 }} align="baseline">
+                          <Form.Item
+                            {...restField}
+                            label='Tag'
+                            name={[name, 'tag']}
+                            rules={[{ required: true }]}
+                          >
+                            <Input placeholder="Tag" />
+                          </Form.Item>
+                          <MinusCircleOutlined onClick={() => remove(name)} />
+                        </Space>
+                      ))}
+                      <Form.Item>
+                        <ANTButton type="dashed" onClick={() => add()} block icon={<PlusOutlined />}>
+                          Add Tag
+                        </ANTButton>
+                      </Form.Item>
+                    </>
+                  )}
+                </Form.List>
+                <FormItem label="Live URL" name={'livesiteUrl'} rules={[{ required: true, type: 'url' }]}>
+                  <Input />
+                </FormItem>
+                <FormItem label="Github Project Link" name={'githubUrl'} rules={[{ required: true, type: 'url' }]}>
+                  <Input />
+                </FormItem>
+                <ANTButton type="primary" htmlType="submit">Submit</ANTButton>
+              </Form>
+            </Stack>
+          </Modal>
           <Container >
             <AppBar color="inherit" variant="outlined">
               <Toolbar variant="dense">
@@ -190,17 +396,23 @@ const Profile = () => {
             <ProjectDetails key={'project-details'} openState={openDetails} toggleDetails={() => { setOpenDetails(!openDetails) }} />
             <Stack py={15} spacing={5} alignItems={"center"}>
 
-              <IconButton onClick={() => { setEditProfile(true) }}>
+              <IconButton onClick={() => {
+                setEditProfile(true);
+                form.setFieldValue('firstname', profile?.firstname);
+                form.setFieldValue('lastname', profile?.lastname);
+              }}>
                 <Avatar sx={{ width: 199, height: 199 }} sizes="50" src="https://images.unsplash.com/photo-1691335799851-ea2799a51ff0?ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D&auto=format&fit=crop&w=693&q=80" alt="pp" />
               </IconButton>
 
               <Typography variant="h2">{profile?.firstname || 'Loading'} {profile?.lastname || "..."}</Typography>
-              <Typography variant="body1" textAlign={'center'}>Nunc quis tortor ut diam scelerisque volutpat ac ut felis. Nullam tincidunt lacinia eleifend. Vestibulum nisi augue, commodo sed tellus sed, condimentum lobortis orci. Aenean eu enim et arcu finibus facilisis nec vel orci.</Typography>
+              <Typography variant="body1" textAlign={'center'}>
+                {profile.bio ? profile.bio : 'Edit your profile to add a bio.'}
+              </Typography>
               <Stack spacing={1} gap={1} direction={{ sx: 'column', sm: 'column', md: 'row' }}>
-                <Chip label="janedoe@gmail.com"></Chip>
-                <Chip label={'location'}></Chip>
+                <Chip label={profile.email}></Chip>
+                <Chip label={profile.location}></Chip>
               </Stack>
-              <Stack direction={{ sx: 'column', sm: 'column', md: 'row' }}>
+              <Stack direction={{ sx: 'column', sm: 'row', md: 'row' }}>
                 <IconButton ><Facebook></Facebook></IconButton>
                 <IconButton ><LinkedIn></LinkedIn></IconButton>
                 <IconButton ><WhatsApp></WhatsApp></IconButton>
@@ -240,20 +452,22 @@ const Profile = () => {
               <Stack py={5} spacing={1}>
                 <Typography textAlign={'center'} variant="h4">My Projects</Typography>
                 <Stack flex={1}>
-                  <Button variant="outlined" size="small"  >Add Project</Button>
+                  <Button onClick={() => {
+                    setProjectModal(true)
+                  }} variant="outlined" size="small"  >Add Project</Button>
                 </Stack>
               </Stack>
-              <Stack spacing={1} direction={'row'} flexWrap={'wrap'} width={'100%'} justifyContent={'center'}>
-                <ProjectCard openDetails={() => { setOpenDetails(!openDetails) }} />
-                <ProjectCard openDetails={() => { setOpenDetails(!openDetails) }} />
-                <ProjectCard openDetails={() => { setOpenDetails(!openDetails) }} />
-                <ProjectCard openDetails={() => { setOpenDetails(!openDetails) }} />
-                <ProjectCard openDetails={() => { setOpenDetails(!openDetails) }} />
-                <ProjectCard openDetails={() => { setOpenDetails(!openDetails) }} />
+              <Stack gap={5} direction={'row'} flexWrap={'wrap'} width={'100%'} justifyContent={'center'}>
+                {[1, 2, 3, 4, 5].map(ites => {
+                  return (<ProjectCard openDetails={() => { setOpenDetails(!openDetails) }} />)
+                })}
+
               </Stack>
             </Stack>
           </Container>
         </Stack >
+        )}
+
       </>
     </>
 

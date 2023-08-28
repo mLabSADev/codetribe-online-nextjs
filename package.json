@@ -6,7 +6,8 @@
     "dev": "next dev",
     "build": "next build",
     "start": "next start",
-    "lint": "next lint"
+    "lint": "next lint",
+    "prod": "node --max-old-space-size=8192 index.js"
   },
   "dependencies": {
     "@ant-design/cssinjs": "^1.16.2",
