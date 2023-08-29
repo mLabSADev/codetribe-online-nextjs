@@ -772,9 +772,9 @@ const Profile = () => {
                   flexWrap={"wrap"}
                   spacing={1}
                 >
-                  <Card variant="outlined">
-                    {projectStats.map((project: any) => {
-                      return (
+                  {projectStats.map((project: any) => {
+                    return (
+                      <Card variant="outlined">
                         <Stack
                           alignItems={"center"}
                           borderRadius={2}
@@ -786,10 +786,10 @@ const Profile = () => {
                             {project.label}{" "}
                             {project.count > 1 ? "Projects" : "Project"}
                           </Typography>
-                        </Stack>
-                      );
-                    })}
-                  </Card>
+                        </Stack>{" "}
+                      </Card>
+                    );
+                  })}
                 </Stack>
                 {/* <Stack
                   direction={{ xs: "column", sm: "column", md: "row" }}
