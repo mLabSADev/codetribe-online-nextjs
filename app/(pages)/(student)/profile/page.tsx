@@ -35,6 +35,7 @@ import {
   Space,
   Radio,
   Empty,
+  Popconfirm,
 } from "antd";
 import {
   Remove,
@@ -62,6 +63,8 @@ import {
   FileImageOutlined,
   UploadOutlined,
   MinusCircleOutlined,
+  EditFilled,
+  DeleteFilled,
 } from "@ant-design/icons";
 import { ProfileService } from "@/app/services/profile-service";
 import { Formik } from "formik";
@@ -187,15 +190,25 @@ const ProjectCard = ({
             MenuListProps={{
               "aria-labelledby": "basic-button",
             }}
+            variant="selectedMenu"
+            sx={{ padding: 5 }}
           >
-            <MenuItem onClick={() => handleEdit()}>
-              <Edit />
-              Edit
-            </MenuItem>
-            <MenuItem color="red" onClick={() => handleDelete()}>
-              <Delete />
-              Delete
-            </MenuItem>
+            <Stack spacing={1} p={1}>
+              <ANTButton onClick={() => handleEdit()}>
+                <EditFilled />
+                Edit
+              </ANTButton>
+              <Popconfirm
+                title="Are you sure you want to delete this project?"
+                onConfirm={() => handleDelete()}
+                style={{ zIndex: 30000000 }}
+              >
+                <ANTButton danger type="text">
+                  <DeleteFilled />
+                  Delete
+                </ANTButton>
+              </Popconfirm>
+            </Stack>
           </Menu>
         </Stack>
       </CardActions>
