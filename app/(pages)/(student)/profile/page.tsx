@@ -149,11 +149,17 @@ const ProjectCard = ({
         </Box> */}
       </Stack>
       <CardContent>
-        <Chip size="small" label={project.framework} />
-        <Typography color={"black"} variant="h5">
-          {project.title}
-        </Typography>
-        <Typography variant="body2">{project.description}</Typography>
+        <Stack spacing={2}>
+          <Chip
+            sx={{ alignSelf: "self-start" }}
+            size="small"
+            label={project.framework.toUpperCase()}
+          />
+          <Typography color={"black"} variant="h5">
+            {project.title}
+          </Typography>
+          <Typography variant="body2">{project.description}</Typography>
+        </Stack>
       </CardContent>
 
       <CardActions>
