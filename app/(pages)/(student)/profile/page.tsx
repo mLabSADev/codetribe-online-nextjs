@@ -77,7 +77,8 @@ import { object } from "yup";
 import { CoursesService } from "@/app/services/courses-service";
 import Course from "@/app/dtos/course";
 import { StudentsService } from "@/app/services/students-service";
-import Project from "@/app/dtos/project-dto";
+import { Project, ProjectKey } from "@/app/dtos/project-dto";
+import ProjectCard from "@/app/components/project-card";
 
 const storageRef = firebase.storage().ref();
 const socialOptions = ["linkedin", "facebook", "github", "whatsapp"];
@@ -105,121 +106,6 @@ const GetSocialsIcon = ({ social }: { social: string }) => {
       return <WhatsApp />;
       break;
   }
-};
-
-const ProjectCard = ({
-  openDetails,
-  project,
-  handleDelete,
-  handleEdit,
-}: {
-  openDetails: Function;
-  project: Project;
-  handleDelete: Function;
-  handleEdit: Function;
-}) => {
-  const [anchorEl, setAnchorEl] = React.useState<null | HTMLElement>(null);
-  const open = Boolean(anchorEl);
-  const handleClick = (event: React.MouseEvent<HTMLButtonElement>) => {
-    setAnchorEl(event.currentTarget);
-  };
-  const handleClose = () => {
-    setAnchorEl(null);
-  };
-  return (
-    <Card
-      sx={{
-        width: { xs: "100%", sm: "100%", md: 100, lg: 300 },
-        alignSelf: "flex-start",
-      }}
-      variant="outlined"
-    >
-      <Stack sx={{ width: "100%", height: 50 }} position={"relative"}>
-        <img
-          width={"100%"}
-          height={"100%"}
-          style={{ objectFit: "cover" }}
-          src={
-            "https://images.unsplash.com/photo-1526374965328-7f61d4dc18c5?ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D&auto=format&fit=crop&w=2070&q=80"
-          }
-          alt="bg"
-        />
-        {/* <Box position={"absolute"} bottom={10} right={10}>
-          <Avatar sx={{ width: 50, height: 50 }} src={project.projectIcon}></Avatar>
-        </Box> */}
-      </Stack>
-      <CardContent>
-        <Stack spacing={2}>
-          <Chip
-            sx={{ alignSelf: "self-start" }}
-            size="small"
-            label={project.framework.toUpperCase()}
-          />
-          <Typography color={"black"} variant="h5">
-            {project.title}
-          </Typography>
-          <Typography variant="body2">{project.description}</Typography>
-        </Stack>
-      </CardContent>
-
-      <CardActions>
-        <Chip
-          component={"a"}
-          href={project.livesiteUrl}
-          target="_blank"
-          icon={<OpenInBrowser />}
-          label="Open Project"
-        ></Chip>
-        <IconButton href={project.githubUrl} target="_blank">
-          <GitHub />
-        </IconButton>
-        <Stack
-          flex={1}
-          direction={"row"}
-          justifyContent={"flex-end"}
-          justifyItems={"center"}
-        >
-          <IconButton
-            id="basic-button"
-            aria-controls={open ? "basic-menu" : undefined}
-            aria-haspopup="true"
-            aria-expanded={open ? "true" : undefined}
-            onClick={handleClick}
-          >
-            <MoreVert />
-          </IconButton>
-          <Menu
-            id="basic-menu"
-            anchorEl={anchorEl}
-            open={open}
-            onClose={handleClose}
-            MenuListProps={{
-              "aria-labelledby": "basic-button",
-            }}
-            variant="selectedMenu"
-            sx={{ padding: 5 }}
-          >
-            <Stack spacing={1} p={1}>
-              <ANTButton onClick={() => handleEdit()}>
-                <EditFilled />
-                Edit
-              </ANTButton>
-              <Popconfirm
-                title="Are you sure you want to delete this project?"
-                onConfirm={() => handleDelete()}
-                style={{ zIndex: 30000000 }}
-              >
-                <ANTButton danger type="text">
-                  <DeleteFilled />
-                  Delete
-                </ANTButton>
-              </Popconfirm>
-            </Stack>
-          </Menu>
-        </Stack>
-      </CardActions>
-    </Card>
-  );
 };
 
 const ProjectDetails = ({
@@ -791,9 +677,9 @@ const Profile = () => {
                   flexWrap={"wrap"}
                   spacing={1}
                 >
-                  {projectStats.map((project: any) => {
+                  {projectStats.map((project: any, key: number) => {
                     return (
-                      <Card variant="outlined">
+                      <Card key={key} variant="outlined">
                         <Stack
                           alignItems={"center"}
                           borderRadius={2}
@@ -805,39 +691,12 @@ const Profile = () => {
                             {project.label}{" "}
                             {project.count > 1 ? "Projects" : "Project"}
                           </Typography>
-                        </Stack>{" "}
+                        </Stack>
                       </Card>
                     );
                   })}
                 </Stack>
-                {/* <Stack
-                  direction={{ xs: "column", sm: "column", md: "row" }}
-                  flexWrap={"wrap"}
-                  spacing={1}
-                >
-                  <Card variant="outlined">
-                    <Stack
-                      alignItems={"center"}
-                      borderRadius={2}
-                      sx={{ borderColor: "CaptionText", borderWidth: 1 }}
-                      p={2}
-                    >
-                      <Typography variant="h4">232</Typography>
-                      <Typography variant="body2">Hub Theads</Typography>
-                    </Stack>
-                  </Card>
-                  <Card variant="outlined">
-                    <Stack
-                      alignItems={"center"}
-                      borderRadius={2}
-                      sx={{ borderColor: "CaptionText", borderWidth: 1 }}
-                      p={2}
-                    >
-                      <Typography variant="h4">34k</Typography>
-                      <Typography variant="body2">Hub responses</Typography>
-                    </Stack>
-                  </Card>
-                </Stack> */}
+
                 <Stack py={5} spacing={1}>
                   <Typography textAlign={"center"} variant="h4">
                     My Projects
@@ -862,7 +721,7 @@ const Profile = () => {
                   justifyContent={"center"}
                 >
                   {projects.length == 0 && <Empty description="No Projects" />}
-                  {projects.map((project: Project, key: number) => {
+                  {projects.map((project: any, key: number) => {
                     return (
                       <ProjectCard
                         handleDelete={() => {
@@ -884,7 +743,7 @@ const Profile = () => {
                           setUpdatingProject(true);
                           setProjectUpdateKey(project.key);
                           Object.keys(project).map((data: string) => {
-                            projectsForm.setFields([project[data]]);
+                            // projectsForm.setFields([project[data]]);
                             projectsForm.setFieldValue(data, project[data]);
                           });
                           setProjectModal(true);

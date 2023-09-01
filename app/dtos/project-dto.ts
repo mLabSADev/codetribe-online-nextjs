@@ -1,5 +1,4 @@
-export default interface Project {
-  key?: string,
+export interface Project {
   description: string,
   framework: string,
   githubUrl: string,
@@ -7,5 +6,12 @@ export default interface Project {
   tags?: [{ tag: string }],
   title: string
 }
-  // projectIcon: string,
-  // projectScreenshot: string,
+export interface ProjectKey {
+  "key": string,
+  "description": string,
+  "framework": string,
+  "githubUrl": string,
+  "livesiteUrl": string,
+  "tags"?: [{ tag: string }],
+  "title": string
+}
