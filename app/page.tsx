@@ -204,34 +204,13 @@ const Signin = () => {
   const onCloseForgotPassword = () => {
     setShowForgotPassword(false);
   };
-  const RunBGFunc = () => {
-    const links = [
-      {
-        link: "https://my.spline.design/textdesignamazing-ec110a8793e2b183f03490dd3d3fafc5/",
-        color: "white",
-      },
-      {
-        link: "https://my.spline.design/abstractgradientbackground-ae8ec1cf1d3539574dc82e8925f79a95/",
-        color: "black",
-      },
-      {
-        link: "https://my.spline.design/dna-e81e566cdc6122a9727be890f316b28d/",
-        color: "white",
-      },
-      {
-        link: "https://my.spline.design/typegraveyard03-b53d5f44964d33717d2b7818154cf07b/",
-        color: "white",
-      },
-      {
-        link: "https://my.spline.design/cybersamurai-49ea362c364514cbac86265ea1f41839/",
-        color: "white",
-      },
-    ];
-    const index = Math.floor(Math.random() * links.length);
-    setBGLink(links[index]);
-  };
+
   useEffect(() => {
-    // RunBGFunc();
+    AuthService.currentUser().then((res) => {
+      if (res) {
+        onLoggedIn(res);
+      }
+    });
   }, []);
   return (
     <Stack
@@ -273,7 +252,7 @@ const Signin = () => {
         flex={1}
         // height={"100%"}
         spacing={2}
-      // overflow={"hidden"}
+        // overflow={"hidden"}
       >
         {/* Text & illustration */}
         <Stack
@@ -341,7 +320,9 @@ const Signin = () => {
               width={{ sm: 300, md: 400, lg: "100%" }}
               sx={{ transform: "translate(0px, 0px)", zIndex: 0 }}
             >
-              <img
+              <Image
+                width={90}
+                height={90}
                 alt=""
                 style={{ width: "100%", height: "100%", objectFit: "contain" }}
                 src="/images/login-illustration.png"
@@ -367,7 +348,9 @@ const Signin = () => {
             p={5}
           >
             {/* logo */}
-            <img
+            <Image
+              width={90}
+              height={90}
               alt=""
               src="/images/mlab.png"
               style={{ height: 40, objectFit: "contain" }}

@@ -185,14 +185,12 @@ const LessonId = ({
         .indexOf(currentLesson);
       if (course) {
         LessonService.updateCurrentLesson(courseId, currentLesson.key).then(
-          (res) => {
-          }
+          (res) => {}
         );
         LessonService.updateCurrentChapter(
           courseId,
           currentLesson.chapterKey
-        ).then((res) => {
-        });
+        ).then((res) => {});
       }
       if (lessonIndex) {
         setCurrentIndex(lessonIndex);
@@ -300,11 +298,8 @@ const LessonId = ({
           lessonId,
           currentLesson
         )
-          .then((res) => {
-
-          })
-          .catch((err) => {
-          });
+          .then((res) => {})
+          .catch((err) => {});
       } else if (isLessonFinished) {
         setisVideoFinished(true);
       }
@@ -339,7 +334,6 @@ const LessonId = ({
             setOpenNotification({ error: false, success: true });
           })
           .catch((err) => {
-
             setOpenNotification({ error: true, success: false });
           });
       })
@@ -859,7 +853,7 @@ const LessonId = ({
                 {/* <span style={{ color: "#afafaf" }}>{totalDuration}</span> */}
               </Link>
               <div style={{ display: "flex", alignItems: "center" }}>
-                Progress
+                <Typography variant="subtitle1">Progress</Typography>
                 <div
                   style={{
                     background: "#cfcfcf",
@@ -879,7 +873,9 @@ const LessonId = ({
                   />
                 </div>
                 <div style={{ paddingLeft: 10 }}>
-                  {isNaN(courseProgress) ? "Error" : `${courseProgress}%`}
+                  <Typography variant="subtitle1">
+                    {isNaN(courseProgress) ? "Error" : `${courseProgress}%`}
+                  </Typography>
                 </div>
               </div>
             </Stack>

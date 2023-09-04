@@ -1,5 +1,5 @@
 import React from "react";
-import { Project } from "../dtos/project-dto";
+import Project from "../dtos/project-dto";
 import { Button as ANTButton, Popconfirm } from "antd";
 import {
   Card,
@@ -13,6 +13,7 @@ import {
 } from "@mui/material";
 import { GitHub, MoreVert, OpenInBrowser } from "@mui/icons-material";
 import { DeleteFilled, EditFilled } from "@ant-design/icons";
+import Image from "next/image";
 
 const ProjectCard = ({
   openDetails,
@@ -41,20 +42,14 @@ const ProjectCard = ({
       }}
       variant="outlined"
     >
-      <Stack sx={{ width: "100%", height: 50 }} position={"relative"}>
-        <img
-          width={"100%"}
-          height={"100%"}
-          style={{ objectFit: "cover" }}
-          src={
-            "https://images.unsplash.com/photo-1526374965328-7f61d4dc18c5?ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D&auto=format&fit=crop&w=2070&q=80"
-          }
-          alt="bg"
-        />
-        {/* <Box position={"absolute"} bottom={10} right={10}>
+      {/* <Stack
+        sx={{ width: "100%", height: 50, bgcolor: "green" }}
+        position={"relative"}
+      >
+         <Box position={"absolute"} bottom={10} right={10}>
             <Avatar sx={{ width: 50, height: 50 }} src={project.projectIcon}></Avatar>
-          </Box> */}
-      </Stack>
+          </Box> 
+      </Stack> */}
       <CardContent>
         <Stack spacing={2}>
           <Chip

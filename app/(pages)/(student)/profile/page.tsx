@@ -2,27 +2,18 @@
 import {
   Stack,
   Typography,
-  Slide,
   IconButton,
   Button,
   Container,
   Avatar,
   Chip,
   Card,
-  CardContent,
-  Backdrop,
   AppBar,
   Toolbar,
   Drawer,
-  Box,
-  CardActionArea,
-  CardActions,
-  MenuItem,
-  Menu,
 } from "@mui/material";
 import {
   Form,
-  Image,
   Input,
   Modal,
   Button as ANTButton,
@@ -60,37 +51,24 @@ import type { RcFile, UploadProps } from "antd/es/upload";
 import {
   PlusOutlined,
   QuestionCircleFilled,
-  FileImageOutlined,
-  UploadOutlined,
   MinusCircleOutlined,
-  EditFilled,
-  DeleteFilled,
 } from "@ant-design/icons";
 import { ProfileService } from "@/app/services/profile-service";
-import { Formik } from "formik";
+
 import FormItem from "antd/es/form/FormItem";
-import type { UploadFile } from "antd/es/upload/interface";
-import type { UploadChangeParam } from "antd/es/upload";
-import { FileService } from "@/app/services/file-service";
-import firebase from "firebase";
 import { object } from "yup";
 import { CoursesService } from "@/app/services/courses-service";
 import Course from "@/app/dtos/course";
 import { StudentsService } from "@/app/services/students-service";
-import { Project, ProjectKey } from "@/app/dtos/project-dto";
+import Project from "@/app/dtos/project-dto";
 import ProjectCard from "@/app/components/project-card";
 import ProjectDetails from "@/app/components/project-details";
-
-const storageRef = firebase.storage().ref();
+import Image from "next/image";
+// const storageRef = firebase.storage().ref();
 const socialOptions = ["linkedin", "facebook", "github", "whatsapp"];
 
 const { Option } = Select;
 const { Dragger } = Upload;
-const getBase64 = (img: RcFile, callback: (url: string) => void) => {
-  const reader = new FileReader();
-  reader.addEventListener("load", () => callback(reader.result as string));
-  reader.readAsDataURL(img);
-};
 
 const GetSocialsIcon = ({ social }: { social: string }) => {
   switch (social) {
@@ -146,7 +124,7 @@ const Profile = () => {
   const [previewOpen, setPreviewOpen] = useState(false);
   const [previewTitle, setPreviewTitle] = useState("");
   const [loading, setLoading] = useState(false);
-  const [imageUrl, setImageUrl] = useState<string>();
+  const [imageUrl, setImageUrl] = useState<string>("");
   const [courses, setCourses] = useState<any>([]);
   const [projects, setProjects] = useState<any>([]);
   const [projectStats, setProjectStats] = useState([]);
@@ -198,7 +176,7 @@ const Profile = () => {
     });
     ProfileService.profile()
       .then((profile) => {
-        setImageUrl(profile.profilePicture);
+        // setImageUrl(profile.profilePicture);
         Object.keys(profile).map((item) => {
           form.setFieldValue(item, profile[item]);
         });
@@ -229,6 +207,7 @@ const Profile = () => {
               backgroundSize: "cover",
             }}
           >
+            {/* Profile Form */}
             <Drawer open={editProfile} anchor="right">
               <Toolbar>
                 <IconButton
@@ -248,7 +227,12 @@ const Profile = () => {
                   footer={null}
                   onCancel={handleCancel}
                 >
-                  <img alt="example" style={{ width: "100%" }} src={imageUrl} />
+                  {/* <Image
+                    alt="example"
+                    width={50}
+                    style={{ width: "100%" }}
+                    src={imageUrl}
+                  /> */}
                 </Modal>
                 <Divider orientation="left">Personal Details</Divider>
                 <Form
@@ -358,6 +342,8 @@ const Profile = () => {
                 </Form>
               </Stack>
             </Drawer>
+
+            {/* Project Form  */}
             <Modal
               zIndex={2000}
               open={projectModal}
@@ -426,7 +412,10 @@ const Profile = () => {
                     <Radio.Group>
                       {courses.map((courseOption: any) => {
                         return (
-                          <Radio.Button value={courseOption.value}>
+                          <Radio.Button
+                            key={courseOption.value}
+                            value={courseOption.value}
+                          >
                             {courseOption.value
                               .replaceAll("-", " ")
                               .toUpperCase()}
@@ -510,6 +499,7 @@ const Profile = () => {
               </Stack>
             </Modal>
 
+            {/* Main  Container */}
             <Container>
               <AppBar color="transparent" variant="outlined">
                 <Toolbar variant="dense">
@@ -635,6 +625,7 @@ const Profile = () => {
                   {projects.map((project: any, key: number) => {
                     return (
                       <ProjectCard
+                        key={key}
                         handleDelete={() => {
                           StudentsService.deleteProject(
                             profile.uid,
@@ -659,7 +650,6 @@ const Profile = () => {
                           });
                           setProjectModal(true);
                         }}
-                        key={key}
                         project={project}
                         openDetails={() => {
                           setOpenDetails(!openDetails);
