@@ -1,11 +1,12 @@
-interface AssessmentSubmission {
-    chapter: string,
-    course: string,
+interface AssessmentSubmissionType {
+    key?: string,
+    uid: string,
     fullName: string,
-    github: string,
     location: string,
-    submitted: string,
-    uid: string
+    assessmentKey: string,
+    githubUrl: string,
+    liveUrl: string,
+    submitted: string
 }
 
-export default AssessmentSubmission
+export default AssessmentSubmissionType

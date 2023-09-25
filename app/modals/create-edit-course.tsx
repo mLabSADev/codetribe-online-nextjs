@@ -194,7 +194,9 @@ const CreateEditCourse = ({
                 footer={null}
                 onCancel={handleCancel}
               >
-                <img
+                <Image
+                  width={90}
+                  height={90}
                   alt="example"
                   style={{ width: "100%" }}
                   src={previewImage}

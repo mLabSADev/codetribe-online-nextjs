@@ -8,7 +8,7 @@ import {
   Button,
 } from "@mui/material";
 import OpenInNewIcon from "@mui/icons-material/OpenInNew";
-import { Image } from "antd";
+import Image from "next/image";
 import React from "react";
 
 interface IBackendCard {
@@ -35,7 +35,7 @@ export const BackendCard = ({
       sx={{ borderRadius: 5, background: color, color: "#fff" }}
     >
       <Box borderRadius={5} overflow={"hidden"}>
-        <img width={90} src={icon} />
+        {/* <Image width={90} src={icon} alt={""} /> */}
       </Box>
       <Typography variant="h5" color={"white"}>
         {title}
@@ -140,7 +140,7 @@ const ResourceCards = ({
             </Stack>
           </Stack>
           <Stack>
-            <img width={200} src={image} />
+            <Image height={150} width={200} src={image} alt="" />
           </Stack>
         </Stack>
       </CardContent>

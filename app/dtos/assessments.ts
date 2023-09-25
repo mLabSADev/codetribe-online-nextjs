@@ -11,12 +11,15 @@
 
 // goToRoute("/users/new")
 
-interface Assessment {
-  course: string;
-  title: string;
-  content: string;
-  lesson: [string];
-  updated: string;
+interface AssessmentType {
+  key?: string,
+  title: string,
+  course: string,
+  lesson: string,
+  description: string,
+  objectives: string[],
+  created: string,
+  dueDate: string
 }
 
-export default Assessment;
+export default AssessmentType;
