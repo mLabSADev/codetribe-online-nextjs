@@ -25,6 +25,8 @@ import {
   Container,
   AppBar,
   Button as MUIButton,
+  ListItem,
+  ListItemButton,
 } from "@mui/material";
 import Image from "next/image";
 import { LazyLoadImage } from "react-lazy-load-image-component";
@@ -53,7 +55,33 @@ const DurationHelper = {
     return DurationHelper.secondsToText(total);
   },
 };
+function stringToColor(string: string) {
+  let hash = 0;
+  let i;
 
+  /* eslint-disable no-bitwise */
+  for (i = 0; i < string.length; i += 1) {
+    hash = string.charCodeAt(i) + ((hash << 5) - hash);
+  }
+  let color = "#";
+
+  for (i = 0; i < 3; i += 1) {
+    const value = (hash >> (i * 8)) & 0xff;
+    color += `00${value.toString(16)}`.slice(-2);
+  }
+  /* eslint-enable no-bitwise */
+
+  return color;
+}
+
+function stringAvatar(name: string) {
+  return {
+    sx: {
+      bgcolor: stringToColor(name),
+    },
+    children: `${name.split(" ")[0][0]}${name.split(" ")[1][0]}`,
+  };
+}
 export interface Position {
   chapter: number;
   lesson: number;
@@ -233,6 +261,7 @@ const CourseOverview = ({ params }: { params: { id: string } }) => {
                 overflow={"hidden"}
                 bgcolor={"whitesmoke"}
               >
+                {/* There should be an introduction video here */}
                 <LazyLoadImage
                   src={course.imageUrl}
                   alt={course.title}
@@ -261,13 +290,11 @@ const CourseOverview = ({ params }: { params: { id: string } }) => {
                   spacing={1}
                   p={2}
                 >
-                  <Avatar size={40}>KM</Avatar>
+                  <Avatar {...stringAvatar(course.author)} size={40} />
                   <Stack>
-                    <Typography variant="subtitle1">
-                      Jane Doe - Instructor
-                    </Typography>
-                    <Typography color={"GrayText"}>
-                      Web Developer, Designer, and Teacher
+                    <Typography variant="subtitle1">{course.author}</Typography>
+                    <Typography color={"GrayText"} variant="body2">
+                      Instructor
                     </Typography>
                   </Stack>
                 </Stack>
@@ -384,12 +411,17 @@ const CourseOverview = ({ params }: { params: { id: string } }) => {
                           {chapter.lessons.map((lesson, key) => {
                             return (
                               <Timeline.Item
-                                style={{ background: "transparent" }}
+                                style={{
+                                  background: "transparent",
+                                  marginTop: 0,
+                                  marginBottom: 0,
+                                  paddingBottom: 1,
+                                }}
                                 key={key}
                                 dot={
                                   <Stack
-                                    width={30}
-                                    height={30}
+                                    width={25}
+                                    height={25}
                                     borderRadius={30}
                                     border={2}
                                     bgcolor={"white"}
@@ -408,23 +440,43 @@ const CourseOverview = ({ params }: { params: { id: string } }) => {
                                 }
                               >
                                 {/* <Link style={{color: lesson.current ? '#97CA42' : '#606060', fontWeight: lesson.current ? 'bold' : 'normal'}}>{lesson.frontmatter.title} ({DurationHelper.timeFormatToText(lesson.frontmatter.duration)})</Link> */}
-                                <Link
+                                {/* <Link
                                   href={""}
+
                                   style={{
                                     color: "#606060",
                                   }}
+                                > */}
+                                <ListItem
+                                  disableGutters
+                                  disablePadding
+                                  sx={{
+                                    transform: "translate(0px, -12px)",
+                                  }}
                                 >
-                                  <Stack flex={1} direction={"row"}>
-                                    <Typography flex={1} variant="body1">
-                                      {lesson.title}
-                                    </Typography>
-                                    <Typography variant="overline">
-                                      {DurationHelper.timeFormatToText(
-                                        lesson.duration
-                                      )}
-                                    </Typography>
-                                  </Stack>
-                                </Link>
+                                  <ListItemButton
+                                    disableGutters
+                                    onClick={() => {
+                                      startCourse();
+                                    }}
+                                  >
+                                    <Stack
+                                      flex={1}
+                                      direction={"row"}
+                                      alignItems={"center"}
+                                      px={2}
+                                    >
+                                      <Typography flex={1} variant="body1">
+                                        {lesson.title}
+                                      </Typography>
+                                      <Typography variant="overline">
+                                        {DurationHelper.timeFormatToText(
+                                          lesson.duration
+                                        )}
+                                      </Typography>
+                                    </Stack>
+                                  </ListItemButton>
+                                </ListItem>
                               </Timeline.Item>
                             );
                           })}

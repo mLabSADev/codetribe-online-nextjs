@@ -383,6 +383,13 @@ const Assessments = () => {
                     ))}
                   </Select>
                 </Form.Item>
+                <Form.Item
+                  rules={[{ required: true }]}
+                  label="Cohort"
+                  name="cohort"
+                >
+                  <DatePicker style={{ width: "100%" }} picker="year" />
+                </Form.Item>
                 <Form.Item name="description" label="Description">
                   <Input.TextArea></Input.TextArea>
                 </Form.Item>
@@ -446,12 +453,11 @@ const Assessments = () => {
                   label="Due Date"
                   rules={[
                     {
-                      type: "object" as const,
                       required: true,
                     },
                   ]}
                 >
-                  <DatePicker
+                  <DatePicker.RangePicker
                     style={{ width: "100%" }}
                     showTime
                     format="YYYY-MM-DD HH:mm:ss"
