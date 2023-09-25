@@ -501,7 +501,7 @@ const Profile = () => {
 
             {/* Main  Container */}
             <Container>
-              <AppBar color="transparent" variant="outlined">
+              <AppBar color="inherit" elevation={0}>
                 <Toolbar variant="dense">
                   <IconButton
                     onClick={() => {

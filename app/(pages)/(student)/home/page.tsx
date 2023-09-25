@@ -5,7 +5,13 @@ import "swiper/css/pagination";
 import "swiper/css/scrollbar";
 import React, { useEffect, useState } from "react";
 import { useRouter } from "next/navigation";
-import { Avatar, Stack, Typography as MUITypography, Box, IconButton } from "@mui/material";
+import {
+  Avatar,
+  Stack,
+  Typography as MUITypography,
+  Box,
+  IconButton,
+} from "@mui/material";
 import { Button, Divider, Input, Typography } from "antd";
 import { AuthService } from "@/app/services/auth-service";
 import StudentProgress from "@/app/components/student-progress";
@@ -17,7 +23,6 @@ import Course from "@/app/dtos/course";
 import { CoursesService } from "@/app/services/courses-service";
 import { Swiper, SwiperSlide } from "swiper/react";
 import { Navigation, Pagination, Mousewheel, Keyboard } from "swiper/modules";
-
 
 function stringToColor(string: string) {
   let hash = 0;
@@ -301,16 +306,13 @@ const Home = () => {
     <div></div>
   ) : user ? (
     <Stack>
-      {/* <PageLayout fullscreen={true} active='home'>
-            </PageLayout> */}
-      {/* <HomeContent /> */}
-
       <Stack py={5} spacing={2} alignItems={"center"}>
-        <IconButton onClick={() => {
-          router.push("/profile")
-        }}>
+        <IconButton
+          onClick={() => {
+            router.push("/profile");
+          }}
+        >
           <Avatar
-
             //   sx={{ width: 56, height: 56 }}
             {...stringAvatar(
               `${user?.firstname || "C"} ${user?.lastname || "T"}`
@@ -368,8 +370,8 @@ const Home = () => {
                 {progressList.length > 0 ? (
                   <Swiper
                     direction={"horizontal"}
-                    slidesPerView={3}
-                    spaceBetween={30}
+                    slidesPerView={2}
+                    spaceBetween={10}
                     mousewheel={true}
                     pagination={{
                       clickable: true,
@@ -436,8 +438,6 @@ const Home = () => {
                     className="mySwiper"
                   >
                     {progressList.map((item: any, i: number) => {
-                      console.log("Progress Item >>> ", item);
-
                       return (
                         <SwiperSlide key={i}>
                           <StudentProgress
@@ -470,7 +470,7 @@ const Home = () => {
               <Stack
                 width={"100%"}
                 sx={{ overflowX: "auto" }}
-                direction={{ sm: "column", md: "column", lg: "row" }}
+                direction={{ sm: "column", md: "column", lg: "column" }}
                 spacing={1}
                 gap={1}
               >

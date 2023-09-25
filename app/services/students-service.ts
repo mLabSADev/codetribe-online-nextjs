@@ -73,7 +73,8 @@ export const StudentsService = {
     return new Promise((resolve, reject) => {
       return firebase
         .database()
-        .ref(`codetribe-projects/${uid}/${course}/${key}`).remove().then(res => {
+        .ref(`codetribe-projects/${uid}/${course}/${key}`)
+        .remove().then(res => {
           resolve(res)
         }).catch(err => {
           reject(err)
@@ -87,6 +88,34 @@ export const StudentsService = {
         .ref(`codetribe-projects/${profile.uid}/${data.framework}/${key}`).set(data).then(snap => {
           resolve(snap)
         }).catch(err => reject(err))
+    })
+  },
+  createNote: ({ uid, note, lessonId, chapterId }: { uid: string, note: string, lessonId: string, chapterId: string }) => {
+    return new Promise((resolve, reject) => {
+      return firebase.database()
+        .ref(`notes/${uid}/${chapterId}`)
+        .set({ note: note, lesson: lessonId, chapter: chapterId })
+        .then((data) => { resolve(data) })
+        .catch(err => { reject(err) })
+    })
+  },
+  getNote: ({ uid, lessonId, chapterId }: { uid: string, lessonId: string, chapterId: string }) => {
+    return new Promise((resolve, reject) => {
+      return firebase.database()
+        .ref(`notes/${uid}/${chapterId}`)
+        .on('value', (snap) => {
+          if (snap) {
+            const data: { note: string, lesson: string, chapter: string } = {
+              chapter: snap.val().chapter,
+              lesson: snap.val().lesson,
+              note: snap.val().note
+            }
+            resolve(data)
+          } else {
+            reject(false)
+          }
+
+        })
     })
   },
 };

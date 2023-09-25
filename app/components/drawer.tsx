@@ -18,8 +18,17 @@ import { ProfileService } from "../services/profile-service";
 import Link from "next/link";
 import { useRouter } from "next/navigation";
 import { Styles } from "../services/styles";
-import { Stack, Avatar, Typography, Box, Divider, IconButton, Badge, styled } from "@mui/material";
-import { Edit } from "@mui/icons-material"
+import {
+  Stack,
+  Avatar,
+  Typography,
+  Box,
+  Divider,
+  IconButton,
+  Badge,
+  styled,
+} from "@mui/material";
+import { Edit } from "@mui/icons-material";
 import { usePathname } from "next/navigation";
 interface IMenuButton {
   children: any;
@@ -316,17 +325,21 @@ const Drawer = ({
       {/* User Profile */}
       <Stack alignItems={"center"} justifyContent={"center"} py={5}>
         <IconButton onClick={onOpenEditProfile}>
-          <Badge overlap="circular" anchorOrigin={{ vertical: 'bottom', horizontal: 'right' }}
+          <Badge
+            overlap="circular"
+            anchorOrigin={{ vertical: "bottom", horizontal: "right" }}
             badgeContent={
-              <SmallAvatar ><Edit sx={{ width: 15 }}></Edit></SmallAvatar>
-            }>
+              <SmallAvatar>
+                <Edit sx={{ width: 15 }}></Edit>
+              </SmallAvatar>
+            }
+          >
             <Avatar
               {...stringAvatar(
                 `${profile?.firstname || "C"} ${profile?.lastname || "T"}`
               )}
             />
           </Badge>
-
         </IconButton>
 
         <Typography variant="h6">
@@ -350,14 +363,14 @@ const Drawer = ({
         >
           Browse
         </MenuButton>
-        {/* <MenuButton
-          active={activeNav == "hub"}
-          to={"/hub"}
-          icon={<CodeOutlined />}
+        <MenuButton
+          active={activeNav == "assessments"}
+          to={"/assessments"}
+          icon={<BookOutlined />}
           onClick={toggleDrawer}
         >
-          Hub
-        </MenuButton> */}
+          Assessments
+        </MenuButton>
 
         {/* Links for facilitator */}
         {profile?.role == "facilitator" && (

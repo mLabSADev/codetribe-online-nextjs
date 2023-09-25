@@ -119,7 +119,7 @@ const ForgotPassword = ({ email, onCancel }: any) => {
     </div>
   );
 };
-
+// NODE_OPTIONS=--max-old-space-size=8096
 const Signin = () => {
   const [loggingIn, setIsLoggingIn] = useState(false);
   const [errorMessage, setMessage] = useState(null);
@@ -207,7 +207,8 @@ const Signin = () => {
 
   useEffect(() => {
     AuthService.currentUser().then((res) => {
-      if (res) {
+      if (res !== -1) {
+        console.log(res);
         onLoggedIn(res);
       }
     });
