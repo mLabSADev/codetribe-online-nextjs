@@ -104,15 +104,11 @@ export const StudentsService = {
       return firebase.database()
         .ref(`notes/${uid}/${chapterId}`)
         .on('value', (snap) => {
-          if (snap) {
-            const data: { note: string, lesson: string, chapter: string } = {
-              chapter: snap.val().chapter,
-              lesson: snap.val().lesson,
-              note: snap.val().note
-            }
-            resolve(data)
+          if (snap.val()) {
+
+            resolve(snap.val())
           } else {
-            reject(false)
+            resolve(false)
           }
 
         })

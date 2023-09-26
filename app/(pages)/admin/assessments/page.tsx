@@ -22,18 +22,21 @@ import {
   Form,
   Popconfirm,
   DatePicker,
+  Switch,
+  message,
 } from "antd";
 import {
   EditOutlined,
   DeleteOutlined,
   MinusCircleOutlined,
   PlusOutlined,
+  CheckOutlined,
 } from "@ant-design/icons";
 import CrisisAlertIcon from "@mui/icons-material/CrisisAlert";
 import "react-draft-wysiwyg/dist/react-draft-wysiwyg.css";
 // import { Editor } from "react-draft-wysiwyg";
 import { EditorState, convertFromRaw } from "draft-js";
-import { Assessment } from "@/app/services/assessments-service";
+import { AssessmentService } from "@/app/services/assessments-service";
 import { AuthService } from "@/app/services/auth-service";
 import { CoursesService } from "@/app/services/courses-service";
 import { Styles } from "@/app/services/styles";
@@ -46,7 +49,9 @@ import AssessmentType from "@/app/dtos/assessments";
 import AssessmentSubmissionType from "@/app/dtos/assessment-submission";
 import { Check, FirstPage, LastPage } from "@mui/icons-material";
 import Course from "@/app/dtos/course";
+import type { TimeRangePickerProps, DatePickerProps } from "antd";
 import { useForm } from "antd/es/form/Form";
+import dayjs from "dayjs";
 const { TextArea } = Input;
 const { Meta } = Card;
 const { Option } = Select;
@@ -59,6 +64,7 @@ const Assessments = () => {
     const columns: TableColumnsType<AssessmentSubmissionType> = [
       { title: "Full Name", dataIndex: "fullName", key: "fullName" },
       { title: "Location", dataIndex: "location", key: "location" },
+      { title: "Cohort", dataIndex: "cohort", key: "cohort" },
       { title: "Submitted", dataIndex: "submitted", key: "submitted" },
       {
         title: "Action",
@@ -66,7 +72,7 @@ const Assessments = () => {
         key: "operation",
         render: () => {
           return (
-            <Stack spacing={1} direction={"row"}>
+            <Stack spacing={1}>
               <Button type="primary">Github</Button>
               <Button>Live</Button>
             </Stack>
@@ -74,52 +80,17 @@ const Assessments = () => {
         },
       },
     ];
-
-    const submissions = [
+    // Submissions
+    const submissions: AssessmentSubmissionType = [
       {
         uid: "user123",
         fullName: "John Doe",
         location: "Soweto",
         assessmentKey: "assessment1",
+        cohort: "2024",
         githubUrl: "https://github.com/user123/assessment1",
         liveUrl: "https://example.com/user123/assessment1",
         submitted: "2023-09-28",
-      },
-      {
-        uid: "user456",
-        fullName: "Jane Smith",
-        location: "Johannesburg",
-        assessmentKey: "assessment2",
-        githubUrl: "https://github.com/user456/assessment2",
-        liveUrl: "https://example.com/user456/assessment2",
-        submitted: "2023-09-29",
-      },
-      {
-        uid: "user789",
-        fullName: "David Johnson",
-        location: "Pretoria",
-        assessmentKey: "assessment3",
-        githubUrl: "https://github.com/user789/assessment3",
-        liveUrl: "https://example.com/user789/assessment3",
-        submitted: "2023-09-30",
-      },
-      {
-        uid: "user101",
-        fullName: "Sarah Lee",
-        location: "Durban",
-        assessmentKey: "assessment4",
-        githubUrl: "https://github.com/user101/assessment4",
-        liveUrl: "https://example.com/user101/assessment4",
-        submitted: "2023-10-01",
-      },
-      {
-        uid: "user202",
-        fullName: "Michael Brown",
-        location: "Cape Town",
-        assessmentKey: "assessment5",
-        githubUrl: "https://github.com/user202/assessment5",
-        liveUrl: "https://example.com/user202/assessment5",
-        submitted: "2023-10-02",
       },
     ];
 
@@ -160,123 +131,130 @@ const Assessments = () => {
   const [courseLessons, setCourseLessons] = useState<Filters[]>();
   const [allCourses, setAllCourses] = useState<Course[]>();
   const [hideForm, setHideForm] = useState(false);
+  const [assessments, setAssessments] = useState<AssessmentType[]>([]);
+  const [messageApi, contextHolder] = message.useMessage();
   const [form] = Form.useForm();
   const columns: TableColumnsType<AssessmentType> = [
-    { title: "Title", dataIndex: "title", key: "title" },
-    { title: "Course", dataIndex: "course", key: "course" },
-    { title: "Lesson", dataIndex: "lesson", key: "lesson" },
-    { title: "Created", dataIndex: "created", key: "created" },
-    { title: "Due Date", dataIndex: "dueDate", key: "dueDate" },
+    {
+      title: "Title",
+      dataIndex: "title",
+      key: "title",
+      fixed: "left",
+      render: (value, record) => {
+        return (
+          <Typography variant="subtitle2" fontWeight={"bold"}>
+            {value}
+          </Typography>
+        );
+      },
+    },
+    {
+      title: "Course",
+      dataIndex: "course",
+      key: "course",
+      filters: courseOptions,
+      onFilter: (value: any, record) =>
+        record.course.toLocaleLowerCase().indexOf(value) === 0,
+      render: (value, record) => {
+        var rg = /(^\w{1}|\.\s*\w{1})/gi;
+        return (
+          <Typography variant="body2" sx={{ textDecoration: "" }}>
+            {value.replace(rg, function (value) {
+              return value.toUpperCase();
+            })}
+          </Typography>
+        );
+      },
+    },
+    {
+      title: "Chapter",
+      dataIndex: "chapter",
+      key: "chapter",
+      render: (value, record) => {
+        // const filteredAssessments = assessments.filter(assessment => assessment.course === "React");
+        const course = allCourses?.filter((doc) => doc.key === record.course);
+        return (
+          <Typography variant="body2">
+            {course[0].chapters[value]?.title || "Null"}
+          </Typography>
+        );
+      },
+    },
+    {
+      title: "Group",
+      dataIndex: "group",
+      key: "group",
+      defaultSortOrder: "ascend",
+      sorter: (a, b) => a.group - b.group,
+    },
+    {
+      title: "Due Date",
+      dataIndex: "dueDate",
+      key: "dueDate",
+      render: (value, record) => {
+        const a = value.split(",");
+        const from = a[1];
+        from.trim();
+        const to = a[3];
+        to.trim();
+        const dateFrom = new Date(from);
+        const dateTo = new Date(to);
+        const shortMonthName = new Intl.DateTimeFormat("en-US", {
+          month: "short",
+        }).format;
+        const oneDay = 24 * 60 * 60 * 1000;
+        const diffDays = Math.round(Math.abs((dateFrom - dateTo) / oneDay));
+        return (
+          <Stack>
+            <Typography variant="body2">
+              {shortMonthName(dateFrom)}&nbsp;{dateFrom.getDay()}&nbsp;-&nbsp;
+              {shortMonthName(dateTo)}&nbsp;{dateTo.getDay()}&nbsp;({diffDays}
+              days)
+            </Typography>
+          </Stack>
+        );
+      },
+    },
     {
       title: "Action",
       dataIndex: "operation",
       key: "operation",
-      render: (record) => {
+      render: (_, record) => {
         return (
           <Stack spacing={1} direction={"row"}>
             <Button
               onClick={() => {
                 setHideForm(false);
-                console.log(record);
+                editAssessment(record);
               }}
             >
               Edit
             </Button>
-            <Button>Delete</Button>
+            <Popconfirm
+              title="Delete the Assessment"
+              description="Are you sure to delete this assessment?"
+              onConfirm={() => {
+                deleteAssessment(record);
+              }}
+              okText="Yes"
+              cancelText="No"
+            >
+              <Button danger>Delete</Button>
+            </Popconfirm>
           </Stack>
         );
       },
     },
   ];
-
-  const data: AssessmentType[] = [
-    {
-      key: "1",
-      title: "Understanding React Components",
-      course: "ReactJS",
-      lesson: "React Fundamentals",
-      description: "Assess your knowledge of React components.",
-      objectives: [
-        "Define what a React component is.",
-        "Differentiate between functional and class components.",
-        "Explain the concept of state and props in React components.",
-        "Create a simple React component.",
-      ],
-      created: "2023-09-15",
-      dueDate: "2023-09-30",
-    },
-    {
-      key: "2",
-      title: "Node.js Fundamentals",
-      course: "Node.js",
-      lesson: "Introduction to Node.js",
-      description: "Test your understanding of Node.js basics.",
-      objectives: [
-        "Explain the event loop in Node.js.",
-        "Create a simple Node.js server.",
-        "Discuss the benefits of using npm.",
-      ],
-      created: "2023-09-20",
-      dueDate: "2023-10-05",
-    },
-    {
-      key: "3",
-      title: "Angular Component Development",
-      course: "Angular",
-      lesson: "Getting Started with Angular",
-      description: "Evaluate your knowledge of Angular components.",
-      objectives: [
-        "Define Angular and its key features.",
-        "Explain the role of components in Angular.",
-        "Create a new Angular component.",
-        "Discuss data binding in Angular.",
-      ],
-      created: "2023-09-22",
-      dueDate: "2023-10-10",
-    },
-    {
-      key: "4",
-      title: "Ionic App Building",
-      course: "Ionic",
-      lesson: "Introduction to Ionic Framework",
-      description: "Assess your skills in Ionic app development.",
-      objectives: [
-        "Describe Ionic's key features.",
-        "Differentiate between Ionic Framework and Ionic Capacitor.",
-        "Create a basic Ionic app with tabs.",
-        "Discuss native device access in Ionic.",
-      ],
-      created: "2023-09-17",
-      dueDate: "2023-10-02",
-    },
-    {
-      key: "5",
-      title: "React Native Development",
-      course: "React Native",
-      lesson: "Introduction to React Native",
-      description: "Test your knowledge of React Native fundamentals.",
-      objectives: [
-        "Explain the key concepts of React Native.",
-        "Set up a basic React Native project.",
-        "Create a simple mobile app using React Native.",
-        "Discuss the advantages of React Native for mobile development.",
-      ],
-      created: "2023-09-25",
-      dueDate: "2023-10-15",
-    },
-  ];
+  // Assessments
   const onCourseChange = (value: string) => {
-    console.log(value, allCourses);
     var lessons: Filters[] = [];
     const course = allCourses?.filter((course) => course.key === value);
     // Set lessons by course chosen
     if (course?.length === 1) {
       Object.keys(course[0].chapters).map((key: string) => {
-        const slug = course[0].chapters[key].title
-          .toLowerCase()
-          .replaceAll(" ", "-");
         const title: string = course[0].chapters[key].title;
-        lessons.push({ text: title, value: slug });
+        lessons.push({ text: title, value: key });
       });
       // Sort
       lessons.sort((a, b) => {
@@ -296,8 +274,49 @@ const Assessments = () => {
   const toggleHideForm = () => {
     setHideForm(!hideForm);
   };
-  const editAssessment = (values) => {
-    console.log(values);
+  const editAssessment = (assessment: AssessmentType) => {
+    const dateFormat = "ddd DD MMM YYYY";
+    onCourseChange(assessment.course);
+    Object.keys(assessment).map((key) => {
+      if (key === "dueDate") {
+        const split = assessment.dueDate.split(",");
+        const fromdate = dayjs(split[1].trim(), dateFormat);
+        const todate = dayjs(split[3].trim(), dateFormat);
+        form.setFieldValue("dueDate", [todate, fromdate]);
+      } else if (key === "cohort") {
+        const cohort = dayjs(assessment.cohort, dateFormat);
+        form.setFieldValue("cohort", cohort);
+      } else {
+        form.setFieldValue(key, assessment[key]);
+      }
+    });
+  };
+  const getAssessments = () => {
+    AssessmentService.getAll().then((assessments) => {
+      setAssessments(assessments);
+    });
+  };
+  const createAssessment = (values: AssessmentType) => {
+    const cohortdata = values.cohort.toString();
+    const cohortDate = new Date(cohortdata);
+    const assessment: AssessmentType = {
+      ...values,
+      cohort: values.cohort.toString(), // used when editing the form
+      group: cohortDate.getFullYear(), // used for filtering
+      dueDate: values.dueDate.toString(),
+      bootcamp: values.bootcamp ? values.bootcamp : false,
+    };
+    AssessmentService.add(assessment).then((res) => {
+      getAssessments();
+      form.resetFields();
+      messageApi.success(`${values.title} created successfully.`);
+    });
+  };
+  const deleteAssessment = (assessment: AssessmentType) => {
+    AssessmentService.delete(assessment).then((res) => {
+      getAssessments();
+      messageApi.success(`${assessment.title} deleted successfully.`);
+    });
   };
   useEffect(() => {
     CoursesService.courses().then((courses) => {
@@ -310,10 +329,12 @@ const Assessments = () => {
       setCourseOptions(filters);
       setAllCourses(courses);
     });
+    getAssessments();
   }, []);
   return (
     <>
       <Container maxWidth="xl">
+        {contextHolder}
         <Stack direction={"row"} flex={1} py={10} spacing={5}>
           <Stack flex={1}>
             <Stack pb={5}>
@@ -325,7 +346,7 @@ const Assessments = () => {
                 expandable={{
                   expandedRowRender,
                 }}
-                dataSource={data}
+                dataSource={assessments}
               />
             </Stack>
           </Stack>
@@ -341,19 +362,13 @@ const Assessments = () => {
             <Stack width={400} sx={{ overflowY: "auto" }} maxHeight={"100%"}>
               <Stack pb={5} direction={"row"} alignItems={"center"}>
                 <Typography flex={1} variant="h6">
-                  New Assessment
+                  Manage Assessment
                 </Typography>
                 <IconButton onClick={() => toggleHideForm()}>
                   <LastPage />
                 </IconButton>
               </Stack>
-              <Form
-                form={form}
-                layout="vertical"
-                onFinish={(values) => {
-                  console.log(values);
-                }}
-              >
+              <Form form={form} layout="vertical" onFinish={createAssessment}>
                 <Form.Item name="title" label="Title">
                   <Input></Input>
                 </Form.Item>
@@ -371,8 +386,8 @@ const Assessments = () => {
                   </Select>
                 </Form.Item>
                 <Form.Item
-                  name="lesson"
-                  label="Lesson"
+                  name="chapter"
+                  label="Chapter"
                   rules={[{ required: true }]}
                 >
                   <Select onChange={onCourseChange} allowClear>
@@ -389,6 +404,14 @@ const Assessments = () => {
                   name="cohort"
                 >
                   <DatePicker style={{ width: "100%" }} picker="year" />
+                </Form.Item>
+                <Form.Item
+                  label="Bootcamp"
+                  name={"bootcamp"}
+                  valuePropName="checked"
+                  initialValue={false}
+                >
+                  <Switch defaultChecked={false} />
                 </Form.Item>
                 <Form.Item name="description" label="Description">
                   <Input.TextArea></Input.TextArea>
@@ -413,7 +436,8 @@ const Assessments = () => {
                               validateTrigger={["onChange", "onBlur"]}
                             >
                               <Input
-                              // style={{ width: "60%" }}
+                                prefix={<CheckOutlined />}
+                                // style={{ width: "60%" }}
                               />
                             </Form.Item>
                             {fields.length > 1 ? (
@@ -459,8 +483,7 @@ const Assessments = () => {
                 >
                   <DatePicker.RangePicker
                     style={{ width: "100%" }}
-                    showTime
-                    format="YYYY-MM-DD HH:mm:ss"
+                    format="ddd DD MMM YYYY"
                   />
                 </Form.Item>
                 <Form.Item>
@@ -470,6 +493,13 @@ const Assessments = () => {
                     htmlType="submit"
                   >
                     Submit
+                  </Button>
+                  <Button
+                    style={{ width: "100%" }}
+                    type="text"
+                    htmlType="reset"
+                  >
+                    Reset
                   </Button>
                 </Form.Item>
               </Form>

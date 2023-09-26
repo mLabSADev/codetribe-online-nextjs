@@ -2,8 +2,10 @@ import firebase from "firebase";
 import Assessment from "../dtos/assessments";
 import AssessmentSubmission from "../dtos/assessment-submission";
 import { AuthService } from "./auth-service";
+import AssessmentType from "../dtos/assessments";
+import { KeyObject } from "tls";
 
-export const Assessment = {
+export const AssessmentService = {
   getAll: () => {
     return firebase
       .database()
@@ -11,14 +13,12 @@ export const Assessment = {
       .once("value")
       .then((snapshot) => {
         if (snapshot.val()) {
-          const value = snapshot.val();
-          const keys = Object.keys(value);
+          const document: AssessmentType[] = snapshot.val();
+          const keys = Object.keys(document);
 
           return keys.map((key) => {
-            return {
-              ...value[key],
-              key,
-            };
+            const data: AssessmentType = { ...document[key], key: key }
+            return data;
           });
         }
       });
@@ -28,34 +28,31 @@ export const Assessment = {
    */
   getOne: (data: any) => {
     return new Promise((res, rej) => {
-      firebase
-        .database()
-        .ref(`assessments/${data.course}/${data.chapter}`)
-        .once("value")
-        .then((snapshot) => {
-          res(snapshot.val());
-        });
     });
   },
   /**
    * @param {*} data form data
    */
-  add: (data: Assessment) => {
-    return firebase
-      .database()
-      .ref(`assessments/${data.course}/${data.lesson}`)
-      .set({
-        title: data.title,
-        content: data.content,
-        lesson: data.lesson,
-        created: new Date().toISOString(),
-      });
+  add: (assessment: Assessment) => {
+    return new Promise((resolve, reject) => {
+      return firebase
+        .database()
+        .ref(`assessments/${assessment.chapter}--${assessment.group}`)
+        .set(assessment).then(res => {
+          resolve(res)
+        })
+    })
+
   },
   /**
    * @param {*} id  doc id
    */
-  delete: (course: string, id: string) => {
-    return firebase.database().ref(`assessments/${course}/${id}`).remove();
+  delete: (assessment: Assessment) => {
+    return new Promise((resolve, reject) => {
+      return firebase.database().ref(`assessments/${assessment.chapter}--${assessment.group}`).remove().then(res => {
+        resolve(res)
+      })
+    })
   },
   /**
    * @param {*} id doc id

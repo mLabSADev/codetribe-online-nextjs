@@ -104,7 +104,7 @@ const TutorialListing = ({ type, category, limit }: ITutorialListing) => {
       <Grid container>
         {courses.length > 0 &&
           courses.map((post, index) => (
-            <Grid item sm={12} md={6} lg={4}>
+            <Grid key={index} item sm={12} md={6} lg={4}>
               <Stack width={"100%"} p={1}>
                 <CourseCard course={post} />
               </Stack>

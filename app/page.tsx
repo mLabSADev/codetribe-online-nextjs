@@ -126,7 +126,7 @@ const Signin = () => {
   const [showForgotPassword, setShowForgotPassword] = useState(false);
   const [bgLink, setBGLink] = useState({
     link: "https://my.spline.design/abstractgradientbackground-ae8ec1cf1d3539574dc82e8925f79a95",
-    color: "black",
+    color: "white",
   });
   const [signInMethod, setSignInMethod] = useState<
     "new-user" | "existing-user"
@@ -225,29 +225,10 @@ const Signin = () => {
       overflow={{ xs: "auto", sm: "auto", md: "auto", lg: "hidden" }}
       sx={{
         background:
-          "linear-gradient(227deg, #fffedb 0%, hsl(283, 100%, 88%) 100%)",
+          "linear-gradient(90deg, rgba(17,220,172,1) 0%, rgba(17,221,152,0.9) 44%, rgba(0,255,190,1) 100%),url(https://images.unsplash.com/photo-1674027444485-cec3da58eef4?ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D&auto=format&fit=crop&w=1932&q=80)",
       }}
     >
-      {/* <Box position={"absolute"} bottom={10} left={10} zIndex={5}>
-        <Fab
-          onClick={() => {
-            RunBGFunc();
-          }}
-          color="inherit"
-          size="small"
-        >
-          <RefreshIcon />
-        </Fab>
-      </Box> */}
-      <Box position={"absolute"} top={0} left={0} right={0} bottom={0}>
-        {/* <iframe
-          style={{ border: 0 }}
-          src={bgLink.link}
-          // frameborder="0"
-          width="100%"
-          height="100%"
-        ></iframe> */}
-      </Box>
+      <Box position={"absolute"} top={0} left={0} right={0} bottom={0}></Box>
       <Stack
         direction={{ xs: "column", sm: "column", md: "column", lg: "row" }}
         flex={1}
