@@ -364,8 +364,8 @@ const Drawer = ({
           Browse
         </MenuButton>
         <MenuButton
-          active={activeNav == "assessments"}
-          to={"/assessments"}
+          active={activeNav == "assessment"}
+          to={"/assessment"}
           icon={<BookOutlined />}
           onClick={toggleDrawer}
         >
