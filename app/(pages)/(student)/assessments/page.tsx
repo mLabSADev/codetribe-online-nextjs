@@ -1,7 +1,7 @@
 "use client";
 import React, { useEffect, useState } from "react";
 import { Styles } from "@/app/services/styles";
-import { ArrowBack, ExpandMore } from "@mui/icons-material";
+import { ArrowBack, Check, ExpandMore } from "@mui/icons-material";
 import {
   Accordion,
   AccordionDetails,
@@ -21,7 +21,10 @@ import type { ColumnsType } from "antd/es/table";
 import { CoursesService } from "@/app/services/courses-service";
 import Course from "@/app/dtos/course";
 import { AuthService } from "@/app/services/auth-service";
-import { Assessment } from "@/app/services/assessments-service";
+import { AssessmentService } from "@/app/services/assessments-service";
+import AssessmentType from "@/app/dtos/assessments";
+import type { TableColumnsType } from "antd";
+import AssessmentSubmissionType from "@/app/dtos/assessment-submission";
 interface DataType {
   key?: React.Key;
   title: string;
@@ -34,7 +37,141 @@ interface Filters {
   text: string;
   value: string;
 }
-
+interface FormType {
+  github: string;
+  live: string;
+}
+const ExpandedDetails = ({
+  assessment,
+  expanded,
+  uid,
+  user,
+}: {
+  assessment: AssessmentType;
+  expanded: boolean;
+  uid: string;
+  user: any;
+}) => {
+  const [submitted, setSubmitted] = useState(false);
+  const [form] = Form.useForm();
+  const onFinish = (record: AssessmentType, values: FormType) => {
+    console.log(record, values, user);
+    const d = new Date();
+    const submission: AssessmentSubmissionType = {
+      assessmentKey: record.chapter,
+      group: record.group,
+      fullName: `${user.firstname} ${user.lastname}`,
+      cohort: d.toDateString(),
+      githubUrl: values.github,
+      liveUrl: values.live,
+      location: user.location,
+      uid: uid,
+      submitted: d.toDateString(),
+    };
+    AssessmentService.Submissions.submit(submission).then((res) => {
+      console.log(res);
+    });
+  };
+  useEffect(() => {
+    const assessmentKey = `${assessment.chapter}--${assessment.group}`;
+    AssessmentService.Submissions.getStudentSubmission(assessmentKey, uid).then(
+      (res: any) => {
+        if (res.uid) {
+          form.setFieldValue("github", res.githubUrl);
+          form.setFieldValue("live", res.liveUrl);
+          setSubmitted(true);
+        }
+      }
+    );
+  }, [expanded]);
+  return (
+    <Stack direction={"row"} flex={1} spacing={1}>
+      <Stack px={1} flex={1} spacing={2}>
+        <Typography variant="subtitle2">Assessment Details</Typography>
+        <Divider flexItem />
+        <Typography variant="body1">{assessment.description}</Typography>
+        <Stack>
+          {assessment.objectives.map((element, i) => (
+            <Stack key={i} direction={"row"} spacing={1} alignItems={"center"}>
+              <Check sx={{ fontSize: 13 }} />
+              <Typography>{element}</Typography>
+            </Stack>
+          ))}
+        </Stack>
+      </Stack>
+      <Divider orientation="vertical" flexItem />
+      <Stack width={"30%"} p={1}>
+        <Form
+          form={form}
+          name="basic"
+          // wrapperCol={{ span: 16 }}
+          initialValues={{
+            remember: true,
+          }}
+          onFinish={(values) => {
+            onFinish(assessment, values);
+          }}
+          //   onFinishFailed={onFinishFailed}
+          autoComplete="off"
+          layout="vertical"
+        >
+          <Form.Item
+            label="Github URL"
+            name="github"
+            rules={[
+              {
+                required: true,
+                message: "Link to Github Projet is required!",
+              },
+              {
+                type: "url",
+                message: "This field must be a valid url.",
+              },
+            ]}
+          >
+            <Input
+              style={Styles.Input}
+              placeholder="https://github.com/.../..."
+            />
+          </Form.Item>
+          <Form.Item
+            label="Live URL"
+            name="live"
+            rules={[
+              {
+                required: true,
+                message: "Projet host URL is required",
+              },
+            ]}
+          >
+            <Input
+              style={Styles.Input}
+              placeholder="https://www.myhostedsite.com/.../..."
+            />
+          </Form.Item>
+          <Form.Item>
+            {!submitted && (
+              <Button
+                disabled={submitted}
+                size="large"
+                style={Styles.Button.Filled}
+                type="primary"
+                htmlType="submit"
+              >
+                Submit
+              </Button>
+            )}
+            {submitted && (
+              <Button style={Styles.Button.Outline} disabled={true}>
+                Submitted
+              </Button>
+            )}
+          </Form.Item>
+        </Form>
+      </Stack>
+    </Stack>
+  );
+};
 function Assessments() {
   const [data, setData] = useState<DataType[]>([
     {
@@ -75,70 +212,123 @@ function Assessments() {
     },
   ]);
   const [courseFilters, setCourseFilters] = useState<Filters[]>();
+  const [assessments, setAssessments] = useState<AssessmentType[]>([]);
   const [showAssessmentSubmission, setShowAssessmentSubmission] =
     useState(false);
+  const [allCourses, setAllCourses] = useState<Course[]>();
   const [openNotification, setOpenNotification] = React.useState({
     success: false,
     error: false,
   });
-  const [user, setUser] = useState({});
+  const [user, setUser] = useState<any>({});
+  const [loggedin, setLoggedin] = useState<any>(null);
+  const [expanded, setExpanded] = useState(false);
+
   const router = useRouter();
   const theme = useTheme();
   const nextPathname = usePathname();
-  const columns: ColumnsType<DataType> = [
-    { title: "Title", dataIndex: "title", key: "title" },
+  const columns: TableColumnsType<AssessmentType[]> = [
+    {
+      title: "Title",
+      dataIndex: "title",
+      key: "title",
+      fixed: "left",
+      render: (value, record) => {
+        return (
+          <Typography variant="subtitle2" fontWeight={"bold"}>
+            {value}
+          </Typography>
+        );
+      },
+    },
     {
       title: "Course",
       dataIndex: "course",
       key: "course",
       filters: courseFilters,
-      onFilter: (value: any, record) =>
+      onFilter: (value: any, record: any) =>
         record.course.toLocaleLowerCase().indexOf(value) === 0,
+      render: (value, record) => {
+        var rg = /(^\w{1}|\.\s*\w{1})/gi;
+        return (
+          <Typography variant="body2" sx={{ textDecoration: "" }}>
+            {value.replace(rg, function (value) {
+              return value.toUpperCase();
+            })}
+          </Typography>
+        );
+      },
     },
-    { title: "Lesson", dataIndex: "lesson", key: "lesson" },
-    { title: "Created", dataIndex: "created", key: "created" },
+    {
+      title: "Chapter",
+      dataIndex: "chapter",
+      key: "chapter",
+      render: (value: string, record) => {
+        // const filteredAssessments = assessments.filter(assessment => assessment.course === "React");
+        const course = allCourses?.filter((doc) => doc.key === record.course);
+        const title = course[0].chapters[value].title;
+        return <Typography variant="body2">{title}</Typography>;
+      },
+    },
+    {
+      title: "Group",
+      dataIndex: "group",
+      key: "group",
+      defaultSortOrder: "ascend",
+      sorter: (a, b) => a.group - b.group,
+    },
+    {
+      title: "Due Date",
+      dataIndex: "dueDate",
+      key: "dueDate",
+      render: (value, record) => {
+        const a = value.split(",");
+        const from: string = a[1];
+        from.trim();
+        const to: string = a[3];
+        to.trim();
+        const dateFrom = new Date(from);
+        const dateTo = new Date(to);
+        const shortMonthName = new Intl.DateTimeFormat("en-US", {
+          month: "short",
+        }).format;
+        const oneDay = 24 * 60 * 60 * 1000;
+        const diffDays = Math.round(Math.abs((dateFrom - dateTo) / oneDay));
+        return (
+          <Stack>
+            <Typography variant="body2">
+              {shortMonthName(dateFrom)}&nbsp;{dateFrom.getDay()}&nbsp;-&nbsp;
+              {shortMonthName(dateTo)}&nbsp;{dateTo.getDay()}&nbsp;({diffDays}
+              days)
+            </Typography>
+          </Stack>
+        );
+      },
+    },
   ];
-  const onFinish = (values: any) => {
-    const splitter = nextPathname.split("/");
-    const submission = {
-      location: "",
-      chapter: values.chapter,
-      course: splitter[2],
-      fullName: "",
-      submitted: new Date().toISOString(),
-      ...values,
-    };
 
-    AuthService.currentUser()
-      .then((res) => {
-        setUser(res);
-        submission.fullName = `${res.firstname} ${res.lastname}`;
-        if (res.location) {
-          submission.location = res.location;
-        } else {
-          submission.location = res.groups[0];
-        }
-        // Send to firebase
-        Assessment.submit(submission)
-          .then((res) => {
-            setShowAssessmentSubmission(false);
-            setOpenNotification({ error: false, success: true });
-          })
-          .catch((err) => {
-            setOpenNotification({ error: true, success: false });
-          });
-      })
-      .then((err) => {});
+  const getAssessments = () => {
+    AssessmentService.getAll().then((assessments) => {
+      setAssessments(assessments);
+    });
   };
   useEffect(() => {
+    AuthService.isLoggedIn().then((res) => {
+      setLoggedin(res);
+    });
+    AuthService.currentUser().then((profile) => {
+      setUser(profile);
+    });
     CoursesService.courses().then((courses) => {
       var filters: Filters[] = [];
-      courses.forEach((course) => {
-        filters.push({ text: course.title, value: course.key });
+      courses.forEach((c) => {
+        filters.push({ text: c.title, value: c.key });
       });
       setCourseFilters(filters);
+      setAllCourses(courses);
     });
-  });
+    getAssessments();
+  }, []);
   return (
     <Stack
       sx={{
@@ -187,83 +377,20 @@ function Assessments() {
                 style={{ width: "100%" }}
                 columns={columns}
                 expandable={{
-                  expandedRowRender: (record, i) => {
-                    // console.log(record);
-                    return (
-                      <Stack key={i} direction={"row"} flex={1} spacing={1}>
-                        <Stack flex={1} p={2}>
-                          {/* <Typography >{record.content}</Typography> */}
-                          <div
-                            dangerouslySetInnerHTML={{ __html: record.content }}
-                          />
-                        </Stack>
-                        <Divider orientation="vertical" flexItem />
-                        <Stack width={"30%"} p={1}>
-                          <Form
-                            name="basic"
-                            // wrapperCol={{ span: 16 }}
-                            initialValues={{
-                              remember: true,
-                            }}
-                            onFinish={(values) => {
-                              // onFinish({ ...values, chapter: sub.title });
-                            }}
-                            //   onFinishFailed={onFinishFailed}
-                            autoComplete="off"
-                            layout="vertical"
-                          >
-                            <Form.Item
-                              label="Github URL"
-                              name="github"
-                              rules={[
-                                {
-                                  required: true,
-                                  message: "Link to Github Projet is required!",
-                                },
-                                {
-                                  type: "url",
-                                  message: "This field must be a valid url.",
-                                },
-                              ]}
-                            >
-                              <Input
-                                style={Styles.Input}
-                                placeholder="https://github.com/.../..."
-                              />
-                            </Form.Item>
-                            <Form.Item
-                              label="Live URL"
-                              name="live"
-                              rules={[
-                                {
-                                  required: true,
-                                  message: "Projet host URL is required",
-                                },
-                              ]}
-                            >
-                              <Input
-                                style={Styles.Input}
-                                placeholder="https://www.myhostedsite.com/.../..."
-                              />
-                            </Form.Item>
-                            <Form.Item>
-                              <Button
-                                size="large"
-                                style={Styles.Button.Filled}
-                                type="primary"
-                                htmlType="submit"
-                              >
-                                Submit
-                              </Button>
-                            </Form.Item>
-                          </Form>
-                        </Stack>
-                      </Stack>
-                    );
+                  expandedRowRender: (record, i) => (
+                    <ExpandedDetails
+                      user={user}
+                      uid={loggedin.uid}
+                      assessment={record}
+                      expanded={expanded}
+                      key={i}
+                    />
+                  ),
+                  onExpand: (_, record) => {
+                    setExpanded(_);
                   },
-                  //   rowExpandable: (record) => record.title !== "Not Expandable",
                 }}
-                dataSource={data}
+                dataSource={assessments}
               />
             </Stack>
           </Stack>

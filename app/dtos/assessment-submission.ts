@@ -4,6 +4,7 @@ interface AssessmentSubmissionType {
     fullName: string,
     location: string,
     cohort: string,
+    group: number,
     assessmentKey: string,
     githubUrl: string,
     liveUrl: string,

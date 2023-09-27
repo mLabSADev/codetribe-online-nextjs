@@ -31,6 +31,7 @@ import {
   MinusCircleOutlined,
   PlusOutlined,
   CheckOutlined,
+  ExpandAltOutlined,
 } from "@ant-design/icons";
 import CrisisAlertIcon from "@mui/icons-material/CrisisAlert";
 import "react-draft-wysiwyg/dist/react-draft-wysiwyg.css";
@@ -59,78 +60,83 @@ interface Filters {
   text: string;
   value: string;
 }
-const Assessments = () => {
-  const expandedRowRender = (record: AssessmentType) => {
-    const columns: TableColumnsType<AssessmentSubmissionType> = [
-      { title: "Full Name", dataIndex: "fullName", key: "fullName" },
-      { title: "Location", dataIndex: "location", key: "location" },
-      { title: "Cohort", dataIndex: "cohort", key: "cohort" },
-      { title: "Submitted", dataIndex: "submitted", key: "submitted" },
-      {
-        title: "Action",
-        dataIndex: "operation",
-        key: "operation",
-        render: () => {
-          return (
-            <Stack spacing={1}>
-              <Button type="primary">Github</Button>
-              <Button>Live</Button>
-            </Stack>
-          );
-        },
+const Submisions = ({
+  assessment,
+  expanded,
+}: {
+  assessment: AssessmentType;
+  expanded: boolean;
+}) => {
+  const [data, setData] = useState<AssessmentSubmissionType[]>([]);
+  const columns: TableColumnsType<AssessmentSubmissionType> = [
+    { title: "Full Name", dataIndex: "fullName", key: "fullName" },
+    { title: "Location", dataIndex: "location", key: "location" },
+    {
+      title: "Cohort",
+      dataIndex: "cohort",
+      key: "cohort",
+      render: (value, record) => {
+        const group = new Date(value);
+        return <Typography variant="body2">{group.getFullYear()}</Typography>;
       },
-    ];
-    // Submissions
-    const submissions: AssessmentSubmissionType = [
-      {
-        uid: "user123",
-        fullName: "John Doe",
-        location: "Soweto",
-        assessmentKey: "assessment1",
-        cohort: "2024",
-        githubUrl: "https://github.com/user123/assessment1",
-        liveUrl: "https://example.com/user123/assessment1",
-        submitted: "2023-09-28",
-      },
-    ];
-
-    return (
-      <Stack py={3} flex={1} spacing={2} direction={"row"}>
-        <Stack px={1} width={400} spacing={2}>
-          <Typography variant="subtitle2">Assessment Details</Typography>
-          <Divider flexItem />
-          <Typography variant="body1">{record.description}</Typography>
-          <Stack>
-            {record.objectives.map((element, i) => (
-              <Stack
-                key={i}
-                direction={"row"}
-                spacing={1}
-                alignItems={"center"}
-              >
-                <Check sx={{ fontSize: 13 }} />
-                <Typography>{element}</Typography>
-              </Stack>
-            ))}
+    },
+    { title: "Submitted", dataIndex: "submitted", key: "submitted" },
+    {
+      title: "Action",
+      dataIndex: "operation",
+      key: "operation",
+      render: (value, record) => {
+        return (
+          <Stack spacing={1}>
+            <Button type="primary" href={record.githubUrl} target="_blank">
+              Github
+            </Button>
+            <Button href={record.liveUrl} target="_blank">
+              Live
+            </Button>
           </Stack>
-        </Stack>
-        <Divider flexItem orientation="vertical" />
-        <Stack flex={1} spacing={2}>
-          <Typography variant="subtitle2">Submissions</Typography>
-          <Divider flexItem />
-          <Table
-            columns={columns}
-            dataSource={submissions}
-            pagination={false}
-          />
+        );
+      },
+    },
+  ];
+  useEffect(() => {
+    const assessmentKey = `${assessment.chapter}--${assessment.group}`;
+    AssessmentService.Submissions.getSubmissions(assessmentKey).then(
+      (res: any) => {
+        setData(res);
+      }
+    );
+  }, [expanded]);
+  return (
+    <Stack py={3} flex={1} spacing={2} direction={"row"}>
+      <Stack px={1} width={400} spacing={2}>
+        <Typography variant="subtitle2">Assessment Details</Typography>
+        <Divider flexItem />
+        <Typography variant="body1">{assessment.description}</Typography>
+        <Stack>
+          {assessment.objectives.map((element, i) => (
+            <Stack key={i} direction={"row"} spacing={1} alignItems={"center"}>
+              <Check sx={{ fontSize: 13 }} />
+              <Typography>{element}</Typography>
+            </Stack>
+          ))}
         </Stack>
       </Stack>
-    );
-  };
+      <Divider flexItem orientation="vertical" />
+      <Stack flex={1} spacing={2}>
+        <Typography variant="subtitle2">Submissions</Typography>
+        <Divider flexItem />
+        <Table columns={columns} dataSource={data} />
+      </Stack>
+    </Stack>
+  );
+};
+const Assessments = () => {
   const [courseOptions, setCourseOptions] = useState<Filters[]>();
   const [courseLessons, setCourseLessons] = useState<Filters[]>();
   const [allCourses, setAllCourses] = useState<Course[]>();
   const [hideForm, setHideForm] = useState(false);
+  const [expanded, setExpanded] = useState(false);
   const [assessments, setAssessments] = useState<AssessmentType[]>([]);
   const [messageApi, contextHolder] = message.useMessage();
   const [form] = Form.useForm();
@@ -246,6 +252,7 @@ const Assessments = () => {
       },
     },
   ];
+
   // Assessments
   const onCourseChange = (value: string) => {
     var lessons: Filters[] = [];
@@ -344,7 +351,14 @@ const Assessments = () => {
               <Table
                 columns={columns}
                 expandable={{
-                  expandedRowRender,
+                  expandedRowRender: (record: AssessmentType) => (
+                    <Submisions expanded={expanded} assessment={record} />
+                  ),
+                  expandRowByClick: true,
+
+                  onExpand: (_, record) => {
+                    setExpanded(_);
+                  },
                 }}
                 dataSource={assessments}
               />
