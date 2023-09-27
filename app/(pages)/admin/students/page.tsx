@@ -1,5 +1,5 @@
 "use client";
-import { Button, Col, Row, Space, Spin, Table, Progress } from "antd";
+import { Button, Col, Row, Space, Spin, Table, Progress, Input } from "antd";
 import React, { useEffect, useState } from "react";
 import { LessonService } from "@/app/services/lesson-service";
 import Student from "@/app/dtos/student";
@@ -243,7 +243,9 @@ const StudentInfo = ({ student }: { student: Student }) => {
 
 const Students = () => {
   const [students, setStudents] = useState<Student[]>();
+  const [searchStudents, setSearchStudents] = useState<Student[]>();
   const [columns, setColumns] = useState<any[]>();
+  const [value, setValue] = useState("");
   const [showCreateEditStudent, setShowCreateEditStudent] = useState<{
     show: boolean;
     selectedStudent?: Student | null | undefined;
@@ -251,21 +253,45 @@ const Students = () => {
     show: false,
     selectedStudent: null,
   });
+  const FilterByNameInput = () => {
+    return (
+      <Stack direction={"row"} flex={1} spacing={1} alignItems={"center"}>
+        <MUITypography flex={1}>Title</MUITypography>{" "}
+        <Input.Search
+          style={{ width: 200 }}
+          placeholder="Search Name"
+          onChange={(e) => {
+            const currValue = e.target.value;
+            console.log(currValue);
+            setValue(value + currValue);
 
+            const filteredData: any = students?.filter((entry) =>
+              entry.email.includes(currValue)
+            );
+            if (filteredData.length === 0) {
+              setSearchStudents(students);
+            } else {
+              setSearchStudents(filteredData);
+            }
+          }}
+        />
+      </Stack>
+    );
+  };
   useEffect(() => {
     StudentsService.students().then(({ students, groups }) => {
       setColumns([
         {
-          title: "First Name",
+          title: FilterByNameInput,
           dataIndex: "firstname",
           key: "firstname",
-          sorter: (a: Student, b: Student) =>
-            a.firstname < b.firstname ? -1 : 1,
-          filterMode: "tree",
-          filterSearch: true,
-          onFilter: (input: string, record: Student) =>
-            record.firstname &&
-            record.firstname.toLowerCase() == input.toLowerCase(),
+          // sorter: (a: Student, b: Student) =>
+          //   a.firstname < b.firstname ? -1 : 1,
+          // filterMode: "tree",
+          // filterSearch: true,
+          // onFilter: (input: string, record: Student) =>
+          //   record.firstname &&
+          //   record.firstname.toLowerCase() == input.toLowerCase(),
         },
         {
           title: "Last Name",
@@ -309,6 +335,7 @@ const Students = () => {
       ]);
 
       setStudents(students);
+      setSearchStudents(students);
     });
   }, []);
 
@@ -341,13 +368,13 @@ const Students = () => {
       </Space>
       {students && columns ? (
         <Table
-          dataSource={students}
+          dataSource={searchStudents}
           columns={columns}
           expandable={{
             expandedRowRender: (record) => (
               <p style={{ margin: 0 }}>{<StudentInfo student={record} />}</p>
             ),
-            rowExpandable: () => true,
+            // rowExpandable: () => true,
           }}
         />
       ) : (

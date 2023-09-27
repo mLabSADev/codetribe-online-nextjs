@@ -252,7 +252,7 @@ function Assessments() {
         var rg = /(^\w{1}|\.\s*\w{1})/gi;
         return (
           <Typography variant="body2" sx={{ textDecoration: "" }}>
-            {value.replace(rg, function (value) {
+            {value.replace(rg, function (value: any) {
               return value.toUpperCase();
             })}
           </Typography>
@@ -263,9 +263,11 @@ function Assessments() {
       title: "Chapter",
       dataIndex: "chapter",
       key: "chapter",
-      render: (value: string, record) => {
+      render: (value: string, record: any) => {
         // const filteredAssessments = assessments.filter(assessment => assessment.course === "React");
-        const course = allCourses?.filter((doc) => doc.key === record.course);
+        const course: any = allCourses?.filter(
+          (doc) => doc.key === record.course
+        );
         const title = course[0].chapters[value].title;
         return <Typography variant="body2">{title}</Typography>;
       },
@@ -275,7 +277,7 @@ function Assessments() {
       dataIndex: "group",
       key: "group",
       defaultSortOrder: "ascend",
-      sorter: (a, b) => a.group - b.group,
+      sorter: (a: any, b: any) => a.group - b.group,
     },
     {
       title: "Due Date",
@@ -287,8 +289,8 @@ function Assessments() {
         from.trim();
         const to: string = a[3];
         to.trim();
-        const dateFrom = new Date(from);
-        const dateTo = new Date(to);
+        const dateFrom: any = new Date(from);
+        const dateTo: any = new Date(to);
         const shortMonthName = new Intl.DateTimeFormat("en-US", {
           month: "short",
         }).format;
@@ -308,7 +310,7 @@ function Assessments() {
   ];
 
   const getAssessments = () => {
-    AssessmentService.getAll().then((assessments) => {
+    AssessmentService.getAll().then((assessments: any) => {
       setAssessments(assessments);
     });
   };
