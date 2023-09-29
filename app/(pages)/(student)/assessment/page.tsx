@@ -227,7 +227,7 @@ function Assessments() {
   const router = useRouter();
   const theme = useTheme();
   const nextPathname = usePathname();
-  const columns: TableColumnsType<AssessmentType[]> = [
+  const columns: TableColumnsType<AssessmentType> = [
     {
       title: "Title",
       dataIndex: "title",

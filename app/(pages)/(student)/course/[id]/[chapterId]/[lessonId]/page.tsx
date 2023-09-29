@@ -58,7 +58,7 @@ import { Position } from "@/app/(pages)/(student)/overview/[id]/page";
 import { Editor } from "react-draft-wysiwyg";
 import { EditorState, convertFromRaw } from "draft-js";
 import { AuthService } from "@/app/services/auth-service";
-import { Assessment } from "@/app/services/assessments-service";
+import { AssessmentService } from "@/app/services/assessments-service";
 import CloseIcon from "@mui/icons-material/Close";
 import AssessmentIcon from "@mui/icons-material/Assessment";
 import { Colors, Styles } from "@/app/services/styles";

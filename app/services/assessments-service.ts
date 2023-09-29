@@ -14,7 +14,7 @@ export const AssessmentService = {
       .once("value")
       .then((snapshot) => {
         if (snapshot.val()) {
-          const document: AssessmentType[] = snapshot.val();
+          const document = snapshot.val();
           const keys = Object.keys(document);
 
           return keys.map((key) => {
@@ -70,7 +70,7 @@ export const AssessmentService = {
         .get()
         .then((snapshot) => {
           if (snapshot.val()) {
-            const document: AssessmentType[] = snapshot.val();
+            const document = snapshot.val();
             console.log(key, document);
 
             const keys = Object.keys(document);
