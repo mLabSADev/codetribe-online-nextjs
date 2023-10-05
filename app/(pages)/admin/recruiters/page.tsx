@@ -2,7 +2,7 @@
 
 import { LinkOutlined } from "@ant-design/icons"
 import { Container, Typography } from "@mui/material"
-import { Col, Row } from "antd"
+import { Col, Grid, Row } from "antd"
 
 interface IProfile {
     cover: string
@@ -79,6 +79,9 @@ const Profile = ({
 }
 
 const Recruiters = () => {
+    const { useBreakpoint } = Grid;
+    const screens = useBreakpoint();
+
     const profiles: IProfile[] = [
         {
             name: 'Lucky Hlongwane',
@@ -139,7 +142,7 @@ const Recruiters = () => {
                 <Col span={24}>
                     <div style={{
                     padding: 30,
-                    paddingLeft: 50,
+                    paddingLeft: (screens.xs) ? 30 : 50,
                     borderRadius: 40,
                     backgroundColor: 'rgb(51,71,252)',
                     background: 'linear-gradient(90deg, rgba(51,71,252,1) 0%, rgba(87,167,255,1) 100%)',
@@ -149,7 +152,7 @@ const Recruiters = () => {
                             <div style={{fontSize: '3em'}}>
                             <Typography
                 color={'white'}
-                variant={"h2"}
+                variant={screens.md || screens.lg ? "h2" : "h3"}
                 fontFamily={"K2D"}
               >Meet our<br /> Code<span style={{color: '#61FF61'}}>Tribers</span></Typography></div>
                             <div style={{marginTop: 10}}>
