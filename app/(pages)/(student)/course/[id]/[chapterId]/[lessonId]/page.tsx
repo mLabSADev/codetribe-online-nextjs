@@ -723,7 +723,7 @@ const LessonId = ({
             <Disqus.DiscussionEmbed
               shortname="codetribe-online"
               config={{
-                url: `https://www.codetribe.mlab.co.za/${nextPathname}`,
+                url: `https://codetribe-online-nextjs-mlabsadev.vercel.app/${nextPathname}`,
                 identifier: nextPathname,
                 title: course?.title,
               }}
