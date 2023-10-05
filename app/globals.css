@@ -92,6 +92,14 @@ font-family: "Inter Variable", sans-serif;
   src: url(/fonts/poppins/Poppins-Medium.ttf);
 }
 
+@font-face {
+  font-family: "PoppinsRegular";
+  font-style: normal;
+  font-weight: 200;
+  font-display: swap;
+  src: url(/fonts/poppins/Poppins-Regular.ttf);
+}
+
 /* @font-face {
   font-family: 'K2D';
   font-style: italic;

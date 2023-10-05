@@ -7,6 +7,7 @@ import {
   UserOutlined,
   VideoCameraOutlined,
   BookOutlined,
+  TeamOutlined,
 } from "@ant-design/icons";
 import { Alert, Button, Form, Input } from "antd";
 import Modal from "antd/lib/modal/Modal";
@@ -361,6 +362,14 @@ const Drawer = ({
               onClick={toggleDrawer}
             >
               Assessments
+            </MenuButton>
+            <MenuButton
+              active={activeNav == "recruiters"}
+              to={"/admin/recruiters"}
+              icon={<TeamOutlined />}
+              onClick={toggleDrawer}
+            >
+              For Recruiters
             </MenuButton>
           </Stack>
         )}
