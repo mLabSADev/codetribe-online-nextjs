@@ -2,160 +2,115 @@ import firebase from "firebase";
 import Assessment from "../dtos/assessments";
 import AssessmentSubmission from "../dtos/assessment-submission";
 import { AuthService } from "./auth-service";
-
-export const Assessment = {
+import AssessmentType from "../dtos/assessments";
+const date = new Date()
+export const AssessmentService = {
   getAll: () => {
     return firebase
       .database()
       .ref(`assessments`)
+      .orderByChild('group')
+      .equalTo(date.getFullYear())
       .once("value")
       .then((snapshot) => {
         if (snapshot.val()) {
-          const value = snapshot.val();
-          const keys = Object.keys(value);
+          const document = snapshot.val();
+          const keys = Object.keys(document);
 
           return keys.map((key) => {
-            return {
-              ...value[key],
-              key,
-            };
+            const data: AssessmentType = { ...document[key], key: key }
+            return data;
           });
         }
       });
   },
-  /**
-   * @param {*} id doc id
-   */
-  getOne: (data: any) => {
-    return new Promise((res, rej) => {
-      firebase
+  add: (assessment: Assessment) => {
+    return new Promise((resolve, reject) => {
+      return firebase
         .database()
-        .ref(`assessments/${data.course}/${data.chapter}`)
-        .once("value")
-        .then((snapshot) => {
-          res(snapshot.val());
-        });
-    });
-  },
-  /**
-   * @param {*} data form data
-   */
-  add: (data: Assessment) => {
-    return firebase
-      .database()
-      .ref(`assessments/${data.course}/${data.lesson}`)
-      .set({
-        title: data.title,
-        content: data.content,
-        lesson: data.lesson,
-        created: new Date().toISOString(),
-      });
-  },
-  /**
-   * @param {*} id  doc id
-   */
-  delete: (course: string, id: string) => {
-    return firebase.database().ref(`assessments/${course}/${id}`).remove();
-  },
-  /**
-   * @param {*} id doc id
-   * @param {*} data form data
-   */
-  update: (course: string, assessmentId: string, data: Assessment) => {
-    return firebase
-      .database()
-      .ref(`assessments/${course}/${assessmentId}`)
-      .set({
-        title: data.title,
-        content: data.content,
-        lesson: data.lesson,
-        updated: new Date().toISOString(),
-      });
-  },
-  // assessments/submissions/angular/chapterkey/Thembisa/uid
-  submit: (values: AssessmentSubmission) => {
-    return new Promise((res, rej) => {
-      AuthService.isLoggedIn().then((user: any) => {
-        firebase
-          .database()
-          .ref(
-            `assessments/submissions/${values.course}/${values.chapter}/${user.uid}`
-          )
-          .set(values)
-          .then((data) => {
-            res(data);
-          })
-          .catch((err) => {
-            rej(err);
-          });
-      });
-    });
-  },
-  /**
-   *  FOR STUDENT UI
-   * course: string 'angular'
-   * chapter: string  '-NYIAo4...'
-   * location: string 'Thembisa'
-   */
-  getOneSubmission: (data: Submissions) => {
-    return new Promise((res, rej) => {
-      AuthService.isLoggedIn().then((user: any) => {
-        firebase
-          .database()
-          .ref(
-            `assessments/submissions/${data.course}/${data.chapter}/${user.uid}`
-          )
-          .get()
-          .then((data) => {
-            res(data.val());
-          });
-      });
-    });
-  },
-  /**
-   * course: string 'angular'
-   * chapter: string  '-NYIAo4...'
-   * location: string 'Thembisa'
-   */
-  getAllSubmissionsByCourse: (course: string) => {
-    return new Promise((res, rej) => {
-      firebase
-        .database()
-        .ref(`assessments/submissions/${course}`)
-        .get()
-        .then((data) => {
-          res(data.val());
-        });
-    });
-  },
-  getAllSubmissionsByChapter: (data: any) => {
-    return new Promise((res, rej) => {
-      firebase
-        .database()
-        .ref(`assessments/submissions/${data.course}/${data.chapter}`)
-        .get()
-        .then((data) => {
-          res(data.val());
-        });
-    });
-  },
-  // /assessments/submissions
-  getAllSubmissionsByLocation: (data: any) => {
-    return new Promise((res, rej) => {
-      firebase
-        .database()
-        .ref(`assessments/submissions/${data.course}/${data.chapter}`)
-        .orderByChild("location")
-        .equalTo(data.location?.label || data.location)
-        .get()
-        .then((data) => {
-          res(data.val());
+        .ref(`assessments/${assessment.chapter}--${assessment.group}`)
+        .set(assessment).then(res => {
+          resolve(res)
         })
-        .catch((err) => {
-          rej(err);
-        });
-    });
+    })
+
   },
+  delete: (assessment: Assessment) => {
+    return new Promise((resolve, reject) => {
+      return firebase.database().ref(`assessments/${assessment.chapter}--${assessment.group}`).remove().then(res => {
+        resolve(res)
+      })
+    })
+  },
+  Submissions: {
+    submit: (submission: AssessmentSubmission) => {
+      return new Promise((res, rej) => {
+        AuthService.isLoggedIn().then((user: any) => {
+          firebase
+            .database()
+            .ref(
+              `assessment-submissions/${submission.assessmentKey}--${submission.group}/${submission.uid}`
+            )
+            .set(submission)
+            .then((data) => {
+              res(data);
+            })
+            .catch((err) => {
+              rej(err);
+            });
+        });
+      });
+    },
+    getSubmissions: (key: string) => {
+      return firebase
+        .database()
+        .ref(`assessment-submissions/${key}`)
+        .orderByChild('group')
+        .equalTo(date.getFullYear())
+        .get()
+        .then((snapshot) => {
+          if (snapshot.val()) {
+            const document = snapshot.val();
+            console.log(key, document);
+
+            const keys = Object.keys(document);
+
+            return keys.map((key) => {
+              const data: AssessmentType = { ...document[key], key: key }
+              return data;
+            });
+          } else {
+            return []
+          }
+        });
+
+    },
+    getStudentSubmission: (key: string, uid: string) => {
+      return new Promise((resolve, reject) => {
+        firebase
+          .database()
+          .ref(`assessment-submissions/${key}/${uid}`)
+          .get()
+          .then((snapshot) => {
+            if (snapshot.val()) {
+              resolve(snapshot.val())
+
+            } else {
+              resolve({})
+            }
+          });
+      })
+    }
+  }
+  // assessments/submissions/angular/chapterkey/Thembisa/uid
+
+
+  /**
+   * course: string 'angular'
+   * chapter: string  '-NYIAo4...'
+   * location: string 'Thembisa'
+   */
+
 };
 interface Submission {
   location: string;

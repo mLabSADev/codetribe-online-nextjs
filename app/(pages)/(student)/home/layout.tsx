@@ -18,7 +18,7 @@ import {
 } from "antd";
 import React, { useEffect, useState } from "react";
 import MenuIcon from "@mui/icons-material/Menu";
-import { Button, IconButton } from "@mui/material";
+import { Button, IconButton, Container, AppBar, Toolbar } from "@mui/material";
 import { AuthService } from "@/app/services/auth-service";
 import Drawer from "@/app/components/drawer";
 import EditProfile from "@/app/modals/edit-profile";
@@ -89,24 +89,24 @@ const PageLayout = (props: any) => {
       }}
       hasSider
     >
-      {/* <Layout.Sider collapsedWidth='0' collapsible trigger={null} collapsed={collapsed} open={true}>
-                  <div style={{
-                      background: 'white',
-                      minHeight: '100vh',
-                      position: 'fixed',
-                      width: 0
-                      // minWidth: '100vh'
-                  }}>
-                      <div style={{
-                          position: 'relative',
-                          width: '0px' // TODO drawer
-                      }}>
-                          <Drawer active={active} />
-                      </div>
-                      
-                  </div>
-              </Layout.Sider> */}
-
+      {/* <IconButton
+        size="large"
+        sx={{
+          position: "fixed",
+          top: 10,
+          left: 10,
+          background: "green",
+          zIndex: 15,
+          width: 50,
+          height: 50,
+          borderRadius: "50%",
+          border: 4,
+       
+        }}
+        onClick={toggleMenu}
+      >
+        <MenuIcon />
+      </IconButton> */}
       <ADrawer
         width={300}
         height={"100%"}
@@ -126,28 +126,6 @@ const PageLayout = (props: any) => {
       </ADrawer>
 
       <Layout>
-        <Layout.Header
-          style={{
-            background: "white",
-            padding: 0,
-            position: "relative",
-            height: 0, // was  40
-          }}
-        >
-          {/* <div style={{ */}
-          {/*     display: 'flex', */}
-          {/*     alignItems: 'center', */}
-          {/*     flexDirection: 'row', */}
-          {/*     height: '100%', */}
-          {/*     marginRight: 20 */}
-          {/* }}> */}
-          {/*     <div style={{flex: 1}} /> */}
-          {/*     <span style={{marginRight: 10}}>Course Progress</span> */}
-          {/*     <CourseProgress image={'/images/react.png'} progress={50} course='reactjs' /> */}
-          {/*     <CourseProgress image={'/images/react-native.png'} progress={78} course='react-native' /> */}
-          {/*     <CourseProgress image={'/images/ionic.png'} progress={20} course='ionic' /> */}
-          {/* </div> */}
-        </Layout.Header>
         <Layout.Content
           style={{
             minHeight: "100vh",
@@ -158,159 +136,26 @@ const PageLayout = (props: any) => {
             // backgroundRepeat: "no-repeat",
           }}
         >
-          <div style={{ paddingRight: 20, paddingLeft: 20 }}>
-            {props.children}
-          </div>
+          <AppBar
+            sx={{ zIndex: 5 }}
+            color="transparent"
+            elevation={0}
+            position="sticky"
+          >
+            <Toolbar>
+              <IconButton
+                sx={{ color: "white", backgroundColor: "rgb(130, 200, 3)" }}
+                size="large"
+                onClick={toggleMenu}
+              >
+                <MenuIcon />
+              </IconButton>
+            </Toolbar>
+          </AppBar>
+          <Container>{props.children}</Container>
         </Layout.Content>
       </Layout>
       {showEditProfile && <EditProfile onCancel={onCloseEditProfile} />}
-
-      <IconButton
-        //   size="90"
-        sx={{
-          position: "fixed",
-          top: 10,
-          left: 10,
-          background: "green",
-          zIndex: 15,
-          width: 40,
-          height: 40,
-          borderRadius: "50%",
-          border: "none",
-          color: "white",
-          backgroundColor: "rgb(130, 200, 3)",
-        }}
-        onClick={toggleMenu}
-      >
-        <MenuIcon />
-      </IconButton>
-      {/* <button
-          style={{
-            position: "fixed",
-            top: 10,
-            left: 10,
-            background: "green",
-            width: 40,
-            height: 40,
-            borderRadius: "50%",
-            border: "none",
-            color: "white",
-            backgroundColor: "rgb(130, 200, 3)",
-          }}
-          onClick={toggleMenu}
-        >
-          <MenuOutlined color="white" />
-        </button> */}
-
-      {/* <Modal
-          title="Change Password"
-          open={changePassword}
-          onCancel={() => setChangePassword(false)}
-          okButtonProps={{ style: { display: "none" } }}
-        >
-          {error && (
-            <Alert message={error} type="error" style={{ marginBottom: 10 }} />
-          )}
-          <Form
-            layout="vertical"
-            initialValues={{
-              password: "",
-              confirmPassword: "",
-            }}
-            onFinish={handleChangePassword}
-          >
-            <Form.Item
-              style={{}}
-              label="Current Password"
-              name="currentPassword"
-              rules={[
-                {
-                  required: true,
-                  message: "Current Password required",
-                },
-              ]}
-            >
-              <Input.Password
-                placeholder="Current Password"
-                iconRender={visible =>
-                  visible ? <EyeTwoTone /> : <EyeInvisibleOutlined />
-                }
-                style={{
-                  height: 50,
-                  borderRadius: 10,
-                  borderColor: "rgb(143, 230, 76)",
-                  borderStyle: "solid",
-                  padding: 10,
-  
-                  borderWidth: 2,
-                }}
-              />
-            </Form.Item>
-            <Form.Item
-              style={{}}
-              label="New Password"
-              name="password"
-              rules={[
-                {
-                  required: true,
-                  message: "New Password required",
-                },
-              ]}
-            >
-              <Input.Password
-                placeholder="New Password"
-                iconRender={visible =>
-                  visible ? <EyeTwoTone /> : <EyeInvisibleOutlined />
-                }
-                style={{
-                  height: 50,
-                  borderRadius: 10,
-                  borderColor: "rgb(143, 230, 76)",
-                  borderStyle: "solid",
-                  padding: 10,
-  
-                  borderWidth: 2,
-                }}
-              />
-            </Form.Item>
-  
-            <Button
-              size="large"
-              loading={savingChangePassword}
-              disabled={savingChangePassword}
-              onClick={ignoreClick}
-              style={{
-                background: "rgb(143, 230, 76)",
-                borderStyle: "none",
-                borderRadius: 28,
-                color: "white",
-                cursor: "pointer",
-                width: "100%",
-                marginTop: 20,
-              }}
-            >
-              Keep current password
-            </Button>
-  
-            <Button
-              size="large"
-              loading={savingChangePassword}
-              disabled={savingChangePassword}
-              htmlType="submit"
-              style={{
-                background: "rgb(143, 230, 76)",
-                borderStyle: "none",
-                borderRadius: 28,
-                color: "white",
-                cursor: "pointer",
-                width: "100%",
-                marginTop: 20,
-              }}
-            >
-              Change Password
-            </Button>
-          </Form>
-        </Modal> */}
     </Layout>
   );
 };

@@ -7,7 +7,7 @@ import {
   CheckOutlined,
   LeftOutlined,
 } from "@ant-design/icons";
-import { Button, Col, Collapse, Row, Timeline } from "antd";
+import { Avatar, Button, Col, Collapse, Row, Timeline } from "antd";
 import Lesson from "@/app/dtos/lesson";
 import { useRouter } from "next/navigation";
 import { CoursesService } from "@/app/services/courses-service";
@@ -15,9 +15,23 @@ import Course from "@/app/dtos/course";
 import { LessonService } from "@/app/services/lesson-service";
 import Link from "next/link";
 import { Colors, Styles } from "@/app/services/styles";
-import { Stack, Typography, Box } from "@mui/material";
+import {
+  Stack,
+  Typography,
+  Box,
+  Grid,
+  IconButton,
+  Toolbar,
+  Container,
+  AppBar,
+  Button as MUIButton,
+  ListItem,
+  ListItemButton,
+} from "@mui/material";
 import Image from "next/image";
 import { LazyLoadImage } from "react-lazy-load-image-component";
+import { ArrowBackRounded, Check, CheckRounded } from "@mui/icons-material";
+import { useTheme } from "@emotion/react";
 const DurationHelper = {
   secondsToText: (seconds: number) => {
     let hours = Math.floor(seconds / (60 * 60));
@@ -41,7 +55,33 @@ const DurationHelper = {
     return DurationHelper.secondsToText(total);
   },
 };
+function stringToColor(string: string) {
+  let hash = 0;
+  let i;
 
+  /* eslint-disable no-bitwise */
+  for (i = 0; i < string.length; i += 1) {
+    hash = string.charCodeAt(i) + ((hash << 5) - hash);
+  }
+  let color = "#";
+
+  for (i = 0; i < 3; i += 1) {
+    const value = (hash >> (i * 8)) & 0xff;
+    color += `00${value.toString(16)}`.slice(-2);
+  }
+  /* eslint-enable no-bitwise */
+
+  return color;
+}
+
+function stringAvatar(name: string) {
+  return {
+    sx: {
+      bgcolor: stringToColor(name),
+    },
+    children: `${name.split(" ")[0][0]}${name.split(" ")[1][0]}`,
+  };
+}
 export interface Position {
   chapter: number;
   lesson: number;
@@ -59,6 +99,7 @@ const CourseOverview = ({ params }: { params: { id: string } }) => {
     currentChapter: number;
     currentLesson: number;
   }>();
+  const theme = useTheme();
   //   let currentChapter = post.frontmatter.chapter
   //   let currentLesson = post.frontmatter.lesson
   // const canGoBack = currentChapter > 0
@@ -197,119 +238,119 @@ const CourseOverview = ({ params }: { params: { id: string } }) => {
   // })
 
   return (
-    <Stack p={3} spacing={2}>
+    <Stack p={0} spacing={2}>
+      <AppBar color="inherit" position="sticky" elevation={0}>
+        <Toolbar>
+          <MUIButton
+            size="large"
+            // style={{ ...Styles.Button.Outline, alignSelf: "self-start" }}
+            onClick={() => router.push("/home")}
+          >
+            <ArrowBackRounded />
+          </MUIButton>
+        </Toolbar>
+      </AppBar>
       {course && (
-        <Row>
-          <Col xs={24} sm={24} md={24} lg={24}>
-            <Stack spacing={2}>
-              <Stack position={"fixed"} left={0} right={0} top={0} p={4}>
-                <Button
-                  size="large"
-                  style={{ ...Styles.Button.Outline, alignSelf: "self-start" }}
-                  onClick={() => router.push("/home")}
-                >
-                  <LeftOutlined />
-                </Button>
-              </Stack>
+        <Stack direction={{ sm: "column", md: "row" }}>
+          <Container>
+            <Stack spacing={2} pb={3}>
               <Box
-                pt={5}
                 width={"100%"}
                 height={460}
                 borderRadius={3}
                 overflow={"hidden"}
+                bgcolor={"whitesmoke"}
               >
+                {/* There should be an introduction video here */}
                 <LazyLoadImage
                   src={course.imageUrl}
                   alt={course.title}
                   style={{
                     width: "100%",
                     height: "100%",
-                    objectFit: "cover",
+                    objectFit: "contain",
                   }}
                 />
               </Box>
-
-              <Stack spacing={3}>
-                <Typography variant="h3">{course.title}</Typography>
-                <Button
-                  size="large"
-                  style={{ ...Styles.Button.Filled, alignSelf: "self-start" }}
-                  onClick={startCourse}
+              <Stack
+                direction={{ sm: "column", md: "column", lg: "row" }}
+                alignItems={{
+                  sm: "flex-start",
+                  md: "flex-start",
+                  lg: "center",
+                }}
+                spacing={3}
+              >
+                <Stack spacing={3} flex={1}>
+                  <Typography variant="h3">{course.title}</Typography>
+                </Stack>
+                <Stack
+                  direction={"row"}
+                  alignItems={"center"}
+                  spacing={1}
+                  p={2}
                 >
-                  {"View Course"}
-                </Button>
-              </Stack>
-              <Stack spacing={2} py={2} pt={5}>
-                <Typography variant="h5">What you will learn</Typography>
-                <div
-                  style={{
-                    overflow: "hidden",
-                    marginTop: 20,
-                  }}
-                  dangerouslySetInnerHTML={{ __html: course.excerpt }}
-                ></div>
+                  <Avatar {...stringAvatar(course.author)} size={40} />
+                  <Stack>
+                    <Typography variant="subtitle1">{course.author}</Typography>
+                    <Typography color={"GrayText"} variant="body2">
+                      Instructor
+                    </Typography>
+                  </Stack>
+                </Stack>
+                <Stack
+                  spacing={3}
+                  flex={1}
+                  justifyItems={"flex-end"}
+                  alignItems={"flex-end"}
+                  justifyContent={"flex-end"}
+                  alignContent={"flex-end"}
+                >
+                  <Button
+                    size="large"
+                    style={{ ...Styles.Button.Filled, alignSelf: "self-end" }}
+                    onClick={startCourse}
+                  >
+                    {"View Course"}
+                  </Button>
+                </Stack>
               </Stack>
 
-              <div style={{ marginTop: 20 }}>
-                <Row>
+              <Stack spacing={2} py={2}>
+                <Typography variant="h5">What you will learn</Typography>
+                <Typography>{course.excerpt}</Typography>
+              </Stack>
+              <Stack pt={2}>
+                <Grid container gap={0}>
                   {course.outline.map((overview: string, key: number) => {
                     return (
-                      <Col key={key} xs={24} sm={24} md={12}>
+                      <Grid item key={key} xs={12} sm={12} md={12} lg={6}>
                         <Stack
                           direction={"row"}
-                          style={{
-                            background: "rgba(38, 38, 38, 0.05)",
-                            borderRadius: 20,
-                            padding: 20,
-                            marginBottom: 20,
-                            marginRight: 20,
-                            display: "flex",
-                            alignItems: "center",
-                          }}
+                          p={2}
+                          m={1}
+                          bgcolor={"rgba(38, 38, 38, 0.05)"}
+                          borderRadius={3}
+                          alignItems={"center"}
                         >
-                          <CheckOutlined
-                            style={{
-                              marginRight: 15,
-                              color: "green",
-                            }}
-                          />
+                          <IconButton>
+                            <CheckRounded />
+                          </IconButton>
                           <Typography variant="body2"> {overview}</Typography>
                         </Stack>
-                      </Col>
+                      </Grid>
                     );
                   })}
-                  {/* {(course.outline.split("\n") || [])
-                    .filter((outline) => outline.trim().length > 0)
-                    .map((overview) => {
-                      return (
-                        <Col xs={24} sm={24} md={12}>
-                          <div
-                            style={{
-                              background: "#dfdfdf",
-                              borderRadius: 20,
-                              padding: 20,
-                              marginBottom: 20,
-                              marginRight: 20,
-                              display: "flex",
-                              alignItems: "center",
-                            }}
-                          >
-                            <CheckOutlined
-                              style={{
-                                marginRight: 15,
-                                color: "green",
-                              }}
-                            />
-                            {overview}
-                          </div>
-                        </Col>
-                      );
-                    })} */}
-                </Row>
-              </div>
+                </Grid>
+              </Stack>
             </Stack>
-          </Col>
-          <Col xs={24} sm={24} md={24} lg={24}>
+          </Container>
+
+          <Stack
+            minWidth={{ sm: 250, md: 300, lg: 500 }}
+            py={3}
+            px={{ md: 3, lg: 0 }}
+          >
             <Stack
               spacing={2}
               style={{
@@ -320,7 +361,7 @@ const CourseOverview = ({ params }: { params: { id: string } }) => {
               }}
             >
               <Typography variant="h5">Course Content</Typography>
-              <Stack></Stack>
+
               <Collapse
                 style={{
                   borderStyle: "none",
@@ -370,51 +411,72 @@ const CourseOverview = ({ params }: { params: { id: string } }) => {
                           {chapter.lessons.map((lesson, key) => {
                             return (
                               <Timeline.Item
-                                style={{ background: "transparent" }}
+                                style={{
+                                  background: "transparent",
+                                  marginTop: 0,
+                                  marginBottom: 0,
+                                  paddingBottom: 1,
+                                }}
                                 key={key}
                                 dot={
-                                  <div
-                                    style={{
-                                      width: "100%",
-                                      height: "100%",
-                                      background: isLegalPage(lesson)
+                                  <Stack
+                                    width={25}
+                                    height={25}
+                                    borderRadius={30}
+                                    border={2}
+                                    bgcolor={"white"}
+                                    borderColor={
+                                      isLegalPage(lesson)
                                         ? "#97CA42"
-                                        : "#dfdfdf",
-                                      padding: 2,
-                                      borderRadius: 5,
-                                    }}
-                                  >
-                                    {
-                                      <CheckOutlined
-                                        style={{
-                                          color: isLegalPage(lesson)
-                                            ? "white"
-                                            : "#dfdfdf",
-                                          background: "transparent",
-                                        }}
-                                      />
+                                        : "#dfdfdf"
                                     }
-                                  </div>
+                                    alignItems={"center"}
+                                    justifyContent={"center"}
+                                  >
+                                    {isLegalPage(lesson) && (
+                                      <Check sx={{ color: "#97CA42" }} />
+                                    )}
+                                  </Stack>
                                 }
                               >
                                 {/* <Link style={{color: lesson.current ? '#97CA42' : '#606060', fontWeight: lesson.current ? 'bold' : 'normal'}}>{lesson.frontmatter.title} ({DurationHelper.timeFormatToText(lesson.frontmatter.duration)})</Link> */}
-                                <Link
+                                {/* <Link
                                   href={""}
+
                                   style={{
                                     color: "#606060",
                                   }}
+                                > */}
+                                <ListItem
+                                  disableGutters
+                                  disablePadding
+                                  sx={{
+                                    transform: "translate(0px, -12px)",
+                                  }}
                                 >
-                                  <Stack flex={1} direction={"row"}>
-                                    <Typography flex={1} variant="body1">
-                                      {lesson.title}
-                                    </Typography>
-                                    <Typography variant="overline">
-                                      {DurationHelper.timeFormatToText(
-                                        lesson.duration
-                                      )}
-                                    </Typography>
-                                  </Stack>
-                                </Link>
+                                  <ListItemButton
+                                    disableGutters
+                                    onClick={() => {
+                                      startCourse();
+                                    }}
+                                  >
+                                    <Stack
+                                      flex={1}
+                                      direction={"row"}
+                                      alignItems={"center"}
+                                      px={2}
+                                    >
+                                      <Typography flex={1} variant="body1">
+                                        {lesson.title}
+                                      </Typography>
+                                      <Typography variant="overline">
+                                        {DurationHelper.timeFormatToText(
+                                          lesson.duration
+                                        )}
+                                      </Typography>
+                                    </Stack>
+                                  </ListItemButton>
+                                </ListItem>
                               </Timeline.Item>
                             );
                           })}
@@ -425,17 +487,8 @@ const CourseOverview = ({ params }: { params: { id: string } }) => {
                 })}
               </Collapse>
             </Stack>
-            <Stack py={3}>
-              <Button
-                size="large"
-                style={{ ...Styles.Button.Filled, alignSelf: "self-start" }}
-                onClick={startCourse}
-              >
-                {"View Course"}
-              </Button>
-            </Stack>
-          </Col>
-        </Row>
+          </Stack>
+        </Stack>
       )}
     </Stack>
   );

@@ -5,13 +5,15 @@ import { CodeOutlined } from "@ant-design/icons";
 import Course from "../dtos/course";
 import { useRouter } from "next/navigation";
 import Image from "next/image";
+import { List } from "@mui/icons-material";
 import { CoursesService } from "../services/courses-service";
-import { Chip, Stack } from "@mui/material";
+import { Chip, Grid, Stack } from "@mui/material";
 import { LazyLoadImage } from "react-lazy-load-image-component";
 const { Meta } = Card;
 
 const CourseCard = ({ course }: { course: Course }) => {
   const [loadFinished, setLoadFinished] = useState(false);
+  const [lessons, setLessons] = useState(0);
   const router = useRouter();
 
   const handleClick = () => {
@@ -19,15 +21,23 @@ const CourseCard = ({ course }: { course: Course }) => {
   };
 
   const share = () => {};
+  useEffect(() => {
+    setLessons(Object.entries(course.chapters).length);
+  }, []);
   if (course.title) {
     return (
       <Card
         hoverable
-        style={{ width: 400, borderRadius: 20, overflow: "hidden" }}
+        style={{
+          width: "100%",
+          borderRadius: 20,
+          overflow: "hidden",
+        }}
         cover={
           <LazyLoadImage
             alt={course.title}
             src={course.imageUrl}
+            style={{ objectFit: "cover", background: "lightgray" }}
             height={200}
           />
         }
@@ -46,6 +56,11 @@ const CourseCard = ({ course }: { course: Course }) => {
       >
         <Meta title={course.title} description={course.excerpt} />
         <Stack py={2} spacing={1}>
+          <Chip
+            sx={{ alignSelf: "flex-start", alignItems: "center" }}
+            icon={<List />}
+            label={`${lessons} Sections`}
+          ></Chip>
           <Chip
             sx={{ alignSelf: "flex-start" }}
             size="small"
@@ -85,27 +100,18 @@ const TutorialListing = ({ type, category, limit }: ITutorialListing) => {
   // }
 
   return (
-    <div>
-      <Space wrap align="center">
+    <Stack>
+      <Grid container>
         {courses.length > 0 &&
           courses.map((post, index) => (
-            <Col
-              key={index}
-              sm={24}
-              md={12}
-              lg={12}
-              xl={8}
-              style={{
-                paddingLeft: 10,
-                paddingRight: 10,
-                paddingBottom: 10,
-              }}
-            >
-              <CourseCard course={post} />
-            </Col>
+            <Grid key={index} item sm={12} md={6} lg={4}>
+              <Stack width={"100%"} p={1}>
+                <CourseCard course={post} />
+              </Stack>
+            </Grid>
           ))}
-      </Space>
-    </div>
+      </Grid>
+    </Stack>
   );
 };
 

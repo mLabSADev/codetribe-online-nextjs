@@ -126,7 +126,7 @@ const Signin = () => {
   const [showForgotPassword, setShowForgotPassword] = useState(false);
   const [bgLink, setBGLink] = useState({
     link: "https://my.spline.design/abstractgradientbackground-ae8ec1cf1d3539574dc82e8925f79a95",
-    color: "black",
+    color: "white",
   });
   const [signInMethod, setSignInMethod] = useState<
     "new-user" | "existing-user"
@@ -204,34 +204,14 @@ const Signin = () => {
   const onCloseForgotPassword = () => {
     setShowForgotPassword(false);
   };
-  const RunBGFunc = () => {
-    const links = [
-      {
-        link: "https://my.spline.design/textdesignamazing-ec110a8793e2b183f03490dd3d3fafc5/",
-        color: "white",
-      },
-      {
-        link: "https://my.spline.design/abstractgradientbackground-ae8ec1cf1d3539574dc82e8925f79a95/",
-        color: "black",
-      },
-      {
-        link: "https://my.spline.design/dna-e81e566cdc6122a9727be890f316b28d/",
-        color: "white",
-      },
-      {
-        link: "https://my.spline.design/typegraveyard03-b53d5f44964d33717d2b7818154cf07b/",
-        color: "white",
-      },
-      {
-        link: "https://my.spline.design/cybersamurai-49ea362c364514cbac86265ea1f41839/",
-        color: "white",
-      },
-    ];
-    const index = Math.floor(Math.random() * links.length);
-    setBGLink(links[index]);
-  };
+
   useEffect(() => {
-    // RunBGFunc();
+    AuthService.currentUser().then((res) => {
+      if (res !== -1) {
+        console.log(res);
+        onLoggedIn(res);
+      }
+    });
   }, []);
   return (
     <Stack
@@ -245,29 +225,10 @@ const Signin = () => {
       overflow={{ xs: "auto", sm: "auto", md: "auto", lg: "hidden" }}
       sx={{
         background:
-          "linear-gradient(227deg, #fffedb 0%, hsl(283, 100%, 88%) 100%)",
+          "linear-gradient(90deg, rgba(17,220,172,1) 0%, rgba(17,221,152,0.9) 44%, rgba(0,255,190,1) 100%),url(https://images.unsplash.com/photo-1674027444485-cec3da58eef4?ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D&auto=format&fit=crop&w=1932&q=80)",
       }}
     >
-      {/* <Box position={"absolute"} bottom={10} left={10} zIndex={5}>
-        <Fab
-          onClick={() => {
-            RunBGFunc();
-          }}
-          color="inherit"
-          size="small"
-        >
-          <RefreshIcon />
-        </Fab>
-      </Box> */}
-      <Box position={"absolute"} top={0} left={0} right={0} bottom={0}>
-        <iframe
-          style={{ border: 0 }}
-          src={bgLink.link}
-          // frameborder="0"
-          width="100%"
-          height="100%"
-        ></iframe>
-      </Box>
+      <Box position={"absolute"} top={0} left={0} right={0} bottom={0}></Box>
       <Stack
         direction={{ xs: "column", sm: "column", md: "column", lg: "row" }}
         flex={1}
@@ -341,7 +302,9 @@ const Signin = () => {
               width={{ sm: 300, md: 400, lg: "100%" }}
               sx={{ transform: "translate(0px, 0px)", zIndex: 0 }}
             >
-              <img
+              <Image
+                width={90}
+                height={90}
                 alt=""
                 style={{ width: "100%", height: "100%", objectFit: "contain" }}
                 src="/images/login-illustration.png"
@@ -367,7 +330,9 @@ const Signin = () => {
             p={5}
           >
             {/* logo */}
-            <img
+            <Image
+              width={90}
+              height={90}
               alt=""
               src="/images/mlab.png"
               style={{ height: 40, objectFit: "contain" }}

@@ -25,6 +25,13 @@ export const ProfileService = {
     },
 
     updateProfile: (uid: string, profile: any) => {
-        return firebase.database().ref(`users/${uid}`).update(profile)
+        return new Promise((resolve, reject) => {
+            return firebase.database().ref(`users/${uid}`).update(profile).then(res => {
+                resolve(res)
+            }).catch(err => {
+                reject(err)
+            })
+        })
+
     }
 }

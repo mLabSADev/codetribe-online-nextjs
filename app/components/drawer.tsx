@@ -3,6 +3,7 @@ import {
   EditOutlined,
   PoweroffOutlined,
   UnorderedListOutlined,
+  CodeOutlined,
   VideoCameraAddOutlined,
   UserOutlined,
   VideoCameraOutlined,
@@ -18,7 +19,17 @@ import { ProfileService } from "../services/profile-service";
 import Link from "next/link";
 import { useRouter } from "next/navigation";
 import { Styles } from "../services/styles";
-import { Stack, Avatar, Typography, Box } from "@mui/material";
+import {
+  Stack,
+  Avatar,
+  Typography,
+  Box,
+  Divider,
+  IconButton,
+  Badge,
+  styled,
+} from "@mui/material";
+import { Edit } from "@mui/icons-material";
 import { usePathname } from "next/navigation";
 interface IMenuButton {
   children: any;
@@ -64,10 +75,10 @@ const MenuButton = ({
   icon,
   onClick,
 }: IMenuButton) => {
-  const router = useRouter()
+  const router = useRouter();
 
   return (
-    <a href={to ? to : ''}>
+    <a href={to ? to : ""}>
       {active ? (
         <Button
           type={"default"}
@@ -168,6 +179,11 @@ const Drawer = ({
       });
     // console.log(values);
   };
+  const SmallAvatar = styled(Avatar)(({ theme }) => ({
+    width: 22,
+    height: 22,
+    border: `2px solid ${theme.palette.background.paper}`,
+  }));
 
   return (
     <Stack height={"100%"} position={"relative"} spacing={2} flex={1}>
@@ -309,11 +325,24 @@ const Drawer = ({
       </Modal>
       {/* User Profile */}
       <Stack alignItems={"center"} justifyContent={"center"} py={5}>
-        <Avatar
-          {...stringAvatar(
-            `${profile?.firstname || "C"} ${profile?.lastname || "T"}`
-          )}
-        />
+        <IconButton onClick={onOpenEditProfile}>
+          <Badge
+            overlap="circular"
+            anchorOrigin={{ vertical: "bottom", horizontal: "right" }}
+            badgeContent={
+              <SmallAvatar>
+                <Edit sx={{ width: 15 }}></Edit>
+              </SmallAvatar>
+            }
+          >
+            <Avatar
+              {...stringAvatar(
+                `${profile?.firstname || "C"} ${profile?.lastname || "T"}`
+              )}
+            />
+          </Badge>
+        </IconButton>
+
         <Typography variant="h6">
           {profile?.firstname} {profile?.lastname}
         </Typography>
@@ -321,7 +350,6 @@ const Drawer = ({
         <Typography variant="body2">
           {profile?.role == "facilitator" ? "Facilitator" : profile?.location}
         </Typography>
-        <EditOutlined onClick={onOpenEditProfile} />
       </Stack>
 
       {/* Navigation links */}
@@ -336,9 +364,19 @@ const Drawer = ({
         >
           Browse
         </MenuButton>
+        <MenuButton
+          active={activeNav == "assessment"}
+          to={"/assessment"}
+          icon={<BookOutlined />}
+          onClick={toggleDrawer}
+        >
+          Assessments
+        </MenuButton>
+
         {/* Links for facilitator */}
         {profile?.role == "facilitator" && (
           <Stack flex={1} spacing={1}>
+            <Divider>Admin</Divider>
             <MenuButton
               active={activeNav == "students"}
               to={"/admin/students"}
